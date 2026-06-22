@@ -28,6 +28,8 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   const customerLinks = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/my-bookings", label: "Bookings", icon: Calendar },
@@ -41,46 +43,57 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       {/* Brand */}
-      <Link to="/" className="navbar-brand">
+      <Link to="/" className="navbar-brand" onClick={closeMenu}>
         <Scissors size={22} strokeWidth={2.5} style={{ color: "var(--brand-accent)" }} />
         <span>Ezy<span>Cut</span></span>
       </Link>
 
-      {/* Desktop Nav */}
-      <div className="navbar-links" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+      {/* Mobile toggle */}
+      <button
+        className="btn btn-outline btn-icon navbar-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+        aria-expanded={menuOpen}
+      >
+        {menuOpen ? <X size={18} /> : <Menu size={18} />}
+      </button>
+
+      {/* Nav links (desktop row / mobile dropdown) */}
+      <div className={`navbar-links ${menuOpen ? "open" : ""}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         {!token ? (
           <>
-            <NavLink to="/salons" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <NavLink to="/salons" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
               Explore
             </NavLink>
-            <NavLink to="/track" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <NavLink to="/track" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
               Track Queue
             </NavLink>
-            <NavLink to="/login" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <NavLink to="/login" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
               Login
             </NavLink>
-            <Link to="/register" className="btn btn-primary" style={{ marginLeft: "0.25rem" }}>
+            <Link to="/register" className="btn btn-primary" style={{ marginLeft: "0.25rem" }} onClick={closeMenu}>
               Get Started
             </Link>
           </>
         ) : (
           <>
-            <NavLink to="/salons" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <NavLink to="/salons" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
               Salons
             </NavLink>
-            <NavLink to="/track" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <NavLink to="/track" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
               Track Queue
             </NavLink>
 
             {/* Customer links */}
             {user?.role === "customer" && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <div className="navbar-customer-links" style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                 {customerLinks.map(({ to, label }) => (
                   <NavLink
                     key={to}
                     to={to}
                     className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
                     style={{ fontSize: "0.8125rem" }}
+                    onClick={closeMenu}
                   >
                     {label}
                   </NavLink>
@@ -91,27 +104,27 @@ const Navbar = () => {
             {/* Owner dashboard + profile/notifications */}
             {user?.role === "salon_owner" && (
               <>
-                <Link to="/owner/dashboard" className="btn btn-primary btn-sm" style={{ marginLeft: "0.25rem" }}>
+                <Link to="/owner/dashboard" className="btn btn-primary btn-sm" style={{ marginLeft: "0.25rem" }} onClick={closeMenu}>
                   <LayoutDashboard size={14} />
                   Dashboard
                 </Link>
-                <NavLink to="/notifications" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} style={{ fontSize: "0.8125rem" }}>
+                <NavLink to="/notifications" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} style={{ fontSize: "0.8125rem" }} onClick={closeMenu}>
                   <Bell size={14} />
                 </NavLink>
-                <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} style={{ fontSize: "0.8125rem" }}>
+                <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} style={{ fontSize: "0.8125rem" }} onClick={closeMenu}>
                   Profile
                 </NavLink>
               </>
             )}
             {user?.role === "admin" && (
-              <Link to="/admin/dashboard" className="btn btn-primary btn-sm" style={{ marginLeft: "0.25rem" }}>
+              <Link to="/admin/dashboard" className="btn btn-primary btn-sm" style={{ marginLeft: "0.25rem" }} onClick={closeMenu}>
                 <LayoutDashboard size={14} />
                 Admin Panel
               </Link>
             )}
 
             {/* User info + logout */}
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "0.5rem", paddingLeft: "0.75rem", borderLeft: "1px solid var(--gray-200)" }}>
+            <div className="navbar-user" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "0.5rem", paddingLeft: "0.75rem", borderLeft: "1px solid var(--gray-200)" }}>
               <div style={{
                 width: "2rem", height: "2rem", borderRadius: "50%",
                 background: "var(--brand-primary)", color: "white",
@@ -128,16 +141,6 @@ const Navbar = () => {
           </>
         )}
       </div>
-
-      {/* Mobile toggle */}
-      <button
-        className="btn btn-outline btn-icon"
-        style={{ display: "none" }}
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Toggle menu"
-      >
-        {menuOpen ? <X size={18} /> : <Menu size={18} />}
-      </button>
     </nav>
   );
 };
