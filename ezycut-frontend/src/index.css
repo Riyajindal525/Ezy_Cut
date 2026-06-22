@@ -3162,3 +3162,634 @@ tbody tr:hover {
     display: inline-flex !important;
   }
 }
+
+
+
+/* ===================================================== */
+/* LOGIN PAGE — Black & Golden theme + responsive layout */
+/* ===================================================== */
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #0a0a0a;
+}
+
+/* ---------- Left Panel (Brand) ---------- */
+.login-brand-panel {
+  background: linear-gradient(135deg, #0a0a0a 0%, #161109 55%, #0a0a0a 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.login-glow-top {
+  top: 10%;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, transparent 70%);
+}
+
+.login-glow-bottom {
+  bottom: 10%;
+  left: -60px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+}
+
+.login-brand-content {
+  position: relative;
+  max-width: 360px;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 3rem;
+}
+
+.login-logo-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--brand-accent, #d4af37);
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.login-heading {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+
+.login-subtext {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.login-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  margin-bottom: 0.625rem;
+}
+
+.login-feature-check {
+  width: 1.25rem;
+  height: 1.25rem;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  color: var(--brand-accent, #d4af37);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ---------- Right Panel (Form) ---------- */
+.login-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #0f0f0f;
+}
+
+.login-form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-form-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.login-form-subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.9375rem;
+}
+
+.login-link {
+  color: var(--brand-accent, #d4af37);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+.login-form-label {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.login-input {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: white !important;
+}
+
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.login-input:focus {
+  border-color: var(--brand-accent, #d4af37) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  outline: none;
+}
+
+.login-eye-toggle {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.login-eye-toggle:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.login-submit-btn {
+  height: 2.875rem;
+  font-size: 0.9375rem;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* ---------- Notices ---------- */
+.login-notice {
+  border-radius: var(--radius, 8px);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.login-notice-warning {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #d4af37;
+}
+
+.login-notice-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+/* ===================================================== */
+/* RESPONSIVE                                             */
+/* ===================================================== */
+
+@media (max-width: 1024px) {
+  .login-brand-panel {
+    padding: 3rem;
+  }
+
+  .login-heading {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand-panel {
+    padding: 2.5rem 2rem;
+    min-height: 280px;
+  }
+
+  .login-brand-content {
+    max-width: 100%;
+  }
+
+  .login-heading {
+    font-size: 1.75rem;
+  }
+
+  .login-subtext {
+    margin-bottom: 1.25rem;
+  }
+
+  .login-feature-item {
+    display: none;
+  }
+
+  .login-form-panel {
+    padding: 2rem 1.5rem 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-brand-panel {
+    padding: 2rem 1.25rem;
+    min-height: 220px;
+  }
+
+  .login-logo {
+    margin-bottom: 1.5rem;
+  }
+
+  .login-heading {
+    font-size: 1.5rem;
+  }
+
+  .login-subtext {
+    font-size: 0.875rem;
+  }
+
+  .login-form-panel {
+    padding: 1.75rem 1.25rem 2.5rem;
+  }
+
+  .login-form-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* ===================================================== */
+/* REGISTER PAGE — Black & Golden theme + responsive      */
+/* ===================================================== */
+
+.register-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #0a0a0a;
+}
+
+/* ---------- Left Panel (Brand) ---------- */
+.register-brand-panel {
+  background: linear-gradient(135deg, #0a0a0a 0%, #161109 60%, #0a0a0a 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-glow {
+  position: absolute;
+  top: 10%;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.register-brand-content {
+  position: relative;
+  max-width: 360px;
+}
+
+.register-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 3rem;
+}
+
+.register-logo-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--brand-accent, #d4af37);
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.register-heading {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+
+.register-subtext {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.register-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  margin-bottom: 0.625rem;
+}
+
+.register-feature-check {
+  width: 1.25rem;
+  height: 1.25rem;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  color: var(--brand-accent, #d4af37);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ---------- Right Panel (Form) ---------- */
+.register-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #0f0f0f;
+  overflow-y: auto;
+}
+
+.register-form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.register-form-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.register-form-subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.9375rem;
+}
+
+.register-link {
+  color: var(--brand-accent, #d4af37);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+.register-form-label {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.register-input {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: white !important;
+}
+
+.register-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.register-input:focus {
+  border-color: var(--brand-accent, #d4af37) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  outline: none;
+}
+
+.register-eye-toggle {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.register-eye-toggle:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.register-submit-btn {
+  height: 2.875rem;
+  font-size: 0.9375rem;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* ---------- Role Selector ---------- */
+.register-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.register-role-btn {
+  padding: 0.875rem;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md, 10px);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.register-role-btn:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.register-role-btn.active {
+  border-color: var(--brand-accent, #d4af37);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.register-role-icon {
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.375rem;
+  display: block;
+}
+
+.register-role-btn.active .register-role-icon {
+  color: var(--brand-accent, #d4af37);
+}
+
+.register-role-label {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.register-role-btn.active .register-role-label {
+  color: var(--brand-accent, #d4af37);
+}
+
+.register-role-desc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---------- Notices ---------- */
+.register-notice {
+  border-radius: var(--radius, 8px);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.register-notice-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+/* ===================================================== */
+/* RESPONSIVE                                             */
+/* ===================================================== */
+
+@media (max-width: 1024px) {
+  .register-brand-panel {
+    padding: 3rem;
+  }
+
+  .register-heading {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .register-page {
+    grid-template-columns: 1fr;
+  }
+
+  .register-brand-panel {
+    padding: 2.5rem 2rem;
+    min-height: 240px;
+  }
+
+  .register-brand-content {
+    max-width: 100%;
+  }
+
+  .register-heading {
+    font-size: 1.75rem;
+  }
+
+  .register-subtext {
+    margin-bottom: 1.25rem;
+  }
+
+  .register-feature-item {
+    display: none;
+  }
+
+  .register-form-panel {
+    padding: 2rem 1.5rem 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-brand-panel {
+    padding: 2rem 1.25rem;
+    min-height: 200px;
+  }
+
+  .register-logo {
+    margin-bottom: 1.5rem;
+  }
+
+  .register-heading {
+    font-size: 1.5rem;
+  }
+
+  .register-subtext {
+    font-size: 0.875rem;
+  }
+
+  .register-form-panel {
+    padding: 1.75rem 1.25rem 2.5rem;
+  }
+
+  .register-form-title {
+    font-size: 1.5rem;
+  }
+
+  .register-role-grid {
+    gap: 0.5rem;
+  }
+
+  .register-role-btn {
+    padding: 0.625rem;
+  }
+
+  .register-role-desc {
+    display: none;
+  }
+}
