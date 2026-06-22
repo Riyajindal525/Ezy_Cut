@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EzyCut Payment Test</title>
+</head>
+<body>
+
+  <h2>EzyCut Razorpay Test</h2>
+
+  <button onclick="payNow()">
+    Pay ₹1
+  </button>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    async function payNow() {
+
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMWFiMzk3NDg3ZjVhNzcyNzBhYTFlMyIsImlhdCI6MTc4MTA5MTIwOCwiZXhwIjoxNzgxNjk2MDA4fQ._9OGXHsmMLBUuFHlKsE-H1qlR_tgrImgrznYqwo17vg";
+
+      try {
+
+        const createOrder =
+          await fetch(
+            "http://localhost:5000/api/payments/create-order",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Authorization:
+                  `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                salonId:
+                  "6a1ab4de487f5a77270aa1e6",
+
+                serviceId:
+                  "6a27f62b9cd5923382cddf02",
+
+                bookingDate:
+                  "2026-06-25",
+
+                startTime:
+                  "16:00",
+
+                notes:
+                  "Refund Flow Testing",
+              }),
+            }
+          );
+
+        const orderData =
+          await createOrder.json();
+
+        console.log(
+          "Order Response:",
+          orderData
+        );
+
+        if (!orderData.success) {
+          alert(
+            orderData.message ||
+            "Order creation failed"
+          );
+          return;
+        }
+
+        const options = {
+
+          key:
+            orderData.order.key,
+
+          amount:
+            orderData.order.amount,
+
+          currency:
+            orderData.order.currency,
+
+          order_id:
+            orderData.order.orderId,
+
+          name:
+            "EzyCut",
+
+          description:
+            "Salon Booking",
+
+          handler:
+            async function (
+              response
+            ) {
+
+              try {
+
+                const verify =
+                  await fetch(
+                    "http://localhost:5000/api/payments/verify",
+                    {
+                      method:
+                        "POST",
+
+                      headers: {
+                        "Content-Type":
+                          "application/json",
+
+                        Authorization:
+                          `Bearer ${token}`,
+                      },
+
+                      body:
+                        JSON.stringify({
+
+                          paymentId:
+                            orderData.order.paymentId,
+
+                          razorpay_order_id:
+                            response.razorpay_order_id,
+
+                          razorpay_payment_id:
+                            response.razorpay_payment_id,
+
+                          razorpay_signature:
+                            response.razorpay_signature,
+                        }),
+                    }
+                  );
+
+                const result =
+                  await verify.json();
+
+                console.log(
+                  "Verify Response:",
+                  result
+                );
+
+                if (
+                  result.success
+                ) {
+
+                  alert(
+                    `Payment Verified Successfully
+
+Booking ID:
+${result.booking._id}
+
+Payment ID:
+${result.payment._id}`
+                  );
+
+                } else {
+
+                  alert(
+                    result.message
+                  );
+                }
+
+              } catch (error) {
+
+                console.error(
+                  error
+                );
+
+                alert(
+                  "Payment verification failed"
+                );
+              }
+            },
+        };
+
+        const rzp =
+          new Razorpay(
+            options
+          );
+
+        rzp.open();
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+        alert(
+          "Order creation failed"
+        );
+      }
+    }
+  </script>
+
+</body>
+</html>
