@@ -3150,3 +3150,15 @@ tbody tr:hover {
     gap: 1.75rem !important;
   }
 }
+
+/* Base — yeh pehle aana chahiye */
+.navbar-toggle {
+  display: none;
+}
+
+/* Media query — yeh baad mein, aur isi file ke neeche */
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: inline-flex !important;
+  }
+}
