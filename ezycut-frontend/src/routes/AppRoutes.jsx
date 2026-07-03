@@ -11,6 +11,7 @@ import Register from "../pages/public/Register";
 import Salons from "../pages/public/Salons";
 import SalonDetails from "../pages/public/SalonDetails";
 import QueueTracker from "../pages/public/QueueTracker";
+import Terms from "../pages/public/Terms";
 
 // Customer Pages
 import Booking from "../pages/public/Booking";
@@ -54,6 +55,7 @@ const AppRoutes = () => {
           <Route path="/salons/:id" element={<SalonDetails />} />
           <Route path="/track" element={<QueueTracker />} />
           <Route path="/track/:tokenCode" element={<QueueTracker />} />
+          <Route path="/terms" element={<Terms />} />
         </Route>
 
         {/* Auth routes (no Navbar/Footer layout) */}

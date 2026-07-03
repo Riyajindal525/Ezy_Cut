@@ -92,6 +92,7 @@ const Footer = () => {
                 { to: "/salons", label: "Browse Salons" },
                 { to: "/my-bookings", label: "My Bookings" },
                 { to: "/track", label: "Live Queue status" },
+                { to: "/terms", label: "Privacy & Terms" },
               ].map(({ to, label }) => (
                 <Link
                   key={to}
@@ -131,7 +132,7 @@ const Footer = () => {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <Phone size={16} style={{ color: "var(--brand-accent)", flexShrink: 0 }} />
-                <span>+91 9876543210</span>
+                <span>+91 9476363907</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <Mail size={16} style={{ color: "var(--brand-accent)", flexShrink: 0 }} />
@@ -155,8 +156,8 @@ const Footer = () => {
         }}>
           <span>© 2026 EzyCut. All rights reserved. Made for elite grooming experiences.</span>
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            <Link to="#" style={{ color: "var(--gray-400)", textDecoration: "none" }} onMouseEnter={e => e.target.style.color = "white"} onMouseLeave={e => e.target.style.color = "var(--gray-400)"}>Privacy Policy</Link>
-            <Link to="#" style={{ color: "var(--gray-400)", textDecoration: "none" }} onMouseEnter={e => e.target.style.color = "white"} onMouseLeave={e => e.target.style.color = "var(--gray-400)"}>Terms of Service</Link>
+            <Link to="/terms" style={{ color: "var(--gray-400)", textDecoration: "none" }} onMouseEnter={e => e.target.style.color = "white"} onMouseLeave={e => e.target.style.color = "var(--gray-400)"}>Privacy Policy</Link>
+            <Link to="/terms" style={{ color: "var(--gray-400)", textDecoration: "none" }} onMouseEnter={e => e.target.style.color = "white"} onMouseLeave={e => e.target.style.color = "var(--gray-400)"}>Terms of Service</Link>
             <Link to="#" style={{ color: "var(--gray-400)", textDecoration: "none" }} onMouseEnter={e => e.target.style.color = "white"} onMouseLeave={e => e.target.style.color = "var(--gray-400)"}>Sitemap</Link>
           </div>
         </div>
