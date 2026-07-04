@@ -88,6 +88,11 @@ const salonSchema = new mongoose.Schema(
       default: false,
     },
 
+    kycSubmitted: {
+      type: Boolean,
+      default: false,
+    },
+
     location: {
       type: {
         type: String,

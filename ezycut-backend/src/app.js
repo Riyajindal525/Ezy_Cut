@@ -8,32 +8,14 @@ const rateLimit = require("express-rate-limit");
 const authRoutes = require("./routes/auth.routes");
 const testRoutes = require("./routes/test.routes");
 const salonRoutes = require("./routes/salon.routes");
-const serviceRoutes = require(
-  "./routes/service.routes"
-);
-const bookingRoutes = require(
-  "./routes/booking.routes"
-);
-const queueRoutes =
-  require(
-    "./routes/queue.routes"
-  );
-  const reviewRoutes =
-  require(
-    "./routes/review.routes"
-  );
-  const notificationRoutes =
-  require(
-    "./routes/notification.routes"
-  );
-const dashboardRoutes =
-  require(
-    "./routes/dashboard.routes"
-  );
-  const paymentRoutes =
-  require(
-    "./routes/payment.routes"
-  );
+const serviceRoutes = require("./routes/service.routes");
+const bookingRoutes = require("./routes/booking.routes");
+const queueRoutes = require("./routes/queue.routes");
+const reviewRoutes = require("./routes/review.routes");
+const notificationRoutes = require("./routes/notification.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
+const paymentRoutes = require("./routes/payment.routes");
+const kycRoutes = require("./routes/kyc.routes");
 
 
 const errorMiddleware = require("./middleware/error.middleware");
@@ -46,7 +28,14 @@ const app = express();
 // MIDDLEWARE
 // ==============================
 
-app.use(express.json());
+// Parse JSON bodies — skip multipart/form-data so multer can handle those
+app.use((req, res, next) => {
+  if (req.is("multipart/form-data")) return next();
+  express.json()(req, res, next);
+});
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 
 // 
 app.use(
@@ -65,6 +54,10 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use(cookieParser());
+
+// Serve local uploads statically
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==============================
 // RATE LIMITERS
@@ -139,17 +132,8 @@ app.use(
   "/api/dashboard",
   dashboardRoutes
 );
-app.use(
-  "/api/payments",
-  paymentLimiter,
-  paymentRoutes
-);
-app.use(
-  "/api/payments/webhook",
-  express.raw({
-    type: "*/*",
-  })
-);
+app.use("/api/payments", paymentLimiter, paymentRoutes);
+app.use("/api/kyc", kycRoutes);
 // ==============================
 // 404 ROUTE HANDLER
 // ==============================

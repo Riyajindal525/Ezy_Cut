@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/auth.store";
 import useSalonStore from "../../store/salon.store";
 import { getAllSalons, updateSalon, deleteSalon } from "../../api/salon.api";
+import { getSalonKyc } from "../../api/kyc.api";
 import toast from "../../utils/toast";
 import Loader from "../../components/common/Loader";
-import { Building, Trash2, ShieldAlert, X } from "lucide-react";
+import { Building, Trash2, ShieldAlert, X, ShieldCheck, Clock, ShieldX } from "lucide-react";
 
 const SalonProfile = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const SalonProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState("");
+  const [kyc, setKyc] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [typedSalonName, setTypedSalonName] = useState("");
@@ -61,6 +63,13 @@ const SalonProfile = () => {
           closingTime: activeSalon.closingTime || "09:00 PM",
           imageUrl: activeSalon.images?.[0] || "",
         });
+        // Fetch KYC status
+        try {
+          const kycData = await getSalonKyc(activeSalon._id);
+          setKyc(kycData.kyc || null);
+        } catch {
+          setKyc(null);
+        }
       } else {
         setError("register_needed");
       }
@@ -391,6 +400,80 @@ const SalonProfile = () => {
               {saveLoading ? "Saving Profile Settings..." : "Save Profile Settings"}
             </button>
           </form>
+        </div>
+      </div>
+
+      {/* KYC Verification Status Card */}
+      <div className="owner-card">
+        <div className="owner-card-header">
+          <div>
+            <h3 className="owner-card-title">KYC Verification Status</h3>
+            <p className="owner-card-subtitle">Government-mandated identity & business verification</p>
+          </div>
+          {kyc && (
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: "0.4rem",
+              padding: "0.4rem 0.875rem", borderRadius: "99px", fontSize: "0.75rem", fontWeight: 700,
+              ...(kyc.kycStatus === "approved"
+                ? { background: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
+                : kyc.kycStatus === "rejected"
+                ? { background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }
+                : { background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)" }),
+            }}>
+              {kyc.kycStatus === "approved" ? <ShieldCheck size={13} /> : kyc.kycStatus === "rejected" ? <ShieldX size={13} /> : <Clock size={13} />}
+              {kyc.kycStatus === "approved" ? "Verified" : kyc.kycStatus === "rejected" ? "Rejected" : "Pending Review"}
+            </span>
+          )}
+        </div>
+        <div className="owner-card-pad">
+          {!kyc ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1rem", background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: "10px" }}>
+              <ShieldX size={22} style={{ color: "#f87171", flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: 600, color: "#fca5a5", marginBottom: "0.25rem" }}>KYC Not Submitted</p>
+                <p style={{ fontSize: "0.8125rem", color: "#71717a" }}>You must submit KYC documents to get your salon approved.</p>
+              </div>
+              <Link to="/owner/dashboard?register=true" style={{ padding: "0.5rem 1rem", borderRadius: "8px", background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)", color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
+                Submit KYC →
+              </Link>
+            </div>
+          ) : kyc.kycStatus === "approved" ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1rem", background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: "10px" }}>
+              <ShieldCheck size={22} style={{ color: "#22c55e", flexShrink: 0 }} />
+              <div>
+                <p style={{ fontWeight: 600, color: "#4ade80", marginBottom: "0.2rem" }}>KYC Approved ✓</p>
+                <p style={{ fontSize: "0.8125rem", color: "#71717a" }}>
+                  Verified on {new Date(kyc.reviewedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}.
+                  Your salon is live and discoverable by customers.
+                </p>
+              </div>
+            </div>
+          ) : kyc.kycStatus === "rejected" ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", padding: "1rem", background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: "10px" }}>
+                <ShieldX size={22} style={{ color: "#f87171", flexShrink: 0, marginTop: "0.1rem" }} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 600, color: "#fca5a5", marginBottom: "0.25rem" }}>KYC Rejected</p>
+                  {kyc.rejectionReason && (
+                    <p style={{ fontSize: "0.8125rem", color: "#f87171" }}>Reason: {kyc.rejectionReason}</p>
+                  )}
+                </div>
+                <Link to="/owner/dashboard?register=true" style={{ padding: "0.5rem 1rem", borderRadius: "8px", background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)", color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
+                  Re-submit →
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1rem", background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.15)", borderRadius: "10px" }}>
+              <Clock size={22} style={{ color: "#f59e0b", flexShrink: 0 }} />
+              <div>
+                <p style={{ fontWeight: 600, color: "#fbbf24", marginBottom: "0.2rem" }}>KYC Under Review</p>
+                <p style={{ fontSize: "0.8125rem", color: "#71717a" }}>
+                  Submitted on {new Date(kyc.submittedAt).toLocaleDateString("en-IN")}. Our team will verify your documents within 1–2 business days.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
