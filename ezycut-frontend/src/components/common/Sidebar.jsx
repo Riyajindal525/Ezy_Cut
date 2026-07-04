@@ -13,6 +13,7 @@ import {
   Home,
   LogOut,
   User,
+  ShieldCheck,
 } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
 
@@ -32,6 +33,7 @@ const adminLinks = [
   { name: "Users", path: "/admin/users", icon: Users },
   { name: "Payments", path: "/admin/payments", icon: DollarSign },
   { name: "Analytics", path: "/admin/analytics", icon: BarChart2 },
+  { name: "KYC Review", path: "/admin/kyc", icon: ShieldCheck },
 ];
 
 const Sidebar = () => {

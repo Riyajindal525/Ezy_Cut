@@ -5,12 +5,24 @@ import {
   assignOwner,
   deleteSalon,
 } from "../../api/salon.api";
+import {
+  getSalonKyc,
+  approveKyc,
+  rejectKyc,
+} from "../../api/kyc.api";
 import toast from "../../utils/toast";
 
 const AdminSalons = () => {
   const [salons, setSalons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // KYC review states
+  const [selectedKyc, setSelectedKyc] = useState(null);
+  const [kycModalOpen, setKycModalOpen] = useState(false);
+  const [kycLoading, setKycLoading] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   // Reassign Modal States
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
@@ -103,6 +115,54 @@ const AdminSalons = () => {
     }
   };
 
+  const handleOpenKycModal = async (salonId) => {
+    setKycLoading(true);
+    try {
+      const res = await getSalonKyc(salonId);
+      setSelectedKyc(res.kyc);
+      setRejectReason("");
+      setKycModalOpen(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "No KYC documents submitted yet or failed to fetch.");
+    } finally {
+      setKycLoading(false);
+    }
+  };
+
+  const handleKycApprove = async (kycId) => {
+    setActionLoading(true);
+    try {
+      await approveKyc(kycId);
+      toast.success("KYC approved successfully! Salon is now live. 🎉");
+      setKycModalOpen(false);
+      setSelectedKyc(null);
+      fetchSalonsList();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to approve KYC.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleKycReject = async (kycId) => {
+    if (!rejectReason.trim()) {
+      toast.error("Please provide a rejection reason.");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await rejectKyc(kycId, rejectReason);
+      toast.success("KYC rejected successfully.");
+      setKycModalOpen(false);
+      setSelectedKyc(null);
+      fetchSalonsList();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to reject KYC.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="admin-loader">
@@ -158,7 +218,8 @@ const AdminSalons = () => {
                     <th>Address</th>
                     <th>Owner Details</th>
                     <th>Contact</th>
-                    <th style={{ textAlign: "center" }}>Status</th>
+                    <th style={{ textAlign: "center" }}>KYC Documents</th>
+                    <th style={{ textAlign: "center" }}>Approval Status</th>
                     <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
@@ -193,6 +254,33 @@ const AdminSalons = () => {
                       </td>
                       <td>
                         <span style={{ color: "#a1a1aa", fontSize: "0.875rem" }}>{s.phone}</span>
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        {s.kycSubmitted ? (
+                          <button
+                            onClick={() => handleOpenKycModal(s._id)}
+                            style={{
+                              padding: "0.4rem 0.8rem",
+                              borderRadius: "6px",
+                              fontSize: "0.75rem",
+                              fontWeight: 600,
+                              background: "rgba(251,191,36,0.1)",
+                              color: "var(--brand-accent)",
+                              border: "1px solid rgba(251,191,36,0.2)",
+                              cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.35rem",
+                              transition: "all 0.2s"
+                            }}
+                          >
+                            <span>📄 View KYC</span>
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: "0.75rem", color: "#71717a", fontWeight: 500 }}>
+                            Not Submitted
+                          </span>
+                        )}
                       </td>
                       <td style={{ textAlign: "center" }}>
                         <button
@@ -337,6 +425,168 @@ const AdminSalons = () => {
                   {deleteLoading ? "Deleting..." : "Permanently Delete"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── KYC Document Review Modal ── */}
+      {kycModalOpen && selectedKyc && (
+        <div className="admin-modal-overlay" style={{ zIndex: 99999 }}>
+          <div className="admin-modal" style={{ maxWidth: "600px", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+              <div>
+                <div className="admin-modal-title">KYC Document Review</div>
+                <div className="admin-modal-desc">
+                  Verify identity and business proofs for {selectedKyc.salon?.name || "this salon"}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setKycModalOpen(false);
+                  setSelectedKyc(null);
+                }}
+                style={{ background: "none", border: "none", color: "#a1a1aa", cursor: "pointer", fontSize: "1.25rem", fontWeight: "bold" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="admin-modal-body" style={{ display: "flex", flexDirection: "column", gap: "1.25rem", color: "#d4d4d8" }}>
+              
+              {/* Owner Info Block */}
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px", padding: "1rem" }}>
+                <p style={{ fontSize: "0.75rem", color: "#71717a", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.75rem", fontWeight: 600 }}>
+                  Owner Information
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", fontSize: "0.875rem" }}>
+                  <div>
+                    <span style={{ color: "#71717a" }}>Name:</span> <strong style={{ color: "#ffffff" }}>{selectedKyc.owner?.name}</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: "#71717a" }}>Email:</span> <span style={{ color: "#ffffff" }}>{selectedKyc.owner?.email}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: "#71717a" }}>Phone:</span> <span style={{ color: "#ffffff" }}>{selectedKyc.owner?.phone}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: "#71717a" }}>City:</span> <span style={{ color: "#ffffff" }}>{selectedKyc.salon?.city}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ID Proof Document */}
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px", padding: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <p style={{ fontSize: "0.75rem", color: "#71717a", marginBottom: "0.25rem", textTransform: "uppercase" }}>Identity Proof</p>
+                  <p style={{ fontWeight: 600, color: "#ffffff", fontSize: "0.875rem" }}>
+                    {selectedKyc.ownerIdProofType ? selectedKyc.ownerIdProofType.toUpperCase() : "Document"}
+                  </p>
+                </div>
+                <a
+                  href={selectedKyc.ownerIdProof}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="admin-btn admin-btn-outline"
+                  style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  👁️ View File
+                </a>
+              </div>
+
+              {/* Business Proof Document */}
+              {selectedKyc.businessProof && (
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px", padding: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <p style={{ fontSize: "0.75rem", color: "#71717a", marginBottom: "0.25rem", textTransform: "uppercase" }}>Business Proof</p>
+                    <p style={{ fontWeight: 600, color: "#ffffff", fontSize: "0.875rem" }}>
+                      {selectedKyc.businessProofType ? selectedKyc.businessProofType.toUpperCase() : "Document"}
+                    </p>
+                  </div>
+                  <a
+                    href={selectedKyc.businessProof}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="admin-btn admin-btn-outline"
+                    style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                  >
+                    👁️ View File
+                  </a>
+                </div>
+              )}
+
+              {/* Salon Photos Section */}
+              {selectedKyc.salonImages && selectedKyc.salonImages.length > 0 && (
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px", padding: "1rem" }}>
+                  <p style={{ fontSize: "0.75rem", color: "#71717a", marginBottom: "0.75rem", textTransform: "uppercase" }}>Salon Photos</p>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {selectedKyc.salonImages.map((img, idx) => (
+                      <a key={idx} href={img} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={img}
+                          alt={`Salon Photo ${idx + 1}`}
+                          style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)" }}
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* KYC Decisions Block */}
+              {selectedKyc.kycStatus === "pending" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "0.5rem" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleKycApprove(selectedKyc._id)}
+                    disabled={actionLoading}
+                    className="admin-btn admin-btn-amber"
+                    style={{ width: "100%", padding: "0.75rem" }}
+                  >
+                    {actionLoading ? "Processing..." : "✓ Approve KYC"}
+                  </button>
+                  
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "1rem" }}>
+                    <label style={{ fontSize: "0.8125rem", color: "#f87171", display: "block", marginBottom: "0.5rem", fontWeight: 600 }}>
+                      Rejection Reason (required to reject):
+                    </label>
+                    <textarea
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      rows="2"
+                      placeholder="Specify why documents are rejected..."
+                      className="admin-form-input"
+                      style={{ width: "100%", boxSizing: "border-box", marginBottom: "0.75rem" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleKycReject(selectedKyc._id)}
+                      disabled={actionLoading || !rejectReason.trim()}
+                      className="admin-btn admin-btn-solid-red"
+                      style={{ width: "100%", padding: "0.75rem" }}
+                    >
+                      ✗ Reject KYC
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "0.75rem",
+                    background: selectedKyc.kycStatus === "approved" ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                    border: `1px solid ${selectedKyc.kycStatus === "approved" ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+                    borderRadius: "8px",
+                    color: selectedKyc.kycStatus === "approved" ? "#22c55e" : "#ef4444",
+                    fontWeight: 700,
+                    fontSize: "0.875rem"
+                  }}
+                >
+                  KYC STATUS: {selectedKyc.kycStatus ? selectedKyc.kycStatus.toUpperCase() : ""}
+                </div>
+              )}
+
             </div>
           </div>
         </div>

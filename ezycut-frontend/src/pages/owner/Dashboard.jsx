@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import useAuthStore from "../../store/auth.store";
 import useSalonStore from "../../store/salon.store";
-import { getAllSalons, createSalon, updateSalon } from "../../api/salon.api";
+import { createSalon, updateSalon } from "../../api/salon.api";
 import { getSalonBookings } from "../../api/booking.api";
 import { getSalonQueue } from "../../api/queue.api";
+import { submitKyc, getSalonKyc } from "../../api/kyc.api";
 import toast from "../../utils/toast";
 import Loader from "../../components/common/Loader";
 import {
@@ -21,7 +22,13 @@ import {
   Building,
   User,
   ListOrdered,
-  ChevronRight
+  ChevronRight,
+  Upload,
+  CheckCircle2,
+  FileText,
+  ShieldCheck,
+  ShieldX,
+  X
 } from "lucide-react";
 
 const OwnerDashboard = () => {
@@ -54,9 +61,26 @@ const OwnerDashboard = () => {
     longitude: "",
     openingTime: "09:00 AM",
     closingTime: "09:00 PM",
-    imageUrl: "",
   });
   const [registerLoading, setRegisterLoading] = useState(false);
+
+  // KYC Stepper State
+  const [registerStep, setRegisterStep] = useState(1);
+  const [createdSalonId, setCreatedSalonId] = useState(null);
+  const [kycFiles, setKycFiles] = useState({
+    ownerIdProof: null,
+    businessProof: null,
+    salonImages: [],
+  });
+  const [kycMeta, setKycMeta] = useState({
+    ownerIdProofType: "aadhaar",
+    businessProofType: "none",
+  });
+  const [kycLoading, setKycLoading] = useState(false);
+  const [kycData, setKycData] = useState(null);
+  const idProofRef = useRef(null);
+  const bizProofRef = useRef(null);
+  const salonImgRef = useRef(null);
 
   const ownedSalons = salons.filter(
     (s) => s.owner?._id === user?.id || s.owner === user?.id
@@ -182,6 +206,12 @@ const OwnerDashboard = () => {
         setRecentBookings([]);
         setTopServices([]);
         setMonthlyRevenue([]);
+        try {
+          const res = await getSalonKyc(currentSalon._id);
+          setKycData(res.kyc || null);
+        } catch (err) {
+          setKycData(null);
+        }
       }
       setSalonLoading(false);
     };
@@ -193,9 +223,14 @@ const OwnerDashboard = () => {
   }, [user, activeSalonId, salons.length]);
 
   const handleChange = (e) => {
+    let value = e.target.value;
+    if (e.target.name === "phone") {
+      // Keep only digits and restrict to max 10 digits
+      value = value.replace(/\D/g, "").slice(0, 10);
+    }
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     });
   };
 
@@ -305,241 +340,402 @@ const OwnerDashboard = () => {
     );
   }
 
-  // State 1: Register Salon Form
+  // ─── KYC Step 2 Submit ─────────────────────────────────────────────────────
+  const handleKycSubmit = async (e) => {
+    e.preventDefault();
+    if (!kycFiles.ownerIdProof) {
+      toast.error("Owner ID proof document is required.");
+      return;
+    }
+    setKycLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append("salonId", createdSalonId);
+      fd.append("ownerIdProofType", kycMeta.ownerIdProofType);
+      fd.append("businessProofType", kycMeta.businessProofType);
+      fd.append("ownerIdProof", kycFiles.ownerIdProof);
+      if (kycFiles.businessProof) fd.append("businessProof", kycFiles.businessProof);
+      kycFiles.salonImages.forEach((img) => fd.append("salonImages", img));
+
+      await submitKyc(fd);
+      toast.success("KYC documents submitted! Pending admin verification. ✅");
+
+      const updatedSalons = await fetchSalons(true);
+      const newSalon = updatedSalons.find((s) => s._id === createdSalonId);
+      if (newSalon) setActiveSalonId(newSalon._id);
+
+      setFormData({ name:"", description:"", address:"", city:"", state:"", pincode:"", phone:"", latitude:"", longitude:"", openingTime:"09:00 AM", closingTime:"09:00 PM" });
+      setRegisterStep(1);
+      setCreatedSalonId(null);
+      setKycFiles({ ownerIdProof: null, businessProof: null, salonImages: [] });
+      navigate("/owner/dashboard");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to submit KYC. Please try again.");
+    } finally {
+      setKycLoading(false);
+    }
+  };
+
+  // State 1: Register Salon Form (2-step KYC stepper)
   if (showRegisterForm) {
     return (
       <div className="owner-onboarding-card">
-        <div className="flex justify-between items-center pb-5 border-b border-white/[0.06] mb-8">
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.06)", marginBottom: "2rem" }}>
           <div>
-            <span className="owner-onboarding-tag">
-              Onboarding
-            </span>
+            <span className="owner-onboarding-tag">Onboarding</span>
             <h3 className="owner-onboarding-title">Register Salon Profile</h3>
-            <p className="owner-onboarding-desc">Configure details to enlist your shop on EzyCut</p>
+            <p className="owner-onboarding-desc">Complete both steps to list your salon on EzyCut</p>
           </div>
           {ownedSalons.length > 0 && (
-            <button
-              onClick={() => navigate("/owner/dashboard")}
-              className="owner-btn owner-btn-outline"
-            >
+            <button onClick={() => navigate("/owner/dashboard")} className="owner-btn owner-btn-outline">
               Cancel
             </button>
           )}
         </div>
 
-        <form onSubmit={handleRegisterSubmit} className="space-y-8">
-          {/* Section 1: Basic Information */}
-          <div className="owner-form-section space-y-6">
-            <h4 className="owner-form-section-heading">
-              <Building size={14} /> Basic Information
-            </h4>
-            <div className="owner-form-grid-2">
-              <div className="owner-form-group">
-                <label className="owner-form-label">Salon Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="e.g. Sharp & Sleek Salon"
-                />
+        {/* Step Progress Indicator */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "2.5rem" }}>
+          {[{ n: 1, label: "Basic Details" }, { n: 2, label: "KYC Documents" }].map(({ n, label }, idx) => (
+            <div key={n} style={{ display: "flex", alignItems: "center", flex: idx === 0 ? "none" : 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
+                <div style={{
+                  width: "2.25rem", height: "2.25rem", borderRadius: "50%",
+                  background: registerStep >= n ? "var(--brand-accent)" : "rgba(255,255,255,0.06)",
+                  color: registerStep >= n ? "#09090b" : "#71717a",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontWeight: 700, fontSize: "0.875rem", border: "2px solid",
+                  borderColor: registerStep >= n ? "var(--brand-accent)" : "rgba(255,255,255,0.1)",
+                  transition: "all 0.3s",
+                }}>
+                  {registerStep > n ? <CheckCircle2 size={16} /> : n}
+                </div>
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: registerStep >= n ? "white" : "#71717a", whiteSpace: "nowrap" }}>{label}</span>
               </div>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Contact Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="e.g. +91 9876543210"
-                />
-              </div>
+              {idx === 0 && (
+                <div style={{ flex: 1, height: "2px", background: registerStep > 1 ? "var(--brand-accent)" : "rgba(255,255,255,0.08)", margin: "0 1rem", marginBottom: "1.5rem", transition: "background 0.3s" }} />
+              )}
             </div>
+          ))}
+        </div>
 
-            <div className="owner-form-group">
-              <label className="owner-form-label">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows="4"
-                className="owner-form-textarea"
-                placeholder="Provide a compelling catalog description for customers..."
-              />
-            </div>
+        {/* ── STEP 1: Basic Details ── */}
+        {registerStep === 1 && (
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setRegisterLoading(true);
+            try {
+              const res = await createSalon({ ...formData, latitude: Number(formData.latitude), longitude: Number(formData.longitude) });
+              setCreatedSalonId(res.salon?._id);
+              toast.success("Basic details saved! Now upload your KYC documents.");
+              setRegisterStep(2);
+            } catch (err) {
+              console.error(err);
+              toast.error(err.response?.data?.message || "Failed to save salon details.");
+            } finally {
+              setRegisterLoading(false);
+            }
+          }} className="space-y-8">
 
-            <div className="owner-form-group">
-              <label className="owner-form-label">Salon Image URL</label>
-              <input
-                type="url"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleChange}
-                className="owner-form-input"
-                placeholder="e.g. https://images.unsplash.com/photo-... (optional)"
-              />
-            </div>
-          </div>
-
-          {/* Section 2: Address & Coordinates */}
-          <div className="owner-form-section space-y-6">
-            <h4 className="owner-form-section-heading">
-              <MapPin size={14} /> Physical Location
-            </h4>
-            <div className="owner-form-group">
-              <label className="owner-form-label">Street Address</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                className="owner-form-input"
-                placeholder="e.g. Shop 42, 1st Floor, Royal Complex"
-              />
-            </div>
-
-            <div className="owner-form-grid-3">
-              <div className="owner-form-group">
-                <label className="owner-form-label">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="City"
-                />
-              </div>
-              <div className="owner-form-group">
-                <label className="owner-form-label">State</label>
-                <input
-                  type="text"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="State"
-                />
-              </div>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Pincode</label>
-                <input
-                  type="text"
-                  name="pincode"
-                  value={formData.pincode}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="Pincode"
-                />
-              </div>
-            </div>
-
-            <div className="owner-location-box">
-              <div className="owner-location-box-header">
-                <span className="owner-form-label">Geolocation Coordinates</span>
-                <button
-                  type="button"
-                  onClick={handleGetLocation}
-                  className="owner-btn owner-btn-outline"
-                >
-                  Use Current Location 📍
-                </button>
-              </div>
+            {/* Section 1: Basic Info */}
+            <div className="owner-form-section space-y-6">
+              <h4 className="owner-form-section-heading"><Building size={14} /> Basic Information</h4>
               <div className="owner-form-grid-2">
-                <input
-                  type="number"
-                  step="any"
-                  name="latitude"
-                  value={formData.latitude}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="Latitude (e.g. 28.61)"
-                />
-                <input
-                  type="number"
-                  step="any"
-                  name="longitude"
-                  value={formData.longitude}
-                  onChange={handleChange}
-                  required
-                  className="owner-form-input"
-                  placeholder="Longitude (e.g. 77.20)"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Operations & Timings */}
-          <div className="owner-form-section space-y-6">
-            <h4 className="owner-form-section-heading">
-              <Clock size={14} /> Operational Hours
-            </h4>
-            <div className="owner-form-grid-2">
-              <div className="owner-form-group">
-                <label className="owner-form-label">Opening Time</label>
-                <input
-                  type="text"
-                  name="openingTime"
-                  value={formData.openingTime}
-                  onChange={handleChange}
-                  className="owner-form-input"
-                  placeholder="e.g. 09:00 AM"
-                />
+                <div className="owner-form-group">
+                  <label className="owner-form-label">Salon Name *</label>
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className="owner-form-input" placeholder="e.g. Sharp & Sleek Salon" />
+                </div>
+                <div className="owner-form-group">
+                  <label className="owner-form-label">Contact Phone *</label>
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required pattern="[0-9]{10}" maxLength="10" className="owner-form-input" placeholder="e.g. 9876543210 (10 digits)" />
+                </div>
               </div>
               <div className="owner-form-group">
-                <label className="owner-form-label">Closing Time</label>
-                <input
-                  type="text"
-                  name="closingTime"
-                  value={formData.closingTime}
-                  onChange={handleChange}
-                  className="owner-form-input"
-                  placeholder="e.g. 09:00 PM"
-                />
+                <label className="owner-form-label">Description</label>
+                <textarea name="description" value={formData.description} onChange={handleChange} rows="3" className="owner-form-textarea" placeholder="Tell customers about your salon..." />
               </div>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={registerLoading}
-            className="owner-submit-btn"
-          >
-            {registerLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
-                Registering Shop...
-              </>
-            ) : (
-              "Submit Registration"
-            )}
-          </button>
-        </form>
+            {/* Section 2: Address */}
+            <div className="owner-form-section space-y-6">
+              <h4 className="owner-form-section-heading"><MapPin size={14} /> Physical Location</h4>
+              <div className="owner-form-group">
+                <label className="owner-form-label">Street Address *</label>
+                <input type="text" name="address" value={formData.address} onChange={handleChange} required className="owner-form-input" placeholder="e.g. Shop 42, Royal Complex" />
+              </div>
+              <div className="owner-form-grid-3">
+                <div className="owner-form-group">
+                  <label className="owner-form-label">City *</label>
+                  <input type="text" name="city" value={formData.city} onChange={handleChange} required className="owner-form-input" placeholder="City" />
+                </div>
+                <div className="owner-form-group">
+                  <label className="owner-form-label">State *</label>
+                  <input type="text" name="state" value={formData.state} onChange={handleChange} required className="owner-form-input" placeholder="State" />
+                </div>
+                <div className="owner-form-group">
+                  <label className="owner-form-label">Pincode *</label>
+                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} required className="owner-form-input" placeholder="Pincode" />
+                </div>
+              </div>
+              <div className="owner-location-box">
+                <div className="owner-location-box-header">
+                  <span className="owner-form-label">Geolocation *</span>
+                  <button type="button" onClick={handleGetLocation} className="owner-btn owner-btn-outline">Use Current Location 📍</button>
+                </div>
+                <div className="owner-form-grid-2">
+                  <input type="number" step="any" name="latitude" value={formData.latitude} onChange={handleChange} required className="owner-form-input" placeholder="Latitude (e.g. 28.61)" />
+                  <input type="number" step="any" name="longitude" value={formData.longitude} onChange={handleChange} required className="owner-form-input" placeholder="Longitude (e.g. 77.20)" />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Hours */}
+            <div className="owner-form-section space-y-6">
+              <h4 className="owner-form-section-heading"><Clock size={14} /> Operational Hours</h4>
+              <div className="owner-form-grid-2">
+                <div className="owner-form-group">
+                  <label className="owner-form-label">Opening Time</label>
+                  <input type="text" name="openingTime" value={formData.openingTime} onChange={handleChange} className="owner-form-input" placeholder="09:00 AM" />
+                </div>
+                <div className="owner-form-group">
+                  <label className="owner-form-label">Closing Time</label>
+                  <input type="text" name="closingTime" value={formData.closingTime} onChange={handleChange} className="owner-form-input" placeholder="09:00 PM" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" disabled={registerLoading} className="owner-submit-btn">
+              {registerLoading ? "Saving Details..." : "Save & Continue to KYC →"}
+            </button>
+          </form>
+        )}
+
+        {/* ── STEP 2: KYC Documents ── */}
+        {registerStep === 2 && (
+          <form onSubmit={handleKycSubmit} style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+
+            {/* Mandatory Notice */}
+            <div style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: "10px", padding: "1rem 1.25rem", display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+              <ShieldCheck size={20} style={{ color: "var(--brand-accent)", flexShrink: 0, marginTop: "0.1rem" }} />
+              <div>
+                <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--brand-accent)", marginBottom: "0.25rem" }}>KYC Verification Required</p>
+                <p style={{ fontSize: "0.8125rem", color: "#a1a1aa", lineHeight: 1.6 }}>As per government regulations, salon owners must complete KYC verification. Upload your identity proof (mandatory) and business documents. Accepted formats: JPEG, PNG, PDF (max 5MB each).</p>
+              </div>
+            </div>
+
+            {/* Owner ID Proof — MANDATORY */}
+            <div className="owner-form-section" style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>
+              <h4 className="owner-form-section-heading"><User size={14} /> Owner Identity Proof <span style={{ color: "#f87171", fontSize: "0.75rem", fontWeight: 500, marginLeft: "0.5rem" }}>* Required</span></h4>
+              <div className="owner-form-group">
+                <label className="owner-form-label">Document Type *</label>
+                <select
+                  value={kycMeta.ownerIdProofType}
+                  onChange={(e) => setKycMeta(p => ({ ...p, ownerIdProofType: e.target.value }))}
+                  className="owner-form-input"
+                  style={{ cursor: "pointer" }}
+                >
+                  <option value="aadhaar">Aadhaar Card</option>
+                  <option value="pan">PAN Card</option>
+                  <option value="voter_id">Voter ID</option>
+                  <option value="passport">Passport</option>
+                  <option value="driving_license">Driving License</option>
+                </select>
+              </div>
+              <div>
+                <label className="owner-form-label" style={{ marginBottom: "0.5rem", display: "block" }}>Upload Document *</label>
+                <div
+                  onClick={() => idProofRef.current?.click()}
+                  style={{
+                    border: `2px dashed ${kycFiles.ownerIdProof ? "var(--brand-accent)" : "rgba(255,255,255,0.12)"}`,
+                    borderRadius: "10px", padding: "2rem 1.5rem", cursor: "pointer",
+                    textAlign: "center", background: kycFiles.ownerIdProof ? "rgba(251,191,36,0.04)" : "rgba(255,255,255,0.02)",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {kycFiles.ownerIdProof ? (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
+                      <CheckCircle2 size={20} style={{ color: "var(--brand-accent)" }} />
+                      <span style={{ fontSize: "0.875rem", color: "var(--brand-accent)", fontWeight: 600 }}>{kycFiles.ownerIdProof.name}</span>
+                      <button type="button" onClick={(ev) => { ev.stopPropagation(); setKycFiles(p => ({ ...p, ownerIdProof: null })); }} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}><X size={16} /></button>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                      <Upload size={24} style={{ color: "#71717a" }} />
+                      <span style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Click to upload ID proof</span>
+                      <span style={{ fontSize: "0.75rem", color: "#52525b" }}>JPEG, PNG or PDF · Max 5MB</span>
+                    </div>
+                  )}
+                </div>
+                <input ref={idProofRef} type="file" accept="image/jpeg,image/png,application/pdf" style={{ display: "none" }}
+                  onChange={(e) => e.target.files?.[0] && setKycFiles(p => ({ ...p, ownerIdProof: e.target.files[0] }))} />
+              </div>
+            </div>
+
+            {/* Business Proof — OPTIONAL */}
+            <div className="owner-form-section" style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>
+              <h4 className="owner-form-section-heading"><FileText size={14} /> Business Proof <span style={{ color: "#71717a", fontSize: "0.75rem", fontWeight: 400, marginLeft: "0.5rem" }}>(Optional)</span></h4>
+              <div className="owner-form-group">
+                <label className="owner-form-label">Document Type</label>
+                <select
+                  value={kycMeta.businessProofType}
+                  onChange={(e) => setKycMeta(p => ({ ...p, businessProofType: e.target.value }))}
+                  className="owner-form-input"
+                  style={{ cursor: "pointer" }}
+                >
+                  <option value="none">Not Applicable / Skip</option>
+                  <option value="gst">GST Certificate</option>
+                  <option value="trade_license">Trade License</option>
+                  <option value="shop_act">Shop & Establishment Act</option>
+                  <option value="udyam">Udyam Registration</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              {kycMeta.businessProofType !== "none" && (
+                <div>
+                  <label className="owner-form-label" style={{ marginBottom: "0.5rem", display: "block" }}>Upload Business Document</label>
+                  <div
+                    onClick={() => bizProofRef.current?.click()}
+                    style={{
+                      border: `2px dashed ${kycFiles.businessProof ? "var(--brand-accent)" : "rgba(255,255,255,0.12)"}`,
+                      borderRadius: "10px", padding: "1.5rem", cursor: "pointer",
+                      textAlign: "center", background: "rgba(255,255,255,0.02)", transition: "all 0.2s",
+                    }}
+                  >
+                    {kycFiles.businessProof ? (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
+                        <CheckCircle2 size={18} style={{ color: "var(--brand-accent)" }} />
+                        <span style={{ fontSize: "0.875rem", color: "var(--brand-accent)", fontWeight: 600 }}>{kycFiles.businessProof.name}</span>
+                        <button type="button" onClick={(ev) => { ev.stopPropagation(); setKycFiles(p => ({ ...p, businessProof: null })); }} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}><X size={16} /></button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                        <Upload size={20} style={{ color: "#71717a" }} />
+                        <span style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Click to upload business document</span>
+                        <span style={{ fontSize: "0.75rem", color: "#52525b" }}>JPEG, PNG or PDF · Max 5MB</span>
+                      </div>
+                    )}
+                  </div>
+                  <input ref={bizProofRef} type="file" accept="image/jpeg,image/png,application/pdf" style={{ display: "none" }}
+                    onChange={(e) => e.target.files?.[0] && setKycFiles(p => ({ ...p, businessProof: e.target.files[0] }))} />
+                </div>
+              )}
+            </div>
+
+            {/* Salon Images — OPTIONAL */}
+            <div className="owner-form-section" style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>
+              <h4 className="owner-form-section-heading"><Upload size={14} /> Salon Photos <span style={{ color: "#71717a", fontSize: "0.75rem", fontWeight: 400, marginLeft: "0.5rem" }}>(Optional · Up to 5)</span></h4>
+              <div>
+                <div
+                  onClick={() => salonImgRef.current?.click()}
+                  style={{
+                    border: `2px dashed ${kycFiles.salonImages.length > 0 ? "var(--brand-accent)" : "rgba(255,255,255,0.12)"}`,
+                    borderRadius: "10px", padding: "1.5rem", cursor: "pointer",
+                    textAlign: "center", background: "rgba(255,255,255,0.02)", transition: "all 0.2s",
+                  }}
+                >
+                  {kycFiles.salonImages.length > 0 ? (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+                      {kycFiles.salonImages.map((img, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: "6px", padding: "0.35rem 0.75rem" }}>
+                          <CheckCircle2 size={14} style={{ color: "var(--brand-accent)" }} />
+                          <span style={{ fontSize: "0.8rem", color: "var(--brand-accent)" }}>{img.name}</span>
+                          <button type="button" onClick={(ev) => { ev.stopPropagation(); setKycFiles(p => ({ ...p, salonImages: p.salonImages.filter((_, idx) => idx !== i) })); }} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}><X size={12} /></button>
+                        </div>
+                      ))}
+                      {kycFiles.salonImages.length < 5 && <span style={{ fontSize: "0.8rem", color: "#71717a" }}>+ Add more</span>}
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                      <Upload size={20} style={{ color: "#71717a" }} />
+                      <span style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Click to upload salon photos</span>
+                      <span style={{ fontSize: "0.75rem", color: "#52525b" }}>JPEG or PNG · Max 5MB each · Up to 5 photos</span>
+                    </div>
+                  )}
+                </div>
+                <input ref={salonImgRef} type="file" accept="image/jpeg,image/png" multiple style={{ display: "none" }}
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.files || []);
+                    const remaining = 5 - kycFiles.salonImages.length;
+                    const toAdd = selected.slice(0, remaining);
+                    setKycFiles(p => ({ ...p, salonImages: [...p.salonImages, ...toAdd] }));
+                  }} />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <button type="button" onClick={() => setRegisterStep(1)} className="owner-btn owner-btn-outline" style={{ flex: 1 }}>← Back</button>
+              {kycFiles.ownerIdProof && (
+                <button type="submit" disabled={kycLoading} className="owner-submit-btn" style={{ flex: 2 }}>
+                  {kycLoading ? "Uploading Documents..." : "Submit KYC & Complete Registration"}
+                </button>
+              )}
+            </div>
+          </form>
+        )}
       </div>
     );
   }
 
   // State 2: Active Salon Pending Approval
   if (salon && !salon.isApproved) {
+    const isRejected = kycData && kycData.kycStatus === "rejected";
+
     return (
-      <div className="owner-welcome-card">
-        <div className="owner-welcome-icon">
-          <Clock size={36} style={{ color: "var(--brand-accent)" }} />
-        </div>
-        
-        <h3 className="owner-welcome-title">Registration Under Review</h3>
-        <p className="owner-welcome-desc">
-          The profile details for <strong>{salon.name}</strong> have been submitted and are pending review by our administration. We will activate your dashboard once verified.
-        </p>
+      <div className="owner-welcome-card" style={{ maxWidth: "600px", margin: "2rem auto", padding: "2.5rem" }}>
+        {isRejected ? (
+          <>
+            <div className="owner-welcome-icon" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+              <ShieldX size={36} style={{ color: "#ef4444" }} />
+            </div>
+            
+            <h3 className="owner-welcome-title" style={{ color: "#ef4444" }}>KYC Verification Rejected</h3>
+            <p className="owner-welcome-desc" style={{ marginBottom: "1.5rem" }}>
+              The registration details for <strong>{salon.name}</strong> were reviewed by our team and could not be verified at this time.
+            </p>
+
+            <div style={{
+              background: "rgba(239,68,68,0.05)",
+              border: "1px solid rgba(239,68,68,0.15)",
+              borderRadius: "10px",
+              padding: "1.25rem",
+              marginBottom: "2rem",
+              textAlign: "left"
+            }}>
+              <p style={{ fontSize: "0.75rem", color: "#f87171", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>
+                Reason for Rejection:
+              </p>
+              <p style={{ fontSize: "0.875rem", color: "#fca5a5", lineHeight: 1.6, fontWeight: 500 }}>
+                {kycData.rejectionReason || "Documents provided are invalid or incomplete. Please check your uploaded files and try again."}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setCreatedSalonId(salon._id);
+                setRegisterStep(2);
+                setShowRegisterForm(true);
+                navigate(`/owner/dashboard?register=true`);
+              }}
+              className="owner-btn owner-btn-solid-gold"
+              style={{ width: "100%", padding: "1rem", borderRadius: "12px", fontSize: "0.875rem", fontWeight: 700, marginBottom: "1rem" }}
+            >
+              Re-submit KYC Documents
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="owner-welcome-icon">
+              <Clock size={36} style={{ color: "var(--brand-accent)" }} />
+            </div>
+            
+            <h3 className="owner-welcome-title">Registration Under Review</h3>
+            <p className="owner-welcome-desc">
+              The profile details for <strong>{salon.name}</strong> have been submitted and are pending review by our administration. We will activate your dashboard once verified.
+            </p>
+          </>
+        )}
 
         <div className="owner-form-divider" style={{ margin: "2rem 0" }} />
 
