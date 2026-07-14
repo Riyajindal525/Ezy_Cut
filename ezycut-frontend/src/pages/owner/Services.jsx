@@ -164,24 +164,32 @@ const OwnerServices = () => {
     }
   };
 
+  const fadeUp = (delayMs) => ({
+    className: "opacity-0 animate-[ezcFadeUp_0.6s_ease_forwards]",
+    style: { animationDelay: `${delayMs}ms` },
+  });
+
+  const inputCls =
+    "w-full bg-[#f7faf9] border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none transition-colors focus:border-[#0d9488] focus:bg-white focus:ring-2 focus:ring-[#0d9488]/15";
+  const labelCls = "text-xs font-bold text-gray-500 uppercase tracking-wider";
+
   if (salonLoading) {
     return <Loader message="Loading service categories..." />;
   }
 
-  if (salons.filter(s => s.owner?._id === user?.id || s.owner === user?.id).length === 0) {
+  if (salons.filter((s) => s.owner?._id === user?.id || s.owner === user?.id).length === 0) {
     return (
-      <div className="owner-welcome-card">
-        <div className="owner-welcome-icon">
-          <Wrench size={28} color="#d4af37" />
+      <div className="max-w-xl mx-auto my-10 bg-white border border-gray-100 rounded-3xl shadow-sm p-10 text-center">
+        <div className="w-16 h-16 rounded-full bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center mx-auto mb-6">
+          <Wrench size={26} className="text-[#0d9488]" />
         </div>
-        <h3 className="owner-welcome-title">Salon Setup Required</h3>
-        <p className="owner-welcome-desc" style={{ marginBottom: "1.75rem" }}>
+        <h3 className="text-2xl font-extrabold text-gray-800 mb-3">Salon Setup Required</h3>
+        <p className="text-gray-500 text-[0.9375rem] leading-relaxed mb-7">
           You have not registered a salon profile yet. Please complete your salon setup first before managing services.
         </p>
         <Link
           to="/owner/dashboard?register=true"
-          className="btn btn-primary"
-          style={{ display: "inline-flex", padding: "0.75rem 1.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "0.8125rem" }}
+          className="inline-flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm uppercase tracking-wide px-7 py-3 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors"
         >
           Go to Onboarding Form
         </Link>
@@ -190,105 +198,114 @@ const OwnerServices = () => {
   }
 
   return (
-    <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
-
+    <div className="flex flex-col gap-6">
       {/* Page Header */}
-      <div className="owner-page-header">
+      <div
+        {...fadeUp(0)}
+        className={`${fadeUp(0).className} bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-7 flex flex-wrap items-center justify-between gap-4`}
+      >
         <div>
-          <h2 className="owner-page-title">{salon?.name} — Catalog</h2>
-          <p className="owner-page-desc">Manage services, durations, and pricing for your salon</p>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight">{salon?.name} — Catalog</h2>
+          <p className="text-sm text-gray-500 mt-1">Manage services, durations, and pricing for your salon</p>
         </div>
-        <button onClick={handleOpenAdd} className="owner-btn owner-btn-solid-gold" style={{ padding: "0.75rem 1.25rem", fontSize: "0.8125rem" }}>
+        <button
+          onClick={handleOpenAdd}
+          className="inline-flex items-center gap-1.5 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-[0.8125rem] px-5 py-2.5 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors"
+        >
           <Plus size={15} strokeWidth={2.5} />
           Add New Service
         </button>
       </div>
 
       {/* Services Table Card */}
-      <div className="owner-card">
-        <div className="owner-card-header">
-          <div>
-            <p className="owner-card-title">
-              <Wrench size={17} color="#d4af37" />
-              Service Catalog
-            </p>
-            <p className="owner-card-subtitle">{services.length} service{services.length !== 1 ? "s" : ""} listed</p>
-          </div>
+      <div {...fadeUp(100)} className={`${fadeUp(100).className} bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden`}>
+        <div className="px-6 py-5 border-b border-gray-100">
+          <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
+            <Wrench size={17} className="text-[#0d9488]" /> Service Catalog
+          </h3>
+          <p className="text-xs text-gray-400 font-semibold mt-1">
+            {services.length} service{services.length !== 1 ? "s" : ""} listed
+          </p>
         </div>
 
-        <div className="owner-card-pad" style={{ paddingTop: "0" }}>
+        <div className="p-6">
           {services.length === 0 ? (
-            <div className="owner-empty">
-              <div className="owner-empty-icon">
-                <Wrench size={24} color="#52525b" />
+            <div className="flex flex-col items-center text-center gap-3 py-12">
+              <div className="w-16 h-16 rounded-full bg-[#f7faf9] border border-gray-100 flex items-center justify-center">
+                <Wrench size={24} className="text-gray-400" />
               </div>
-              <p className="owner-empty-title">No Catalog Services</p>
-              <p className="owner-empty-desc">
-                Click &quot;+ Add New Service&quot; above to start building your shop menu catalog.
+              <p className="text-lg font-bold text-gray-700">No Catalog Services</p>
+              <p className="text-sm text-gray-400 max-w-sm">
+                Click "+ Add New Service" above to start building your shop menu catalog.
               </p>
             </div>
           ) : (
-            <div className="owner-table-container">
-              <table className="owner-table">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr>
-                    <th>Service</th>
-                    <th>Category</th>
-                    <th>Duration</th>
-                    <th>Price</th>
-                    <th style={{ textAlign: "center" }}>Status</th>
-                    <th>Actions</th>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Service</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Category</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Duration</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Price</th>
+                    <th className="text-center text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Status</th>
+                    <th className="text-right text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {services.map((s) => (
-                    <tr key={s._id}>
-                      <td>
-                        <div style={{ fontWeight: 700, color: "#ffffff", fontSize: "0.9375rem" }}>{s.name}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#52525b", marginTop: "0.2rem", maxWidth: "22rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {services.map((s, i) => (
+                    <tr
+                      key={s._id}
+                      {...fadeUp(140 + i * 40)}
+                      className={`${fadeUp(140 + i * 40).className} border-b border-gray-50 last:border-none hover:bg-gray-50/60 transition-colors`}
+                    >
+                      <td className="py-3.5 pr-4">
+                        <div className="font-bold text-gray-800 text-[0.9375rem]">{s.name}</div>
+                        <div className="text-xs text-gray-400 mt-0.5 max-w-[22rem] truncate">
                           {s.description || "No description provided."}
                         </div>
                       </td>
-                      <td>
-                        <span className="owner-badge owner-badge-neutral" style={{ textTransform: "uppercase" }}>
+                      <td className="py-3.5 pr-4">
+                        <span className="inline-flex items-center text-[0.625rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">
                           {s.category}
                         </span>
                       </td>
-                      <td style={{ fontFamily: "monospace", fontWeight: 600, color: "#a1a1aa" }}>
-                        {s.duration} mins
-                      </td>
-                      <td style={{ fontWeight: 800, color: "#d4af37", fontSize: "1rem" }}>
-                        ₹{s.price}
-                      </td>
-                      <td style={{ textAlign: "center" }}>
+                      <td className="py-3.5 pr-4 font-mono font-semibold text-gray-600">{s.duration} mins</td>
+                      <td className="py-3.5 pr-4 font-extrabold text-[#0d9488] text-base">₹{s.price}</td>
+                      <td className="py-3.5 pr-4 text-center">
                         <button
                           onClick={() => handleToggleActive(s)}
-                          className={`owner-badge ${s.isActive ? "owner-badge-green" : "owner-badge-red"}`}
-                          style={{ cursor: "pointer", border: "none" }}
                           title={s.isActive ? "Click to deactivate" : "Click to activate"}
+                          className={`inline-flex items-center gap-1 text-[0.625rem] font-extrabold uppercase tracking-wide px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
+                            s.isActive
+                              ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                              : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                          }`}
                         >
                           {s.isActive ? (
-                            <><Check size={9} strokeWidth={3} /> Active</>
+                            <>
+                              <Check size={10} strokeWidth={3} /> Active
+                            </>
                           ) : (
-                            <><X size={9} strokeWidth={3} /> Inactive</>
+                            <>
+                              <X size={10} strokeWidth={3} /> Inactive
+                            </>
                           )}
                         </button>
                       </td>
-                      <td>
-                        <div style={{ display: "inline-flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                      <td className="py-3.5 text-right">
+                        <div className="inline-flex gap-1.5 justify-end">
                           <button
                             onClick={() => handleOpenEdit(s)}
-                            className="owner-btn owner-btn-outline"
                             title="Edit Service"
-                            style={{ padding: "0.45rem 0.6rem" }}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-500 hover:border-[#0d9488] hover:text-[#0d9488] transition-colors"
                           >
                             <Edit2 size={13} />
                           </button>
                           <button
                             onClick={() => triggerDeleteConfirm(s._id)}
-                            className="owner-btn owner-btn-red"
                             title="Delete Service"
-                            style={{ padding: "0.45rem 0.6rem" }}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 border border-rose-100 text-rose-500 hover:bg-rose-100 transition-colors"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -305,62 +322,60 @@ const OwnerServices = () => {
 
       {/* Add / Edit Service Modal */}
       {modalOpen && (
-        <div className="owner-modal-overlay">
-          <div className="owner-modal owner-modal-md">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-[modalIn_0.25s_ease]">
             {/* Modal Header */}
-            <div className="owner-modal-header">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}>
-                <div className="owner-modal-icon" style={{ background: "rgba(212, 175, 55, 0.08)", border: "1px solid rgba(212, 175, 55, 0.2)" }}>
-                  <Wrench size={18} color="#d4af37" />
+            <div className="flex items-start justify-between gap-3 pb-4 mb-5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center shrink-0">
+                  <Wrench size={18} className="text-[#0d9488]" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#ffffff" }}>
+                  <h3 className="text-[1.0625rem] font-bold text-gray-800">
                     {editingService ? "Edit Service" : "Add Service"}
                   </h3>
-                  <p style={{ fontSize: "0.8125rem", color: "#71717a", marginTop: "0.125rem" }}>
-                    Specify catalog product details
-                  </p>
+                  <p className="text-[0.8125rem] text-gray-400 mt-0.5">Specify catalog product details</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="owner-modal-close"
+                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Service Name</label>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Service Name</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g. Haircut & Wash"
-                  className="owner-form-input"
+                  className={inputCls}
                   required
                 />
               </div>
 
-              <div className="owner-form-group">
-                <label className="owner-form-label">Description (Optional)</label>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Description (Optional)</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="Brief description of what is included in the service..."
                   rows="3"
-                  className="owner-form-textarea"
+                  className={inputCls}
                 />
               </div>
 
-              <div className="owner-form-grid-2">
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Price (₹)</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Price (₹)</label>
                   <input
                     type="number"
                     name="price"
@@ -368,13 +383,13 @@ const OwnerServices = () => {
                     onChange={handleChange}
                     placeholder="e.g. 350"
                     min="1"
-                    className="owner-form-input"
+                    className={inputCls}
                     required
                   />
                 </div>
 
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Duration (Mins)</label>
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Duration (Mins)</label>
                   <input
                     type="number"
                     name="duration"
@@ -382,42 +397,40 @@ const OwnerServices = () => {
                     onChange={handleChange}
                     placeholder="e.g. 30"
                     min="1"
-                    className="owner-form-input"
+                    className={inputCls}
                     required
                   />
                 </div>
               </div>
 
-              <div className="owner-form-group">
-                <label className="owner-form-label">Category</label>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Category</label>
                 <input
                   type="text"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   placeholder="e.g. Haircut, Shaving, Massage"
-                  className="owner-form-input"
+                  className={inputCls}
                 />
               </div>
 
-              <div className="owner-modal-footer" style={{ marginTop: "0" }}>
+              <div className="flex justify-end gap-3 pt-4 mt-1 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="owner-btn owner-btn-outline"
-                  style={{ padding: "0.6rem 1.125rem" }}
+                  className="inline-flex items-center bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-sm px-4.5 py-2.5 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saveLoading}
-                  className="owner-btn owner-btn-solid-gold"
-                  style={{ padding: "0.6rem 1.375rem" }}
+                  className="inline-flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] disabled:opacity-60 text-white font-bold text-sm px-5 py-2.5 rounded-lg shadow-sm transition-colors"
                 >
                   {saveLoading ? (
                     <>
-                      <div style={{ width: "0.75rem", height: "0.75rem", border: "2px solid rgba(9,9,11,0.3)", borderTopColor: "#09090b", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                      <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -432,31 +445,30 @@ const OwnerServices = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmOpen && (
-        <div className="owner-modal-overlay">
-          <div className="owner-modal owner-modal-sm">
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.25rem" }}>
-              <div className="owner-modal-icon" style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
-                <AlertTriangle size={18} color="#f87171" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-[modalIn_0.25s_ease]">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                <AlertTriangle size={18} className="text-rose-500" />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#ffffff" }}>Remove Service</h3>
-                <p style={{ fontSize: "0.8125rem", color: "#71717a", marginTop: "0.125rem" }}>Delete catalog listing</p>
+                <h3 className="text-[1.0625rem] font-bold text-gray-800">Remove Service</h3>
+                <p className="text-[0.8125rem] text-gray-400 mt-0.5">Delete catalog listing</p>
               </div>
             </div>
 
-            <p style={{ fontSize: "0.875rem", color: "#a1a1aa", lineHeight: 1.7, marginBottom: "0.5rem" }}>
+            <p className="text-sm text-gray-500 leading-relaxed mb-1">
               Are you sure you want to remove this service from your catalog? This action will prevent new reservations for this service.
             </p>
 
-            <div className="owner-modal-footer">
+            <div className="flex justify-end gap-3 pt-5 mt-2">
               <button
                 type="button"
                 onClick={() => {
                   setDeleteConfirmOpen(false);
                   setTargetDeleteId(null);
                 }}
-                className="owner-btn owner-btn-outline"
-                style={{ padding: "0.6rem 1.125rem" }}
+                className="inline-flex items-center bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-sm px-4.5 py-2.5 rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -464,8 +476,7 @@ const OwnerServices = () => {
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={deleteLoading}
-                className="owner-btn owner-btn-solid-red"
-                style={{ padding: "0.6rem 1.375rem" }}
+                className="inline-flex items-center bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white font-bold text-sm px-5 py-2.5 rounded-lg shadow-sm transition-colors"
               >
                 {deleteLoading ? "Deleting..." : "Permanently Delete"}
               </button>

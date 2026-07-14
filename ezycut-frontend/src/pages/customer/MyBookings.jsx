@@ -9,6 +9,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  CalendarPlus,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cancelBooking } from "../../api/booking.api";
@@ -16,16 +17,39 @@ import useBookingStore from "../../store/booking.store";
 import { joinQueue } from "../../api/queue.api";
 import ReviewModal from "../../components/review/ReviewModal";
 import Loader from "../../components/common/Loader";
-import EmptyState from "../../components/common/EmptyState";
 import toast from "../../utils/toast";
 
 const statusConfig = {
-  confirmed: { label: "Confirmed", class: "badge-confirmed", icon: CheckCircle },
-  completed: { label: "Completed", class: "badge-completed", icon: CheckCircle },
-  cancelled: { label: "Cancelled", class: "badge-cancelled", icon: XCircle },
-  cancelled_by_owner: { label: "Cancelled by Owner", class: "badge-cancelled", icon: XCircle },
-  cancelled_by_customer: { label: "Cancelled", class: "badge-cancelled", icon: XCircle },
-  no_show: { label: "No Show", class: "badge-no_show", icon: AlertCircle },
+  confirmed: {
+    label: "Confirmed",
+    class: "bg-teal-50 text-teal-700 border-teal-200",
+    icon: CheckCircle,
+  },
+  completed: {
+    label: "Completed",
+    class: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    icon: CheckCircle,
+  },
+  cancelled: {
+    label: "Cancelled",
+    class: "bg-rose-50 text-rose-700 border-rose-200",
+    icon: XCircle,
+  },
+  cancelled_by_owner: {
+    label: "Cancelled by Owner",
+    class: "bg-rose-50 text-rose-700 border-rose-200",
+    icon: XCircle,
+  },
+  cancelled_by_customer: {
+    label: "Cancelled",
+    class: "bg-rose-50 text-rose-700 border-rose-200",
+    icon: XCircle,
+  },
+  no_show: {
+    label: "No Show",
+    class: "bg-amber-50 text-amber-700 border-amber-200",
+    icon: AlertCircle,
+  },
 };
 
 const MyBookings = () => {
@@ -83,80 +107,114 @@ const MyBookings = () => {
   if (loading) return <Loader message="Loading your bookings..." />;
 
   return (
-    <div style={{ padding: "2rem 0" }}>
-      <div className="page-container">
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
-          <div>
-            <h1 className="page-title">My Bookings</h1>
-            <p style={{ color: "var(--gray-500)", marginTop: "0.25rem", fontSize: "0.9375rem" }}>
+    <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
+      {/* ============ DARK HERO STRIP ============ */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#031715] via-[#042f2e] to-[#0f766e]">
+        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_20%_20%,white,transparent_45%)]" />
+        <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.25)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.1)_0%,transparent_70%)] pointer-events-none" />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-8 sm:pb-10 flex items-center justify-between flex-wrap gap-5">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">My Bookings</h1>
+            <p className="text-white/60 text-sm">
               {bookings.length} booking{bookings.length !== 1 ? "s" : ""} found
             </p>
           </div>
-          <Link to="/salons" className="btn btn-primary" style={{ gap: "0.375rem" }}>
+
+          <Link
+            to="/salons"
+            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/[0.16] border border-white/15 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+          >
             + New Booking
           </Link>
         </div>
+      </div>
 
+      {/* ============ MAIN CONTENT ============ */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {bookings.length === 0 ? (
-          <EmptyState
-            title="No bookings yet"
-            description="Start exploring salons and book your first appointment today."
-            action={<Link to="/salons" className="btn btn-primary">Explore Salons</Link>}
-          />
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center text-center gap-4 py-16 px-6">
+            <div className="w-16 h-16 rounded-2xl bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center">
+              <CalendarPlus size={26} className="text-[#0d9488]" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <h3 className="text-lg font-bold text-[#022525]">No bookings yet</h3>
+              <p className="text-[#5b6b68] text-sm max-w-sm">
+                Start exploring salons and book your first appointment today.
+              </p>
+            </div>
+            <Link
+              to="/salons"
+              className="inline-flex items-center gap-1.5 bg-[#0d9488] hover:bg-[#0f766e] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+            >
+              Explore Salons
+            </Link>
+          </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {bookings.map((booking) => {
-              const status = statusConfig[booking.status] || { label: booking.status, class: "badge-pending" };
+          <div className="flex flex-col gap-4">
+            {bookings.map((booking, bi) => {
+              const status = statusConfig[booking.status] || {
+                label: booking.status,
+                class: "bg-gray-50 text-gray-600 border-gray-200",
+                icon: AlertCircle,
+              };
+              const StatusIcon = status.icon;
               const isConfirmed = booking.status === "confirmed";
               const isCompleted = booking.status === "completed";
 
               return (
-                <div key={booking._id} className="card" style={{ padding: "1.5rem" }}>
-                  <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+                <div
+                  key={booking._id}
+                  className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-5 sm:p-6 animate-[ezcFadeUp_0.5s_ease_forwards] opacity-0"
+                  style={{ animationDelay: `${Math.min(bi, 8) * 70}ms` }}
+                >
+                  <div className="flex gap-4 sm:gap-5 flex-wrap sm:flex-nowrap">
                     {/* Salon icon */}
-                    <div style={{
-                      width: "3rem", height: "3rem",
-                      borderRadius: "var(--radius-md)",
-                      background: "linear-gradient(135deg, var(--brand-primary), #312e81)",
-                      color: "white",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "1.125rem", fontWeight: 800, flexShrink: 0,
-                    }}>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0d9488] to-[#022525] text-white flex items-center justify-center text-lg font-extrabold shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105">
                       {booking.salon?.name?.charAt(0)}
                     </div>
 
                     {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
                         <div>
-                          <h2 style={{ fontSize: "1.0625rem", fontWeight: 700, color: "var(--gray-800)", marginBottom: "0.25rem" }}>
+                          <h2 className="text-[1.05rem] font-bold text-[#022525] mb-0.5">
                             {booking.salon?.name}
                           </h2>
-                          <p style={{ fontSize: "0.875rem", color: "var(--gray-500)" }}>{booking.service?.name}</p>
+                          <p className="text-sm text-[#5b6b68]">{booking.service?.name}</p>
                         </div>
-                        <span className={`badge ${status.class}`}>{status.label}</span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${status.class}`}
+                        >
+                          <StatusIcon size={13} />
+                          {status.label}
+                        </span>
                       </div>
 
-                      {/* Details grid */}
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", fontSize: "0.875rem", color: "var(--gray-500)" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-                          <Calendar size={13} />
-                          {new Date(booking.bookingDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+                      {/* Details */}
+                      <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#5b6b68]">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={13} className="text-[#0d9488]" />
+                          {new Date(booking.bookingDate).toLocaleDateString("en-IN", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-                          <Clock size={13} />
-                          <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={13} className="text-[#0d9488]" />
+                          <span className="font-mono font-semibold text-[#022525]">
                             {booking.startTime} – {booking.endTime}
                           </span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontWeight: 700, color: "var(--gray-700)" }}>
+                        <div className="flex items-center gap-1 font-bold text-[#022525]">
                           <IndianRupee size={13} />
-                          ₹{booking.totalAmount}
+                          {booking.totalAmount}
                         </div>
                         {booking.notes && (
-                          <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-                            <FileText size={13} />
+                          <div className="flex items-center gap-1.5">
+                            <FileText size={13} className="text-[#0d9488]" />
                             {booking.notes}
                           </div>
                         )}
@@ -164,14 +222,13 @@ const MyBookings = () => {
 
                       {/* Actions */}
                       {(isConfirmed || isCompleted) && (
-                        <div style={{ display: "flex", gap: "0.625rem", marginTop: "1rem", flexWrap: "wrap" }}>
+                        <div className="flex gap-2.5 mt-4 flex-wrap">
                           {isConfirmed && (
                             <>
                               <button
                                 onClick={() => handleJoinQueue(booking._id)}
                                 disabled={actionLoading[`queue_${booking._id}`]}
-                                className="btn btn-accent btn-sm"
-                                style={{ gap: "0.375rem" }}
+                                className="inline-flex items-center gap-1.5 bg-[#0d9488] hover:bg-[#0f766e] disabled:opacity-60 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
                               >
                                 <Users size={13} />
                                 {actionLoading[`queue_${booking._id}`] ? "Joining..." : "Join Queue"}
@@ -179,8 +236,7 @@ const MyBookings = () => {
                               <button
                                 onClick={() => handleCancel(booking._id)}
                                 disabled={actionLoading[`cancel_${booking._id}`]}
-                                className="btn btn-danger btn-sm"
-                                style={{ gap: "0.375rem" }}
+                                className="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 disabled:opacity-60 text-rose-600 text-xs font-semibold px-3.5 py-2 rounded-lg border border-rose-200 transition-colors"
                               >
                                 <XCircle size={13} />
                                 {actionLoading[`cancel_${booking._id}`] ? "Cancelling..." : "Cancel"}
@@ -190,8 +246,7 @@ const MyBookings = () => {
                           {isCompleted && (
                             <button
                               onClick={() => setReviewBookingId(booking._id)}
-                              className="btn btn-outline btn-sm"
-                              style={{ gap: "0.375rem" }}
+                              className="inline-flex items-center gap-1.5 bg-white hover:bg-[#f0fdfa] text-[#0d9488] text-xs font-semibold px-3.5 py-2 rounded-lg border border-[#99f6e4] transition-colors"
                             >
                               <Star size={13} />
                               Write Review

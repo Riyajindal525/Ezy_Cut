@@ -6,70 +6,41 @@ const ServiceCard = ({ service }) => {
 
   const handleBookNow = () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
-      navigate("/login", {
-        state: { redirectTo: `/booking/${service._id}` },
-      });
+      navigate("/login", { state: { redirectTo: `/booking/${service._id}` } });
       return;
     }
-
     navigate(`/booking/${service._id}`);
   };
 
   return (
-    <div className="card card-hover" style={{ padding: "1.5rem" }}>
-      {/* Category tag */}
+    <div className="group bg-white border border-gray-200 rounded-2xl p-6 transition-all duration-300 hover:border-[#0d9488]/40 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(15,118,110,0.12)]">
       {service.category && (
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "0.25rem",
-          fontSize: "0.6875rem", fontWeight: 700,
-          textTransform: "uppercase", letterSpacing: "0.05em",
-          color: "var(--brand-accent)",
-          background: "var(--brand-accent-light)",
-          padding: "0.2rem 0.5rem",
-          borderRadius: "var(--radius-full)",
-          marginBottom: "0.75rem",
-        }}>
+        <div className="inline-flex items-center gap-1 text-[0.6875rem] font-bold uppercase tracking-wide text-[#0f766e] bg-[#ccfbf1] px-2 py-1 rounded-full mb-3">
           <Tag size={10} />
           {service.category}
         </div>
       )}
 
-      <h3 style={{ fontSize: "1.0625rem", fontWeight: 700, color: "var(--gray-800)", marginBottom: "0.5rem" }}>
-        {service.name}
-      </h3>
+      <h3 className="text-[1.0625rem] font-bold text-[#042f2e] mb-2">{service.name}</h3>
 
       {service.description && (
-        <p style={{ fontSize: "0.875rem", color: "var(--gray-500)", lineHeight: 1.6, marginBottom: "1rem" }}>
-          {service.description}
-        </p>
+        <p className="text-sm text-[#6b7280] leading-relaxed mb-4">{service.description}</p>
       )}
 
-      {/* Price & Duration */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", color: "var(--gray-700)", fontWeight: 700 }}>
-          <IndianRupee size={14} style={{ color: "var(--success)" }} />
-          <span style={{ fontSize: "1.125rem" }}>{service.price}</span>
+      <div className="flex gap-4 mb-5">
+        <div className="flex items-center gap-1.5 text-[#134e4a] font-bold">
+          <IndianRupee size={14} className="text-[#0d9488]" />
+          <span className="text-lg">{service.price}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", color: "var(--gray-500)", fontSize: "0.875rem" }}>
+        <div className="flex items-center gap-1.5 text-[#6b7280] text-sm">
           <Clock size={13} />
           {service.duration} mins
         </div>
       </div>
 
-      {/* Active badge */}
       {service.isActive === false && (
-        <div style={{
-          padding: "0.5rem",
-          background: "var(--danger-light)",
-          borderRadius: "var(--radius)",
-          fontSize: "0.8125rem",
-          color: "#991b1b",
-          fontWeight: 600,
-          textAlign: "center",
-          marginBottom: "0.75rem",
-        }}>
+        <div className="p-2 bg-red-50 rounded-lg text-[0.8125rem] text-red-600 font-semibold text-center mb-3">
           Currently Unavailable
         </div>
       )}
@@ -77,11 +48,10 @@ const ServiceCard = ({ service }) => {
       <button
         onClick={handleBookNow}
         disabled={service.isActive === false}
-        className="btn btn-primary btn-full"
-        style={{ gap: "0.375rem" }}
+        className="flex items-center justify-center gap-2 w-full bg-[#0f766e] hover:bg-[#0d5e58] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm py-2.5 rounded-lg transition-all duration-300 group-hover:shadow-[0_6px_18px_rgba(15,118,110,0.25)]"
       >
         Book Now
-        <ArrowRight size={14} />
+        <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
       </button>
     </div>
   );

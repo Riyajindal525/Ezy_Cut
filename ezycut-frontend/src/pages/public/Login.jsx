@@ -1,9 +1,26 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, Scissors, LogIn, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  LogIn,
+  AlertCircle,
+  Clock,
+  CalendarCheck,
+  ShieldCheck,
+} from "lucide-react";
 import { loginUser } from "../../api/auth.api";
 import useAuthStore from "../../store/auth.store";
 import toast from "../../utils/toast";
+// import logo from "../../assets/ezycut-logo.png";
+import iconWatermark from "../../assets/ezycut-icon-watermark.png";
+import "../../css/Login.css";
+
+const FEATURES = [
+  { icon: Clock, label: "Real-time queue tracking" },
+  { icon: CalendarCheck, label: "Instant booking confirmations" },
+  { icon: ShieldCheck, label: "Secure Razorpay payments" },
+];
 
 const Login = () => {
   const navigate = useNavigate();
@@ -44,73 +61,72 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="ezyauth-login-page">
       {/* Left Panel - Brand */}
-      <div className="login-brand-panel">
-        {/* Decorations */}
-        <div className="login-glow login-glow-top" />
-        <div className="login-glow login-glow-bottom" />
+      <div className="ezyauth-login-brand-panel">
+        {/* Watermark */}
+        <img
+          src={iconWatermark}
+          alt=""
+          aria-hidden="true"
+          className="ezyauth-login-watermark"
+        />
 
-        <div className="login-brand-content">
-          {/* Logo */}
-          <div className="login-logo">
-            <div className="login-logo-icon">
-              <Scissors size={18} strokeWidth={2.5} style={{ color: "#0a0a0a" }} />
-            </div>
-            <span className="login-logo-text">EzyCut</span>
-          </div>
+        <div className="ezyauth-login-brand-content">
+          {/* <img src={logo} alt="EzyCut" className="ezyauth-login-logo-img" /> */}
 
-          <h2 className="login-heading">
-            Welcome back
-          </h2>
-          <p className="login-subtext">
-            Login to manage your bookings, track your salon queue, and stay updated on your appointments.
+          <h2 className="ezyauth-login-heading">Welcome back</h2>
+          <p className="ezyauth-login-subtext">
+            Sign in to manage your bookings, track your salon queue, and stay
+            updated on every appointment.
           </p>
 
-          {/* Feature list */}
-          {["Real-time queue tracking", "Instant booking confirmations", "Secure Razorpay payments"].map((item) => (
-            <div key={item} className="login-feature-item">
-              <div className="login-feature-check">✓</div>
-              {item}
-            </div>
-          ))}
+          <div className="ezyauth-login-feature-list">
+            {FEATURES.map(({ icon: Icon, label }) => (
+              <div key={label} className="ezyauth-login-feature-item">
+                <span className="ezyauth-login-feature-icon">
+                  <Icon size={15} strokeWidth={2.25} />
+                </span>
+                {label}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
+        <p className="ezyauth-login-brand-footer">Smart grooming. Better prices.</p>
+      </div>
       {/* Right Panel - Form */}
-      <div className="login-form-panel">
-        <div className="login-form-wrap">
-          <div style={{ marginBottom: "2rem" }}>
-            <h1 className="login-form-title">
-              Sign in
-            </h1>
-            <p className="login-form-subtitle">
-              Don't have an account?{" "}
-              <Link to="/register" className="login-link">
+      <div className="ezyauth-login-form-panel">
+        <div className="ezyauth-login-form-wrap">
+          <div className="ezyauth-login-form-header">
+            <h1 className="ezyauth-login-form-title">Sign in</h1>
+            <p className="ezyauth-login-form-subtitle">
+              Don&apos;t have an account?{" "}
+              <Link to="/register" className="ezyauth-login-link">
                 Create one free
               </Link>
             </p>
           </div>
 
-          {/* Redirect notice */}
           {redirectTo && (
-            <div className="login-notice login-notice-warning">
-              <AlertCircle size={15} />
+            <div className="ezyauth-login-notice ezyauth-login-notice-warning">
+              <AlertCircle size={16} strokeWidth={2.25} />
               Please log in to continue your booking.
             </div>
           )}
 
-          {/* Error message */}
           {error && (
-            <div className="login-notice login-notice-error">
-              <AlertCircle size={15} />
+            <div className="ezyauth-login-notice ezyauth-login-notice-error">
+              <AlertCircle size={16} strokeWidth={2.25} />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.125rem" }}>
-            <div className="form-group">
-              <label className="form-label login-form-label" htmlFor="email">Email Address</label>
+          <form onSubmit={handleSubmit} className="ezyauth-login-form">
+            <div className="ezyauth-login-form-group">
+              <label className="ezyauth-login-form-label" htmlFor="email">
+                Email Address
+              </label>
               <input
                 id="email"
                 type="email"
@@ -118,15 +134,17 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                className="form-input login-input"
+                className="ezyauth-login-input"
                 required
                 autoComplete="email"
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label login-form-label" htmlFor="password">Password</label>
-              <div style={{ position: "relative" }}>
+            <div className="ezyauth-login-form-group">
+              <label className="ezyauth-login-form-label" htmlFor="password">
+                Password
+              </label>
+              <div className="ezyauth-login-input-wrap">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -134,30 +152,36 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Your password"
-                  className="form-input login-input"
+                  className="ezyauth-login-input ezyauth-login-input-icon-right"
                   required
-                  style={{ paddingRight: "2.75rem" }}
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="login-eye-toggle"
+                  className="ezyauth-login-eye-toggle"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary btn-full login-submit-btn"
-              disabled={loading}
-            >
+            <div className="ezyauth-login-form-meta">
+              <Link to="/forgot-password" className="ezyauth-login-link ezyauth-login-link-muted">
+                Forgot password?
+              </Link>
+            </div>
+
+            <button type="submit" className="ezyauth-login-submit-btn" disabled={loading}>
               {loading ? (
-                <><div className="spinner" style={{ width: "16px", height: "16px", borderWidth: "2px" }} /> Signing in...</>
+                <>
+                  <span className="ezyauth-login-spinner" /> Signing in...
+                </>
               ) : (
-                <><LogIn size={16} /> Sign In</>
+                <>
+                  <LogIn size={16} strokeWidth={2.25} /> Sign In
+                </>
               )}
             </button>
           </form>

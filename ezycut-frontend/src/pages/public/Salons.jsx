@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, MapPin, Sparkles, X, SlidersHorizontal } from "lucide-react";
 import { getNearbySalons } from "../../api/salon.api";
 import useSalonStore from "../../store/salon.store";
 import SalonCard from "../../components/salon/SalonCard";
@@ -15,10 +15,9 @@ const Salons = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // Nearby Location States
   const [useNearby, setUseNearby] = useState(false);
   const [coords, setCoords] = useState(null);
-  const [radius, setRadius] = useState(5000); // 5km default
+  const [radius, setRadius] = useState(5000);
   const [geoLoading, setGeoLoading] = useState(false);
 
   const fetchSalons = async (locationSearch = false, latitude = null, longitude = null, searchRadius = 5000) => {
@@ -26,7 +25,6 @@ const Salons = () => {
     try {
       if (locationSearch && latitude && longitude) {
         const data = await getNearbySalons(longitude, latitude, searchRadius);
-        // Filter approved salons only
         const approved = data.salons.filter((s) => s.isApproved);
         setSalons(approved);
         setFiltered(approved);
@@ -105,67 +103,94 @@ const Salons = () => {
 
   if (loading) return <Loader message="Fetching salons..." />;
 
-  return (
-    <div style={{ minHeight: "calc(100vh - 68px)", padding: "2.5rem 0" }}>
-      <div className="page-container">
-        {/* Page Header */}
-        <div style={{ marginBottom: "2rem" }}>
-          <h1 className="page-title">Explore Salons</h1>
-          <p style={{ color: "var(--gray-500)", marginTop: "0.375rem", fontSize: "0.9375rem" }}>
-            {salons.length} verified salon{salons.length !== 1 ? "s" : ""} available for booking
-          </p>
-        </div>
+  const radiusLabel = { 1000: "1 km", 5000: "5 km", 10000: "10 km", 25000: "25 km" }[radius];
 
-        {/* Filters Row */}
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center", marginBottom: "2rem" }}>
-          {/* Search bar */}
-          <div style={{ flex: 1, minWidth: "260px", maxWidth: "480px" }}>
-            <div style={{ position: "relative" }}>
-              <Search size={16} style={{
-                position: "absolute", left: "0.875rem", top: "50%",
-                transform: "translateY(-50%)", color: "var(--gray-400)",
-                pointerEvents: "none",
-              }} />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name, city or address..."
-                className="form-input"
-                style={{ paddingLeft: "2.5rem" }}
-              />
-            </div>
+  return (
+    <div className="min-h-[calc(100vh-68px)] bg-white pb-16">
+    {/* ===== Hero header ===== */}
+<div className="relative overflow-hidden bg-gradient-to-b from-[#f0fdfa] to-white border-b border-[#ccfbf1] pt-24 pb-10 md:pt-28 md:pb-12">
+  <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(20,184,166,0.14)_0%,transparent_70%)] pointer-events-none" />
+  <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-[radial-gradient(circle,rgba(20,184,166,0.08)_0%,transparent_70%)] pointer-events-none" />
+
+  <div className="page-container relative">
+    <h1
+      className="font-['Outfit'] text-[clamp(1.875rem,3.8vw,2.75rem)] font-extrabold text-[#042f2e] tracking-[-0.02em] mb-2 animate-[ezcFadeUp_0.6s_ease_forwards]"
+      style={{ animationDelay: "80ms", opacity: 0 }}
+    >
+      Explore Salons
+    </h1>
+    <p
+      className="text-[#5b6b68] text-[0.9375rem] md:text-base animate-[ezcFadeUp_0.6s_ease_forwards]"
+      style={{ animationDelay: "150ms", opacity: 0 }}
+    >
+      <span className="font-bold text-[#0f766e]">{salons.length}</span> verified salon
+      {salons.length !== 1 ? "s" : ""} available for booking near you
+    </p>
+  </div>
+</div>
+
+      <div className="page-container py-10">
+        {/* ===== Filters row ===== */}
+        <div
+          className="flex flex-wrap items-center gap-3 mb-6 animate-[ezcFadeUp_0.6s_ease_forwards]"
+          style={{ animationDelay: "220ms", opacity: 0 }}
+        >
+          <div className="flex-1 min-w-[260px] max-w-[480px] relative group">
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none transition-colors duration-200 group-focus-within:text-[#0d9488]"
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, city or address..."
+              className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-9 py-2.5 text-sm text-[#111827] placeholder:text-[#9ca3af] outline-none transition-all duration-200 focus:border-[#0d9488] focus:shadow-[0_0_0_3px_rgba(13,148,136,0.15)]"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#374151] transition-colors duration-150"
+              >
+                <X size={15} />
+              </button>
+            )}
           </div>
 
-          {/* Near Me Toggle Button */}
           <button
             type="button"
             onClick={handleToggleNearby}
             disabled={geoLoading}
-            className={`btn ${useNearby ? "btn-primary" : "btn-outline"}`}
-            style={{ height: "42px", gap: "0.5rem" }}
+            className={`h-[42px] inline-flex items-center gap-2 px-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              useNearby
+                ? "bg-[#0f766e] text-white shadow-[0_6px_18px_rgba(15,118,110,0.3)]"
+                : "bg-white border border-gray-200 text-[#134e4a] hover:border-[#0d9488]/40 hover:bg-[#f0fdfa]"
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
             {geoLoading ? (
               <>
-                <div className="spinner" style={{ width: "14px", height: "14px" }} />
+                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Locating...
               </>
             ) : (
               <>
-                <span>📍</span>
+                <MapPin size={15} className={useNearby ? "animate-none" : ""} />
                 {useNearby ? "Showing Nearby Salons" : "Find Near Me"}
               </>
             )}
           </button>
 
-          {/* Radius Selector */}
           {useNearby && (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "var(--gray-50)", padding: "0.25rem 0.75rem", borderRadius: "var(--radius-md)", border: "1px solid var(--gray-200)", height: "42px" }}>
-              <label style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", color: "var(--gray-400)", whiteSpace: "nowrap" }}>Radius:</label>
+            <div className="h-[42px] flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3.5 animate-[ezcFadeUp_0.35s_ease_forwards]">
+              <SlidersHorizontal size={13} className="text-[#0d9488]" />
+              <label className="text-[0.7rem] font-bold uppercase tracking-wide text-[#6b7280] whitespace-nowrap">
+                Radius:
+              </label>
               <select
                 value={radius}
                 onChange={handleRadiusChange}
-                style={{ background: "transparent", border: "none", outline: "none", fontSize: "0.875rem", fontWeight: 600, color: "var(--gray-700)", cursor: "pointer" }}
+                className="bg-transparent outline-none text-sm font-semibold text-[#134e4a] cursor-pointer"
               >
                 <option value="1000">1 km</option>
                 <option value="5000">5 km</option>
@@ -176,20 +201,62 @@ const Salons = () => {
           )}
         </div>
 
-        {/* Salon Grid */}
+        {/* ===== Active filter chips ===== */}
+        {(useNearby || search) && (
+          <div
+            className="flex flex-wrap items-center gap-2 mb-8 animate-[ezcFadeUp_0.35s_ease_forwards]"
+            style={{ opacity: 0 }}
+          >
+            <span className="text-xs font-semibold text-[#9ca3af]">Active filters:</span>
+            {useNearby && (
+              <span className="inline-flex items-center gap-1.5 bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f766e] text-xs font-semibold px-2.5 py-1 rounded-full">
+                <MapPin size={11} />
+                Within {radiusLabel}
+              </span>
+            )}
+            {search && (
+              <span className="inline-flex items-center gap-1.5 bg-[#f0fdfa] border border-[#ccfbf1] text-[#0f766e] text-xs font-semibold px-2.5 py-1 rounded-full">
+                <Search size={11} />"{search}"
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* ===== Result count ===== */}
+        {filtered.length > 0 && (
+          <div
+            className="flex items-center justify-between mb-5 animate-[ezcFadeUp_0.4s_ease_forwards]"
+            style={{ opacity: 0 }}
+          >
+            <p className="text-sm text-[#5b6b68]">
+              Showing <span className="font-bold text-[#022525]">{filtered.length}</span> salon
+              {filtered.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+        )}
+
+        {/* ===== Salon grid ===== */}
         {filtered.length === 0 ? (
-          <EmptyState
-            title="No salons found"
-            description={search ? `No results for "${search}". Try a different search.` : "No approved salons are available right now."}
-          />
+          <div className="animate-[ezcFadeUp_0.4s_ease_forwards]" style={{ opacity: 0 }}>
+            <EmptyState
+              title="No salons found"
+              description={
+                search
+                  ? `No results for "${search}". Try a different search.`
+                  : "No approved salons are available right now."
+              }
+            />
+          </div>
         ) : (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "1.5rem",
-          }}>
-            {filtered.map((salon) => (
-              <SalonCard key={salon._id} salon={salon} />
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+            {filtered.map((salon, i) => (
+              <div
+                key={salon._id}
+                className="animate-[ezcFadeUp_0.5s_ease_forwards] transition-transform duration-300 hover:-translate-y-1.5"
+                style={{ animationDelay: `${Math.min(i * 60, 480)}ms`, opacity: 0 }}
+              >
+                <SalonCard salon={salon} />
+              </div>
             ))}
           </div>
         )}
