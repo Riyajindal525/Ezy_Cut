@@ -17,12 +17,12 @@
    ============================================ */
 
 *,
-*::before,
+/* *::before,
 *::after {
    box-sizing: border-box;
    margin: 0;
    padding: 0;
-}
+} */
 
 :root {
    /* Brand Colors */
@@ -99,6 +99,26 @@ body {
    color: #f4f4f5;
    line-height: 1.6;
    min-height: 100vh;
+   overflow-x: hidden;
+   -webkit-text-size-adjust: 100%;
+}
+
+* {
+   box-sizing: border-box;
+}
+
+img,
+svg {
+   display: block;
+   max-width: 100%;
+   height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+   font: inherit;
 }
 
 h1,
@@ -469,13 +489,13 @@ h6 {
    border: 1px solid var(--gray-100);
 }
 
-table {
+.legacy-table {
    width: 100%;
    border-collapse: collapse;
    font-size: 0.875rem;
 }
 
-thead th {
+.legacy-table thead th {
    padding: 0.875rem 1rem;
    text-align: left;
    font-size: 0.75rem;
@@ -488,22 +508,22 @@ thead th {
    white-space: nowrap;
 }
 
-tbody td {
+.legacy-table tbody td {
    padding: 1rem;
    border-bottom: 1px solid var(--gray-50);
    color: var(--gray-600);
    vertical-align: middle;
 }
 
-tbody tr:last-child td {
+.legacy-table tbody tr:last-child td {
    border-bottom: none;
 }
 
-tbody tr {
+.legacy-table tbody tr {
    transition: background var(--transition-fast);
 }
 
-tbody tr:hover {
+.legacy-table tbody tr:hover {
    background: var(--gray-50);
 }
 
@@ -893,79 +913,13 @@ tbody tr:hover {
 }
 
 /* ============================================
-   NAVBAR (PUBLIC)
-   ============================================ */
-.navbar {
-   background: rgba(9, 9, 11, 0.95);
-   backdrop-filter: blur(16px);
-   border-bottom: 1px solid var(--gray-200);
-   padding: 0 2rem;
-   height: 68px;
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   gap: 1.5rem;
-   position: sticky;
-   top: 0;
-   z-index: 200;
-   box-shadow: 0 1px 0 var(--gray-200);
-}
-
-.navbar-brand {
-   font-size: 1.375rem;
-   font-weight: 800;
-   color: white;
-   letter-spacing: -0.03em;
-   text-decoration: none;
-   display: flex;
-   align-items: center;
-   gap: 0.5rem;
-}
-
-.navbar-brand span {
-   color: white;
-}
-
-.navbar-brand span span {
-   color: var(--brand-accent);
-}
-
-.navbar-links {
-   display: flex;
-   align-items: center;
-   gap: 0.5rem;
-   flex-wrap: wrap;
-}
-
-.nav-link {
-   font-size: 0.875rem;
-   font-weight: 500;
-   color: var(--gray-500);
-   text-decoration: none;
-   padding: 0.5rem 0.75rem;
-   border-radius: var(--radius);
-   transition: all var(--transition-fast);
-}
-
-.nav-link:hover {
-   background: rgba(255, 255, 255, 0.05);
-   color: white;
-}
-
-.nav-link.active {
-   color: var(--brand-accent);
-   background: var(--brand-accent-light);
-   font-weight: 600;
-}
-
-/* ============================================
    PAGE LAYOUT
    ============================================ */
 .page-container {
    max-width: 1280px;
    margin: 0 auto;
    width: 100%;
-   padding: 0 1.5rem;
+   padding: 0 1rem;
 }
 
 .page-section {
@@ -979,45 +933,35 @@ tbody tr:hover {
    letter-spacing: -0.02em;
 }
 
-.section-title {
+@media (min-width: 640px) {
+   .page-container {
+      padding: 0 1.25rem;
+   }
+}
+
+@media (min-width: 1024px) {
+   .page-container {
+      max-width: 1400px;
+      padding: 0 2rem;
+   }
+}
+
+@media (max-width: 639px) {
+   .page-section {
+      padding: 1.25rem 0;
+   }
+
+   .page-title {
+      font-size: 1.4rem;
+   }
+}
+
+/* .section-title {
    font-size: 1.25rem;
    font-weight: 700;
    color: var(--gray-800);
    letter-spacing: -0.01em;
-}
-
-/* ============================================
-   SALON & SERVICE CARDS (PUBLIC)
-   ============================================ */
-.salon-card {
-   background: white;
-   border-radius: var(--radius-xl);
-   border: 1px solid var(--gray-100);
-   overflow: hidden;
-   transition: all var(--transition-slow);
-   cursor: pointer;
-}
-
-.salon-card:hover {
-   border-color: var(--gray-200);
-   box-shadow: var(--shadow-lg);
-   transform: translateY(-3px);
-}
-
-.salon-card-image {
-   width: 100%;
-   height: 180px;
-   object-fit: cover;
-   background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   color: var(--gray-400);
-}
-
-.salon-card-body {
-   padding: 1.25rem;
-}
+} */
 
 /* ============================================
    ANIMATIONS
@@ -3792,4 +3736,18 @@ tbody tr:hover {
   .register-role-desc {
     display: none;
   }
+}
+@keyframes ezcKenBurns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+@keyframes ezcFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ezcScrollDot {
+  0% { transform: translateY(0); opacity: 1; }
+  60% { transform: translateY(8px); opacity: 0; }
+  61% { transform: translateY(0); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }

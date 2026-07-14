@@ -28,7 +28,10 @@ import {
   FileText,
   ShieldCheck,
   ShieldX,
-  X
+  X,
+  Sparkles,
+  Navigation,
+  Users,
 } from "lucide-react";
 
 const OwnerDashboard = () => {
@@ -272,14 +275,14 @@ const OwnerDashboard = () => {
       }
 
       toast.success("Salon profile submitted successfully! Please wait for admin approval. ⏳");
-      
+
       // Refresh list and select the new salon
       const updatedSalons = await fetchSalons(true);
       const newSalon = updatedSalons.find((s) => s.name === formData.name);
       if (newSalon) {
         setActiveSalonId(newSalon._id);
       }
-      
+
       setFormData({
         name: "",
         description: "",
@@ -314,26 +317,27 @@ const OwnerDashboard = () => {
     return <Loader message="Verifying salon profile association..." />;
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
   // State 0: Welcome / Empty Dashboard when user has no salons yet
+  // ─────────────────────────────────────────────────────────────────────────
   if (ownedSalons.length === 0 && !showRegisterForm) {
     return (
-      <div className="owner-welcome-card">
-        <div className="owner-welcome-icon">
-          <Building size={36} style={{ color: "var(--brand-accent)" }} />
+      <div className="max-w-xl mx-auto my-10 bg-white border border-gray-100 rounded-3xl shadow-sm p-10 text-center">
+        <div className="w-20 h-20 rounded-full bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center mx-auto mb-6">
+          <Building size={34} className="text-[#0d9488]" />
         </div>
-        
-        <h3 className="owner-welcome-title">Welcome to EzyCut!</h3>
-        <p className="owner-welcome-desc">
+
+        <h3 className="text-2xl font-extrabold text-gray-800 mb-3">Welcome to EzyCut!</h3>
+        <p className="text-gray-500 text-[0.9375rem] leading-relaxed max-w-md mx-auto">
           You don't have any salons registered under this account yet. Register your salon profile to start listing services, managing bookings, and tracking live queues.
         </p>
 
-        <div style={{ marginTop: "2.5rem" }}>
+        <div className="mt-8">
           <button
             onClick={() => navigate("/owner/dashboard?register=true")}
-            className="owner-btn owner-btn-solid-gold"
-            style={{ padding: "0.875rem 2rem", fontSize: "0.875rem", borderRadius: "12px" }}
+            className="inline-flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors"
           >
-            + Register Your Salon
+            <Plus size={16} /> Register Your Salon
           </button>
         </div>
       </div>
@@ -377,44 +381,56 @@ const OwnerDashboard = () => {
     }
   };
 
+  // Shared input classes for the light theme
+  const inputCls =
+    "w-full bg-[#f7faf9] border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder:text-gray-400 outline-none transition-colors focus:border-[#0d9488] focus:bg-white focus:ring-2 focus:ring-[#0d9488]/15";
+  const labelCls = "text-xs font-bold text-gray-500 uppercase tracking-wider";
+
+  // ─────────────────────────────────────────────────────────────────────────
   // State 1: Register Salon Form (2-step KYC stepper)
+  // ─────────────────────────────────────────────────────────────────────────
   if (showRegisterForm) {
     return (
-      <div className="owner-onboarding-card">
+      <div className="max-w-4xl mx-auto bg-white border border-gray-100 rounded-3xl shadow-sm p-6 sm:p-10">
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.06)", marginBottom: "2rem" }}>
+        <div className="flex justify-between items-start gap-4 flex-wrap pb-6 border-b border-gray-100 mb-8">
           <div>
-            <span className="owner-onboarding-tag">Onboarding</span>
-            <h3 className="owner-onboarding-title">Register Salon Profile</h3>
-            <p className="owner-onboarding-desc">Complete both steps to list your salon on EzyCut</p>
+            <span className="inline-flex bg-[#f0fdfa] border border-[#ccfbf1] px-3 py-1 rounded-full text-[0.6875rem] font-bold text-[#0f766e] uppercase tracking-wider mb-2">
+              Onboarding
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">Register Salon Profile</h3>
+            <p className="text-sm text-gray-500 mt-1">Complete both steps to list your salon on EzyCut</p>
           </div>
           {ownedSalons.length > 0 && (
-            <button onClick={() => navigate("/owner/dashboard")} className="owner-btn owner-btn-outline">
+            <button
+              onClick={() => navigate("/owner/dashboard")}
+              className="inline-flex items-center bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
+            >
               Cancel
             </button>
           )}
         </div>
 
         {/* Step Progress Indicator */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0", marginBottom: "2.5rem" }}>
+        <div className="flex items-center mb-10">
           {[{ n: 1, label: "Basic Details" }, { n: 2, label: "KYC Documents" }].map(({ n, label }, idx) => (
-            <div key={n} style={{ display: "flex", alignItems: "center", flex: idx === 0 ? "none" : 1 }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
-                <div style={{
-                  width: "2.25rem", height: "2.25rem", borderRadius: "50%",
-                  background: registerStep >= n ? "var(--brand-accent)" : "rgba(255,255,255,0.06)",
-                  color: registerStep >= n ? "#09090b" : "#71717a",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 700, fontSize: "0.875rem", border: "2px solid",
-                  borderColor: registerStep >= n ? "var(--brand-accent)" : "rgba(255,255,255,0.1)",
-                  transition: "all 0.3s",
-                }}>
+            <div key={n} className={`flex items-center ${idx === 0 ? "" : "flex-1"}`}>
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all ${
+                    registerStep >= n
+                      ? "bg-[#0d9488] border-[#0d9488] text-white"
+                      : "bg-gray-50 border-gray-200 text-gray-400"
+                  }`}
+                >
                   {registerStep > n ? <CheckCircle2 size={16} /> : n}
                 </div>
-                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: registerStep >= n ? "white" : "#71717a", whiteSpace: "nowrap" }}>{label}</span>
+                <span className={`text-xs font-semibold whitespace-nowrap ${registerStep >= n ? "text-gray-800" : "text-gray-400"}`}>
+                  {label}
+                </span>
               </div>
               {idx === 0 && (
-                <div style={{ flex: 1, height: "2px", background: registerStep > 1 ? "var(--brand-accent)" : "rgba(255,255,255,0.08)", margin: "0 1rem", marginBottom: "1.5rem", transition: "background 0.3s" }} />
+                <div className={`flex-1 h-0.5 mx-4 -mb-6 transition-colors ${registerStep > 1 ? "bg-[#0d9488]" : "bg-gray-200"}`} />
               )}
             </div>
           ))}
@@ -422,118 +438,139 @@ const OwnerDashboard = () => {
 
         {/* ── STEP 1: Basic Details ── */}
         {registerStep === 1 && (
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            setRegisterLoading(true);
-            try {
-              const res = await createSalon({ ...formData, latitude: Number(formData.latitude), longitude: Number(formData.longitude) });
-              setCreatedSalonId(res.salon?._id);
-              toast.success("Basic details saved! Now upload your KYC documents.");
-              setRegisterStep(2);
-            } catch (err) {
-              console.error(err);
-              toast.error(err.response?.data?.message || "Failed to save salon details.");
-            } finally {
-              setRegisterLoading(false);
-            }
-          }} className="space-y-8">
-
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setRegisterLoading(true);
+              try {
+                const res = await createSalon({ ...formData, latitude: Number(formData.latitude), longitude: Number(formData.longitude) });
+                setCreatedSalonId(res.salon?._id);
+                toast.success("Basic details saved! Now upload your KYC documents.");
+                setRegisterStep(2);
+              } catch (err) {
+                console.error(err);
+                toast.error(err.response?.data?.message || "Failed to save salon details.");
+              } finally {
+                setRegisterLoading(false);
+              }
+            }}
+            className="space-y-6"
+          >
             {/* Section 1: Basic Info */}
-            <div className="owner-form-section space-y-6">
-              <h4 className="owner-form-section-heading"><Building size={14} /> Basic Information</h4>
-              <div className="owner-form-grid-2">
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Salon Name *</label>
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className="owner-form-input" placeholder="e.g. Sharp & Sleek Salon" />
+            <div className="bg-[#f7faf9] border border-gray-100 rounded-2xl p-6 space-y-5">
+              <h4 className="text-xs font-bold text-[#0f766e] uppercase tracking-wider flex items-center gap-2">
+                <Building size={14} /> Basic Information
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Salon Name *</label>
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className={inputCls} placeholder="e.g. Sharp & Sleek Salon" />
                 </div>
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Contact Phone *</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required pattern="[0-9]{10}" maxLength="10" className="owner-form-input" placeholder="e.g. 9876543210 (10 digits)" />
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Contact Phone *</label>
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required pattern="[0-9]{10}" maxLength="10" className={inputCls} placeholder="e.g. 9876543210 (10 digits)" />
                 </div>
               </div>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Description</label>
-                <textarea name="description" value={formData.description} onChange={handleChange} rows="3" className="owner-form-textarea" placeholder="Tell customers about your salon..." />
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Description</label>
+                <textarea name="description" value={formData.description} onChange={handleChange} rows="3" className={inputCls} placeholder="Tell customers about your salon..." />
               </div>
             </div>
 
             {/* Section 2: Address */}
-            <div className="owner-form-section space-y-6">
-              <h4 className="owner-form-section-heading"><MapPin size={14} /> Physical Location</h4>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Street Address *</label>
-                <input type="text" name="address" value={formData.address} onChange={handleChange} required className="owner-form-input" placeholder="e.g. Shop 42, Royal Complex" />
+            <div className="bg-[#f7faf9] border border-gray-100 rounded-2xl p-6 space-y-5">
+              <h4 className="text-xs font-bold text-[#0f766e] uppercase tracking-wider flex items-center gap-2">
+                <MapPin size={14} /> Physical Location
+              </h4>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Street Address *</label>
+                <input type="text" name="address" value={formData.address} onChange={handleChange} required className={inputCls} placeholder="e.g. Shop 42, Royal Complex" />
               </div>
-              <div className="owner-form-grid-3">
-                <div className="owner-form-group">
-                  <label className="owner-form-label">City *</label>
-                  <input type="text" name="city" value={formData.city} onChange={handleChange} required className="owner-form-input" placeholder="City" />
+              <div className="grid sm:grid-cols-3 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>City *</label>
+                  <input type="text" name="city" value={formData.city} onChange={handleChange} required className={inputCls} placeholder="City" />
                 </div>
-                <div className="owner-form-group">
-                  <label className="owner-form-label">State *</label>
-                  <input type="text" name="state" value={formData.state} onChange={handleChange} required className="owner-form-input" placeholder="State" />
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>State *</label>
+                  <input type="text" name="state" value={formData.state} onChange={handleChange} required className={inputCls} placeholder="State" />
                 </div>
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Pincode *</label>
-                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} required className="owner-form-input" placeholder="Pincode" />
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Pincode *</label>
+                  <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} required className={inputCls} placeholder="Pincode" />
                 </div>
               </div>
-              <div className="owner-location-box">
-                <div className="owner-location-box-header">
-                  <span className="owner-form-label">Geolocation *</span>
-                  <button type="button" onClick={handleGetLocation} className="owner-btn owner-btn-outline">Use Current Location 📍</button>
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <div className="flex justify-between items-center gap-4 flex-wrap mb-3">
+                  <span className={labelCls}>Geolocation *</span>
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
+                    className="inline-flex items-center gap-1.5 bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <Navigation size={12} /> Use Current Location
+                  </button>
                 </div>
-                <div className="owner-form-grid-2">
-                  <input type="number" step="any" name="latitude" value={formData.latitude} onChange={handleChange} required className="owner-form-input" placeholder="Latitude (e.g. 28.61)" />
-                  <input type="number" step="any" name="longitude" value={formData.longitude} onChange={handleChange} required className="owner-form-input" placeholder="Longitude (e.g. 77.20)" />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <input type="number" step="any" name="latitude" value={formData.latitude} onChange={handleChange} required className={inputCls} placeholder="Latitude (e.g. 28.61)" />
+                  <input type="number" step="any" name="longitude" value={formData.longitude} onChange={handleChange} required className={inputCls} placeholder="Longitude (e.g. 77.20)" />
                 </div>
               </div>
             </div>
 
             {/* Section 3: Hours */}
-            <div className="owner-form-section space-y-6">
-              <h4 className="owner-form-section-heading"><Clock size={14} /> Operational Hours</h4>
-              <div className="owner-form-grid-2">
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Opening Time</label>
-                  <input type="text" name="openingTime" value={formData.openingTime} onChange={handleChange} className="owner-form-input" placeholder="09:00 AM" />
+            <div className="bg-[#f7faf9] border border-gray-100 rounded-2xl p-6 space-y-5">
+              <h4 className="text-xs font-bold text-[#0f766e] uppercase tracking-wider flex items-center gap-2">
+                <Clock size={14} /> Operational Hours
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Opening Time</label>
+                  <input type="text" name="openingTime" value={formData.openingTime} onChange={handleChange} className={inputCls} placeholder="09:00 AM" />
                 </div>
-                <div className="owner-form-group">
-                  <label className="owner-form-label">Closing Time</label>
-                  <input type="text" name="closingTime" value={formData.closingTime} onChange={handleChange} className="owner-form-input" placeholder="09:00 PM" />
+                <div className="flex flex-col gap-1.5">
+                  <label className={labelCls}>Closing Time</label>
+                  <input type="text" name="closingTime" value={formData.closingTime} onChange={handleChange} className={inputCls} placeholder="09:00 PM" />
                 </div>
               </div>
             </div>
 
-            <button type="submit" disabled={registerLoading} className="owner-submit-btn">
-              {registerLoading ? "Saving Details..." : "Save & Continue to KYC →"}
+            <button
+              type="submit"
+              disabled={registerLoading}
+              className="w-full bg-[#0d9488] hover:bg-[#0f766e] disabled:opacity-60 text-white font-bold text-sm py-3.5 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors flex items-center justify-center gap-2"
+            >
+              {registerLoading ? "Saving Details..." : "Save & Continue to KYC"} <ArrowRight size={15} />
             </button>
           </form>
         )}
 
         {/* ── STEP 2: KYC Documents ── */}
         {registerStep === 2 && (
-          <form onSubmit={handleKycSubmit} style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-
+          <form onSubmit={handleKycSubmit} className="flex flex-col gap-6">
             {/* Mandatory Notice */}
-            <div style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: "10px", padding: "1rem 1.25rem", display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-              <ShieldCheck size={20} style={{ color: "var(--brand-accent)", flexShrink: 0, marginTop: "0.1rem" }} />
+            <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-xl px-5 py-4 flex gap-3 items-start">
+              <ShieldCheck size={20} className="text-[#0d9488] shrink-0 mt-0.5" />
               <div>
-                <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--brand-accent)", marginBottom: "0.25rem" }}>KYC Verification Required</p>
-                <p style={{ fontSize: "0.8125rem", color: "#a1a1aa", lineHeight: 1.6 }}>As per government regulations, salon owners must complete KYC verification. Upload your identity proof (mandatory) and business documents. Accepted formats: JPEG, PNG, PDF (max 5MB each).</p>
+                <p className="text-sm font-semibold text-[#0f766e] mb-1">KYC Verification Required</p>
+                <p className="text-[0.8125rem] text-gray-500 leading-relaxed">
+                  As per government regulations, salon owners must complete KYC verification. Upload your identity proof (mandatory) and business documents. Accepted formats: JPEG, PNG, PDF (max 5MB each).
+                </p>
               </div>
             </div>
 
             {/* Owner ID Proof — MANDATORY */}
-            <div className="owner-form-section" style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>
-              <h4 className="owner-form-section-heading"><User size={14} /> Owner Identity Proof <span style={{ color: "#f87171", fontSize: "0.75rem", fontWeight: 500, marginLeft: "0.5rem" }}>* Required</span></h4>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Document Type *</label>
+            <div className="bg-[#f7faf9] border border-gray-100 rounded-2xl p-6 flex flex-col gap-4">
+              <h4 className="text-xs font-bold text-[#0f766e] uppercase tracking-wider flex items-center gap-2">
+                <User size={14} /> Owner Identity Proof
+                <span className="text-rose-500 text-[0.6875rem] font-semibold normal-case ml-1">* Required</span>
+              </h4>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Document Type *</label>
                 <select
                   value={kycMeta.ownerIdProofType}
-                  onChange={(e) => setKycMeta(p => ({ ...p, ownerIdProofType: e.target.value }))}
-                  className="owner-form-input"
-                  style={{ cursor: "pointer" }}
+                  onChange={(e) => setKycMeta((p) => ({ ...p, ownerIdProofType: e.target.value }))}
+                  className={`${inputCls} cursor-pointer`}
                 >
                   <option value="aadhaar">Aadhaar Card</option>
                   <option value="pan">PAN Card</option>
@@ -543,45 +580,58 @@ const OwnerDashboard = () => {
                 </select>
               </div>
               <div>
-                <label className="owner-form-label" style={{ marginBottom: "0.5rem", display: "block" }}>Upload Document *</label>
+                <label className={`${labelCls} mb-2 block`}>Upload Document *</label>
                 <div
                   onClick={() => idProofRef.current?.click()}
-                  style={{
-                    border: `2px dashed ${kycFiles.ownerIdProof ? "var(--brand-accent)" : "rgba(255,255,255,0.12)"}`,
-                    borderRadius: "10px", padding: "2rem 1.5rem", cursor: "pointer",
-                    textAlign: "center", background: kycFiles.ownerIdProof ? "rgba(251,191,36,0.04)" : "rgba(255,255,255,0.02)",
-                    transition: "all 0.2s",
-                  }}
+                  className={`border-2 border-dashed rounded-xl p-8 cursor-pointer text-center transition-colors ${
+                    kycFiles.ownerIdProof ? "border-[#0d9488] bg-[#f0fdfa]" : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
                 >
                   {kycFiles.ownerIdProof ? (
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
-                      <CheckCircle2 size={20} style={{ color: "var(--brand-accent)" }} />
-                      <span style={{ fontSize: "0.875rem", color: "var(--brand-accent)", fontWeight: 600 }}>{kycFiles.ownerIdProof.name}</span>
-                      <button type="button" onClick={(ev) => { ev.stopPropagation(); setKycFiles(p => ({ ...p, ownerIdProof: null })); }} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}><X size={16} /></button>
+                    <div className="flex items-center justify-center gap-3">
+                      <CheckCircle2 size={20} className="text-[#0d9488]" />
+                      <span className="text-sm text-[#0f766e] font-semibold">{kycFiles.ownerIdProof.name}</span>
+                      <button
+                        type="button"
+                        onClick={(ev) => {
+                          ev.stopPropagation();
+                          setKycFiles((p) => ({ ...p, ownerIdProof: null }));
+                        }}
+                        className="text-gray-400 hover:text-rose-500 p-0"
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                      <Upload size={24} style={{ color: "#71717a" }} />
-                      <span style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Click to upload ID proof</span>
-                      <span style={{ fontSize: "0.75rem", color: "#52525b" }}>JPEG, PNG or PDF · Max 5MB</span>
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload size={24} className="text-gray-400" />
+                      <span className="text-sm text-gray-500">Click to upload ID proof</span>
+                      <span className="text-xs text-gray-400">JPEG, PNG or PDF · Max 5MB</span>
                     </div>
                   )}
                 </div>
-                <input ref={idProofRef} type="file" accept="image/jpeg,image/png,application/pdf" style={{ display: "none" }}
-                  onChange={(e) => e.target.files?.[0] && setKycFiles(p => ({ ...p, ownerIdProof: e.target.files[0] }))} />
+                <input
+                  ref={idProofRef}
+                  type="file"
+                  accept="image/jpeg,image/png,application/pdf"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && setKycFiles((p) => ({ ...p, ownerIdProof: e.target.files[0] }))}
+                />
               </div>
             </div>
 
             {/* Business Proof — OPTIONAL */}
-            <div className="owner-form-section" style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>
-              <h4 className="owner-form-section-heading"><FileText size={14} /> Business Proof <span style={{ color: "#71717a", fontSize: "0.75rem", fontWeight: 400, marginLeft: "0.5rem" }}>(Optional)</span></h4>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Document Type</label>
+            <div className="bg-[#f7faf9] border border-gray-100 rounded-2xl p-6 flex flex-col gap-4">
+              <h4 className="text-xs font-bold text-[#0f766e] uppercase tracking-wider flex items-center gap-2">
+                <FileText size={14} /> Business Proof
+                <span className="text-gray-400 text-[0.6875rem] font-medium normal-case ml-1">(Optional)</span>
+              </h4>
+              <div className="flex flex-col gap-1.5">
+                <label className={labelCls}>Document Type</label>
                 <select
                   value={kycMeta.businessProofType}
-                  onChange={(e) => setKycMeta(p => ({ ...p, businessProofType: e.target.value }))}
-                  className="owner-form-input"
-                  style={{ cursor: "pointer" }}
+                  onChange={(e) => setKycMeta((p) => ({ ...p, businessProofType: e.target.value }))}
+                  className={`${inputCls} cursor-pointer`}
                 >
                   <option value="none">Not Applicable / Skip</option>
                   <option value="gst">GST Certificate</option>
@@ -593,81 +643,119 @@ const OwnerDashboard = () => {
               </div>
               {kycMeta.businessProofType !== "none" && (
                 <div>
-                  <label className="owner-form-label" style={{ marginBottom: "0.5rem", display: "block" }}>Upload Business Document</label>
+                  <label className={`${labelCls} mb-2 block`}>Upload Business Document</label>
                   <div
                     onClick={() => bizProofRef.current?.click()}
-                    style={{
-                      border: `2px dashed ${kycFiles.businessProof ? "var(--brand-accent)" : "rgba(255,255,255,0.12)"}`,
-                      borderRadius: "10px", padding: "1.5rem", cursor: "pointer",
-                      textAlign: "center", background: "rgba(255,255,255,0.02)", transition: "all 0.2s",
-                    }}
+                    className={`border-2 border-dashed rounded-xl p-6 cursor-pointer text-center transition-colors ${
+                      kycFiles.businessProof ? "border-[#0d9488] bg-[#f0fdfa]" : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
                   >
                     {kycFiles.businessProof ? (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
-                        <CheckCircle2 size={18} style={{ color: "var(--brand-accent)" }} />
-                        <span style={{ fontSize: "0.875rem", color: "var(--brand-accent)", fontWeight: 600 }}>{kycFiles.businessProof.name}</span>
-                        <button type="button" onClick={(ev) => { ev.stopPropagation(); setKycFiles(p => ({ ...p, businessProof: null })); }} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}><X size={16} /></button>
+                      <div className="flex items-center justify-center gap-3">
+                        <CheckCircle2 size={18} className="text-[#0d9488]" />
+                        <span className="text-sm text-[#0f766e] font-semibold">{kycFiles.businessProof.name}</span>
+                        <button
+                          type="button"
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            setKycFiles((p) => ({ ...p, businessProof: null }));
+                          }}
+                          className="text-gray-400 hover:text-rose-500 p-0"
+                        >
+                          <X size={16} />
+                        </button>
                       </div>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                        <Upload size={20} style={{ color: "#71717a" }} />
-                        <span style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Click to upload business document</span>
-                        <span style={{ fontSize: "0.75rem", color: "#52525b" }}>JPEG, PNG or PDF · Max 5MB</span>
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload size={20} className="text-gray-400" />
+                        <span className="text-sm text-gray-500">Click to upload business document</span>
+                        <span className="text-xs text-gray-400">JPEG, PNG or PDF · Max 5MB</span>
                       </div>
                     )}
                   </div>
-                  <input ref={bizProofRef} type="file" accept="image/jpeg,image/png,application/pdf" style={{ display: "none" }}
-                    onChange={(e) => e.target.files?.[0] && setKycFiles(p => ({ ...p, businessProof: e.target.files[0] }))} />
+                  <input
+                    ref={bizProofRef}
+                    type="file"
+                    accept="image/jpeg,image/png,application/pdf"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && setKycFiles((p) => ({ ...p, businessProof: e.target.files[0] }))}
+                  />
                 </div>
               )}
             </div>
 
             {/* Salon Images — OPTIONAL */}
-            <div className="owner-form-section" style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>
-              <h4 className="owner-form-section-heading"><Upload size={14} /> Salon Photos <span style={{ color: "#71717a", fontSize: "0.75rem", fontWeight: 400, marginLeft: "0.5rem" }}>(Optional · Up to 5)</span></h4>
+            <div className="bg-[#f7faf9] border border-gray-100 rounded-2xl p-6 flex flex-col gap-4">
+              <h4 className="text-xs font-bold text-[#0f766e] uppercase tracking-wider flex items-center gap-2">
+                <Upload size={14} /> Salon Photos
+                <span className="text-gray-400 text-[0.6875rem] font-medium normal-case ml-1">(Optional · Up to 5)</span>
+              </h4>
               <div>
                 <div
                   onClick={() => salonImgRef.current?.click()}
-                  style={{
-                    border: `2px dashed ${kycFiles.salonImages.length > 0 ? "var(--brand-accent)" : "rgba(255,255,255,0.12)"}`,
-                    borderRadius: "10px", padding: "1.5rem", cursor: "pointer",
-                    textAlign: "center", background: "rgba(255,255,255,0.02)", transition: "all 0.2s",
-                  }}
+                  className={`border-2 border-dashed rounded-xl p-6 cursor-pointer text-center transition-colors ${
+                    kycFiles.salonImages.length > 0 ? "border-[#0d9488] bg-[#f0fdfa]" : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
                 >
                   {kycFiles.salonImages.length > 0 ? (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+                    <div className="flex flex-wrap gap-2 justify-center">
                       {kycFiles.salonImages.map((img, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: "6px", padding: "0.35rem 0.75rem" }}>
-                          <CheckCircle2 size={14} style={{ color: "var(--brand-accent)" }} />
-                          <span style={{ fontSize: "0.8rem", color: "var(--brand-accent)" }}>{img.name}</span>
-                          <button type="button" onClick={(ev) => { ev.stopPropagation(); setKycFiles(p => ({ ...p, salonImages: p.salonImages.filter((_, idx) => idx !== i) })); }} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer", padding: 0 }}><X size={12} /></button>
+                        <div key={i} className="flex items-center gap-1.5 bg-white border border-[#ccfbf1] rounded-lg px-3 py-1.5">
+                          <CheckCircle2 size={14} className="text-[#0d9488]" />
+                          <span className="text-[0.8rem] text-[#0f766e]">{img.name}</span>
+                          <button
+                            type="button"
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              setKycFiles((p) => ({ ...p, salonImages: p.salonImages.filter((_, idx) => idx !== i) }));
+                            }}
+                            className="text-gray-400 hover:text-rose-500 p-0"
+                          >
+                            <X size={12} />
+                          </button>
                         </div>
                       ))}
-                      {kycFiles.salonImages.length < 5 && <span style={{ fontSize: "0.8rem", color: "#71717a" }}>+ Add more</span>}
+                      {kycFiles.salonImages.length < 5 && <span className="text-[0.8rem] text-gray-400 self-center">+ Add more</span>}
                     </div>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-                      <Upload size={20} style={{ color: "#71717a" }} />
-                      <span style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Click to upload salon photos</span>
-                      <span style={{ fontSize: "0.75rem", color: "#52525b" }}>JPEG or PNG · Max 5MB each · Up to 5 photos</span>
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload size={20} className="text-gray-400" />
+                      <span className="text-sm text-gray-500">Click to upload salon photos</span>
+                      <span className="text-xs text-gray-400">JPEG or PNG · Max 5MB each · Up to 5 photos</span>
                     </div>
                   )}
                 </div>
-                <input ref={salonImgRef} type="file" accept="image/jpeg,image/png" multiple style={{ display: "none" }}
+                <input
+                  ref={salonImgRef}
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  multiple
+                  className="hidden"
                   onChange={(e) => {
                     const selected = Array.from(e.target.files || []);
                     const remaining = 5 - kycFiles.salonImages.length;
                     const toAdd = selected.slice(0, remaining);
-                    setKycFiles(p => ({ ...p, salonImages: [...p.salonImages, ...toAdd] }));
-                  }} />
+                    setKycFiles((p) => ({ ...p, salonImages: [...p.salonImages, ...toAdd] }));
+                  }}
+                />
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <button type="button" onClick={() => setRegisterStep(1)} className="owner-btn owner-btn-outline" style={{ flex: 1 }}>← Back</button>
+            <div className="flex gap-3 flex-wrap sm:flex-nowrap">
+              <button
+                type="button"
+                onClick={() => setRegisterStep(1)}
+                className="flex-1 inline-flex items-center justify-center bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-sm py-3 rounded-xl transition-colors"
+              >
+                ← Back
+              </button>
               {kycFiles.ownerIdProof && (
-                <button type="submit" disabled={kycLoading} className="owner-submit-btn" style={{ flex: 2 }}>
+                <button
+                  type="submit"
+                  disabled={kycLoading}
+                  className="flex-[2] bg-[#0d9488] hover:bg-[#0f766e] disabled:opacity-60 text-white font-bold text-sm py-3 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors"
+                >
                   {kycLoading ? "Uploading Documents..." : "Submit KYC & Complete Registration"}
                 </button>
               )}
@@ -678,35 +766,28 @@ const OwnerDashboard = () => {
     );
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
   // State 2: Active Salon Pending Approval
+  // ─────────────────────────────────────────────────────────────────────────
   if (salon && !salon.isApproved) {
     const isRejected = kycData && kycData.kycStatus === "rejected";
 
     return (
-      <div className="owner-welcome-card" style={{ maxWidth: "600px", margin: "2rem auto", padding: "2.5rem" }}>
+      <div className="max-w-xl mx-auto my-8 bg-white border border-gray-100 rounded-3xl shadow-sm p-8 sm:p-10">
         {isRejected ? (
           <>
-            <div className="owner-welcome-icon" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
-              <ShieldX size={36} style={{ color: "#ef4444" }} />
+            <div className="w-20 h-20 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-6">
+              <ShieldX size={34} className="text-rose-500" />
             </div>
-            
-            <h3 className="owner-welcome-title" style={{ color: "#ef4444" }}>KYC Verification Rejected</h3>
-            <p className="owner-welcome-desc" style={{ marginBottom: "1.5rem" }}>
-              The registration details for <strong>{salon.name}</strong> were reviewed by our team and could not be verified at this time.
+
+            <h3 className="text-2xl font-extrabold text-rose-500 text-center mb-3">KYC Verification Rejected</h3>
+            <p className="text-gray-500 text-[0.9375rem] leading-relaxed text-center mb-6">
+              The registration details for <strong className="text-gray-700">{salon.name}</strong> were reviewed by our team and could not be verified at this time.
             </p>
 
-            <div style={{
-              background: "rgba(239,68,68,0.05)",
-              border: "1px solid rgba(239,68,68,0.15)",
-              borderRadius: "10px",
-              padding: "1.25rem",
-              marginBottom: "2rem",
-              textAlign: "left"
-            }}>
-              <p style={{ fontSize: "0.75rem", color: "#f87171", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>
-                Reason for Rejection:
-              </p>
-              <p style={{ fontSize: "0.875rem", color: "#fca5a5", lineHeight: 1.6, fontWeight: 500 }}>
+            <div className="bg-rose-50 border border-rose-100 rounded-xl p-5 mb-8 text-left">
+              <p className="text-xs text-rose-500 font-bold uppercase tracking-wider mb-2">Reason for Rejection:</p>
+              <p className="text-sm text-rose-600 leading-relaxed font-medium">
                 {kycData.rejectionReason || "Documents provided are invalid or incomplete. Please check your uploaded files and try again."}
               </p>
             </div>
@@ -718,37 +799,35 @@ const OwnerDashboard = () => {
                 setShowRegisterForm(true);
                 navigate(`/owner/dashboard?register=true`);
               }}
-              className="owner-btn owner-btn-solid-gold"
-              style={{ width: "100%", padding: "1rem", borderRadius: "12px", fontSize: "0.875rem", fontWeight: 700, marginBottom: "1rem" }}
+              className="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm py-3.5 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors mb-4"
             >
               Re-submit KYC Documents
             </button>
           </>
         ) : (
           <>
-            <div className="owner-welcome-icon">
-              <Clock size={36} style={{ color: "var(--brand-accent)" }} />
+            <div className="w-20 h-20 rounded-full bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center mx-auto mb-6 animate-pulse">
+              <Clock size={34} className="text-[#0d9488]" />
             </div>
-            
-            <h3 className="owner-welcome-title">Registration Under Review</h3>
-            <p className="owner-welcome-desc">
-              The profile details for <strong>{salon.name}</strong> have been submitted and are pending review by our administration. We will activate your dashboard once verified.
+
+            <h3 className="text-2xl font-extrabold text-gray-800 text-center mb-3">Registration Under Review</h3>
+            <p className="text-gray-500 text-[0.9375rem] leading-relaxed text-center">
+              The profile details for <strong className="text-gray-700">{salon.name}</strong> have been submitted and are pending review by our administration. We will activate your dashboard once verified.
             </p>
           </>
         )}
 
-        <div className="owner-form-divider" style={{ margin: "2rem 0" }} />
+        <div className="h-px bg-gray-100 my-8" />
 
         <div className="flex flex-col gap-4 items-center">
-          <div className="flex items-center gap-2 text-xs text-zinc-550 font-semibold uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">
             <Info size={14} /> Need to list another store?
           </div>
           <button
             onClick={() => navigate("/owner/dashboard?register=true")}
-            className="owner-btn owner-btn-outline"
-            style={{ padding: "0.75rem 1.5rem", borderRadius: "10px" }}
+            className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors"
           >
-            + Register Another Salon
+            <Plus size={14} /> Register Another Salon
           </button>
         </div>
       </div>
@@ -763,127 +842,113 @@ const OwnerDashboard = () => {
     ? Math.max(...monthlyRevenue.map((m) => m.revenue))
     : 0;
 
+  const statCards = [
+    {
+      label: "Total Revenue",
+      value: `₹${overview?.totalRevenue || 0}`,
+      sub: "Lifetime completed sales",
+      icon: DollarSign,
+      tint: "bg-emerald-50 text-emerald-600",
+      subTint: "text-emerald-600",
+    },
+    {
+      label: "Today's Bookings",
+      value: overview?.todayBookings || 0,
+      sub: "Scheduled for today",
+      icon: Calendar,
+      tint: "bg-sky-50 text-sky-600",
+      subTint: "text-sky-600",
+    },
+    {
+      label: "Active Queue",
+      value: overview?.activeQueue || 0,
+      sub: "Clients checked-in/waiting",
+      icon: Users,
+      tint: "bg-[#f0fdfa] text-[#0d9488]",
+      subTint: "text-[#0d9488]",
+    },
+    {
+      label: "Salon Rating",
+      value: (
+        <>
+          {overview?.averageRating || 0} <span className="text-lg font-normal text-gray-400">/ 5</span>
+        </>
+      ),
+      sub: `Across ${overview?.totalReviews || 0} reviews`,
+      icon: Star,
+      tint: "bg-purple-50 text-purple-600",
+      subTint: "text-purple-600",
+    },
+  ];
+
   return (
-    <div className="owner-page-wrapper">
+    <div className="flex flex-col gap-8">
       {/* Metric Cards Grid */}
-      <div className="owner-stat-grid">
-        
-        {/* Card 1 */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Total Revenue</span>
-            <div className="owner-stat-icon" style={{
-              background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <DollarSign size={16} style={{ color: "#10b981" }} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {statCards.map(({ label, value, sub, icon: Icon, tint, subTint }) => (
+          <div
+            key={label}
+            className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col gap-4"
+          >
+            <div className="flex justify-between items-start">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</span>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tint}`}>
+                <Icon size={16} />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-3xl font-extrabold text-gray-800 tracking-tight">{value}</h3>
+              <p className={`text-xs font-semibold mt-1.5 ${subTint}`}>{sub}</p>
             </div>
           </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value">₹{overview?.totalRevenue || 0}</h3>
-            <p className="owner-stat-sub text-emerald-400">
-              ▲ Lifetime completed sales
-            </p>
-          </div>
-        </div>
-
-        {/* Card 2 */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Today's Bookings</span>
-            <div className="owner-stat-icon" style={{
-              background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <Calendar size={16} style={{ color: "#3b82f6" }} />
-            </div>
-          </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value">{overview?.todayBookings || 0}</h3>
-            <p className="owner-stat-sub text-blue-400">Scheduled for today</p>
-          </div>
-        </div>
-
-        {/* Card 3 */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Active Queue</span>
-            <div className="owner-stat-icon" style={{
-              background: "rgba(212, 175, 55, 0.08)", border: "1px solid rgba(212, 175, 55, 0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <Clock size={16} style={{ color: "var(--brand-accent)" }} />
-            </div>
-          </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value">{overview?.activeQueue || 0}</h3>
-            <p className="owner-stat-sub text-amber-400">Clients checked-in/waiting</p>
-          </div>
-        </div>
-
-        {/* Card 4 */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Salon Rating</span>
-            <div className="owner-stat-icon" style={{
-              background: "rgba(168, 85, 247, 0.08)", border: "1px solid rgba(168, 85, 247, 0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <Star size={16} style={{ color: "#a855f7" }} />
-            </div>
-          </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value">
-              {overview?.averageRating || 0} <span style={{ fontSize: "1.125rem", fontWeight: "normal", color: "#52525b" }}>/ 5</span>
-            </h3>
-            <p className="owner-stat-sub text-purple-400">Across {overview?.totalReviews || 0} reviews</p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: "2rem" }}>
-        
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Appointments */}
-        <div className="owner-card" style={{ gridColumn: "span 2" }}>
-          <div className="owner-card-header">
-            <h3 className="owner-card-title">
-              <Calendar size={18} style={{ color: "var(--brand-accent)" }} /> Recent Appointments
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden lg:col-span-2">
+          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
+              <Calendar size={17} className="text-[#0d9488]" /> Recent Appointments
             </h3>
-            <Link to="/owner/bookings" className="owner-btn owner-btn-gold">
-              Manage Bookings <ChevronRight size={14} />
+            <Link
+              to="/owner/bookings"
+              className="inline-flex items-center gap-1 bg-[#f0fdfa] hover:bg-[#ccfbf1]/60 text-[#0f766e] font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Manage Bookings <ChevronRight size={13} />
             </Link>
           </div>
 
-          <div className="owner-card-pad">
+          <div className="p-6">
             {recentBookings.length === 0 ? (
-              <p className="text-sm text-zinc-500 py-10 text-center font-medium">No bookings logged for this salon yet.</p>
+              <p className="text-sm text-gray-400 py-10 text-center font-medium">No bookings logged for this salon yet.</p>
             ) : (
-              <div className="owner-table-container">
-                <table className="owner-table">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr>
-                      <th>Customer</th>
-                      <th>Service</th>
-                      <th>Date</th>
-                      <th>Time</th>
-                      <th style={{ textAlign: "right" }}>Status</th>
+                    <tr className="border-b border-gray-100">
+                      <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Customer</th>
+                      <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Service</th>
+                      <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Date</th>
+                      <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Time</th>
+                      <th className="text-right text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentBookings.map((b) => (
-                      <tr key={b._id}>
-                        <td style={{ fontWeight: 700, color: "#ffffff" }}>{b.customer?.name}</td>
-                        <td style={{ fontWeight: 600 }}>{b.service?.name}</td>
-                        <td style={{ color: "#71717a" }}>{new Date(b.bookingDate).toLocaleDateString()}</td>
-                        <td style={{ fontFamily: "monospace", fontWeight: 700, color: "#a1a1aa" }}>{b.startTime}</td>
-                        <td style={{ textAlign: "right" }}>
+                      <tr key={b._id} className="border-b border-gray-50 last:border-none hover:bg-gray-50/60 transition-colors">
+                        <td className="py-3 pr-4 font-bold text-gray-800">{b.customer?.name}</td>
+                        <td className="py-3 pr-4 font-medium text-gray-600">{b.service?.name}</td>
+                        <td className="py-3 pr-4 text-gray-400">{new Date(b.bookingDate).toLocaleDateString()}</td>
+                        <td className="py-3 pr-4 font-mono font-semibold text-gray-600">{b.startTime}</td>
+                        <td className="py-3 text-right">
                           <span
-                            className={`owner-badge ${
+                            className={`inline-flex items-center text-[0.625rem] font-extrabold uppercase tracking-wide px-2.5 py-1 rounded-full ${
                               b.status === "completed"
-                                ? "owner-badge-blue"
+                                ? "bg-sky-50 text-sky-600"
                                 : b.status === "confirmed"
-                                ? "owner-badge-green"
-                                : "owner-badge-red"
+                                ? "bg-emerald-50 text-emerald-600"
+                                : "bg-rose-50 text-rose-600"
                             }`}
                           >
                             {b.status.replace("_", " ")}
@@ -899,44 +964,50 @@ const OwnerDashboard = () => {
         </div>
 
         {/* Top Services */}
-        <div className="owner-card">
-          <div className="owner-card-header">
-            <h3 className="owner-card-title">
-              <TrendingUp size={18} style={{ color: "var(--brand-accent)" }} /> Top Services
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
+              <TrendingUp size={17} className="text-[#0d9488]" /> Top Services
             </h3>
-            <Link to="/owner/services" className="owner-btn owner-btn-gold">
-              Catalog <ChevronRight size={14} />
+            <Link
+              to="/owner/services"
+              className="inline-flex items-center gap-1 bg-[#f0fdfa] hover:bg-[#ccfbf1]/60 text-[#0f766e] font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Catalog <ChevronRight size={13} />
             </Link>
           </div>
 
-          <div className="owner-card-pad" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div className="p-6 flex flex-col gap-3">
             {topServices.length === 0 ? (
-              <p className="text-sm text-zinc-500 py-10 text-center font-medium">No sales statistics available.</p>
+              <p className="text-sm text-gray-400 py-10 text-center font-medium">No sales statistics available.</p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {topServices.map((item, idx) => (
-                  <div key={idx} className="owner-service-row">
-                    <div>
-                      <h4 style={{ fontWeight: 800, color: "#ffffff", fontSize: "0.875rem" }}>{item.service}</h4>
-                      <p style={{ fontSize: "0.6875rem", color: "#71717a", fontWeight: 600, marginTop: "0.125rem" }}>{item.totalBookings} orders filled</p>
-                    </div>
-                    <span style={{ fontFamily: "monospace", fontWeight: 800, color: "var(--brand-accent)", fontSize: "1rem" }}>₹{item.revenue}</span>
+              topServices.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex justify-between items-center px-4 py-3 rounded-xl bg-[#f7faf9] border border-gray-100 hover:border-[#ccfbf1] transition-colors"
+                >
+                  <div>
+                    <h4 className="font-extrabold text-gray-800 text-sm">{item.service}</h4>
+                    <p className="text-[0.6875rem] text-gray-400 font-semibold mt-0.5">{item.totalBookings} orders filled</p>
                   </div>
-                ))}
-              </div>
+                  <span className="font-mono font-extrabold text-[#0d9488] text-base">₹{item.revenue}</span>
+                </div>
+              ))
             )}
           </div>
         </div>
       </div>
 
       {/* Monthly Revenue Comparisons */}
-      <div className="owner-card">
-        <div className="owner-card-header">
-          <h3 className="owner-card-title">Monthly Revenue Comparisons ({new Date().getFullYear()})</h3>
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100">
+          <h3 className="text-base font-bold text-gray-800 flex items-center gap-2">
+            <Sparkles size={16} className="text-[#0d9488]" /> Monthly Revenue Comparisons ({new Date().getFullYear()})
+          </h3>
         </div>
-        <div className="owner-card-pad">
+        <div className="p-6">
           {monthlyRevenue.length === 0 ? (
-            <div className="text-center py-12 text-zinc-500 font-medium text-sm">
+            <div className="text-center py-12 text-gray-400 font-medium text-sm">
               No completed sales aggregates recorded for this calendar year.
             </div>
           ) : (
@@ -946,16 +1017,16 @@ const OwnerDashboard = () => {
                 return (
                   <div key={idx} className="space-y-2">
                     <div className="flex justify-between items-center text-sm font-semibold">
-                      <span style={{ fontWeight: 700, color: "#d4d4d8" }}>{getMonthName(m._id.month)}</span>
-                      <span style={{ color: "#ffffff", fontWeight: 800, fontSize: "1rem" }}>
-                        ₹{m.revenue} <span style={{ color: "#52525b", fontSize: "0.75rem", fontWeight: 600 }}>({m.bookings} bookings)</span>
+                      <span className="font-bold text-gray-600">{getMonthName(m._id.month)}</span>
+                      <span className="text-gray-800 font-extrabold text-base">
+                        ₹{m.revenue} <span className="text-gray-400 text-xs font-semibold">({m.bookings} bookings)</span>
                       </span>
                     </div>
-                    <div className="owner-bar-track">
+                    <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="owner-bar-fill"
+                        className="h-full bg-gradient-to-r from-[#0d9488] to-[#14b8a6] rounded-full transition-all duration-700"
                         style={{ width: `${pct}%` }}
-                      ></div>
+                      />
                     </div>
                   </div>
                 );

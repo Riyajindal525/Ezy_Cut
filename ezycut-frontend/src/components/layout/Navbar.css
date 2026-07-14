@@ -1,0 +1,551 @@
+/* ===================================================== */
+/* NAVBAR — plain CSS (converted from Tailwind utilities) */
+/* ===================================================== */
+
+.ezc-navbar {
+ position: fixed;
+  top: 0;
+   left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.5rem;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s ease, border-color 0.4s ease;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.28) 40%, rgba(0, 0, 0, 0.1) 75%, rgba(0, 0, 0, 0) 100%);
+  border-bottom: 1px solid transparent;
+}
+
+.ezc-navbar.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 24px rgba(23, 24, 26, 0.08);
+  padding: 0.625rem 1.5rem;
+}
+
+.ezc-navbar::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none;
+}
+
+.ezc-navbar.scrolled::after {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .ezc-navbar {
+    padding: 0.875rem 2.5rem;
+  }
+  .ezc-navbar.scrolled {
+    padding: 0.625rem 2.5rem;
+  }
+}
+
+/* Brand */
+.ezc-navbar-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.ezc-navbar-brand:hover {
+  opacity: 0.85;
+}
+
+.ezc-navbar-logo {
+   width: auto;
+  height: 3rem;
+  object-fit: contain;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  .ezc-navbar-logo {
+    height: 3.5rem;
+  }
+  .ezc-navbar-logo.scrolled {
+    height: 2.75rem;
+  }
+}
+
+.ezc-navbar-brand-text {
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* Mobile toggle button */
+.ezc-navbar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ezc-navbar-toggle:hover {
+  border-color: #6f9483;
+  color: #4d6c5c;
+}
+
+@media (min-width: 768px) {
+  .ezc-navbar-toggle {
+    display: none;
+  }
+}
+
+/* Links container */
+.ezc-navbar-links {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(23, 24, 26, 0.08);
+  padding: 1rem 1.25rem 1.25rem;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.ezc-navbar-links.open {
+  max-height: 100vh;
+  opacity: 1;
+}
+
+@media (min-width: 768px) {
+  .ezc-navbar-links {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    max-height: none;
+    opacity: 1;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+}
+
+/* Nav link (large) */
+.ezc-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151; /* dark by default — mobile dropdown is always white/opaque */
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ezc-nav-link:hover {
+  background: rgba(111, 148, 131, 0.1);
+  color: #4d6c5c;
+}
+
+
+/* Nav link (small, customer/owner sub-links) */
+.ezc-nav-link-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  color: #374151; /* dark by default — mobile dropdown is always white/opaque */
+}
+
+.ezc-nav-link-sm:hover {
+  background: rgba(111, 148, 131, 0.1);
+  color: #4d6c5c;
+}
+
+.ezc-nav-link.active,
+.ezc-nav-link-sm.active {
+  font-weight: 700;
+  color: #134e4a !important;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Get Started button */
+.ezc-get-started-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #fff;
+  background: #4d6c5c;
+  padding: 0.625rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(77, 108, 92, 0.25);
+  text-decoration: none;
+  margin-top: 0.5rem;
+  width: 100%;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ezc-get-started-btn:hover {
+  background: #3d5a4c;
+  box-shadow: 0 4px 12px rgba(77, 108, 92, 0.32);
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .ezc-get-started-btn {
+    margin-top: 0;
+    margin-left: 0.25rem;
+    width: auto;
+  }
+}
+
+/* Customer sub-links wrapper */
+.ezc-customer-links {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.125rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .ezc-customer-links {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+}
+
+/* Owner/Admin dashboard button */
+.ezc-dash-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #fff;
+  background: #4d6c5c;
+  padding: 0.5rem 0.875rem;
+  box-shadow: 0 2px 8px rgba(77, 108, 92, 0.25);
+  text-decoration: none;
+  margin-top: 0.5rem;
+  width: 100%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ezc-dash-btn:hover {
+  background: #3d5a4c;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .ezc-dash-btn {
+    margin-top: 0;
+    margin-left: 0.25rem;
+    width: auto;
+  }
+}
+
+/* User info + logout section */
+.ezc-user-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .ezc-user-section {
+    justify-content: flex-start;
+    margin-top: 0;
+    padding-top: 0;
+    padding-left: 0.875rem;
+    border-top: none;
+    border-left: 1px solid #e5e7eb;
+    width: auto;
+  }
+}
+
+.ezc-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6f9483, #4d6c5c);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(77, 108, 92, 0.25);
+  flex-shrink: 0;
+}
+
+.ezc-logout-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.375rem 0.875rem;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.ezc-logout-btn:hover {
+  border-color: #6f9483;
+  background: rgba(111, 148, 131, 0.1);
+  color: #4d6c5c;
+}
+
+@media (min-width: 768px) {
+  .ezc-logout-btn {
+    flex: none;
+  }
+}
+
+/* When scrolled — navbar bg turns white, so switch to dark text */
+.ezc-navbar.scrolled .ezc-nav-link,
+.ezc-navbar.scrolled .ezc-nav-link-sm {
+  color: #374151;
+}
+
+.ezc-navbar.scrolled .ezc-nav-link:hover,
+.ezc-navbar.scrolled .ezc-nav-link-sm:hover {
+  background: rgba(111, 148, 131, 0.1);
+  color: #4d6c5c;
+}
+
+/* Active link when scrolled — white pill instead of teal fill, so it reads
+   clearly against the white/blurred navbar background */
+.ezc-navbar.scrolled .ezc-nav-link.active,
+.ezc-navbar.scrolled .ezc-nav-link-sm.active {
+  color: #0f766e !important;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(23, 24, 26, 0.08);
+}
+
+.ezc-navbar.scrolled .ezc-navbar-toggle {
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.ezc-navbar.scrolled .ezc-logout-btn {
+  border-color: #e5e7eb;
+  color: #374151;
+}
+.ezc-brand-ezy {
+  color: #ffffff; /* dark hero bg pe visible rahe */
+}
+
+.ezc-brand-cut {
+  color: #6f9483; /* teal green — theme accent */
+}
+
+/* Scrolled (white bg) — ab EZY black ho sakta hai jaise tumne bola tha */
+.ezc-navbar.scrolled .ezc-brand-ezy {
+  color: #1a1a1a;
+}
+
+.ezc-navbar.scrolled .ezc-brand-cut {
+  color: #4d6c5c;
+}
+
+/* Desktop unscrolled navbar — transparent bg, so links need to be white */
+@media (min-width: 768px) {
+  .ezc-navbar:not(.scrolled) .ezc-nav-link,
+  .ezc-navbar:not(.scrolled) .ezc-nav-link-sm {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ezc-navbar:not(.scrolled) .ezc-nav-link:hover,
+  .ezc-navbar:not(.scrolled) .ezc-nav-link-sm:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .ezc-navbar:not(.scrolled) .ezc-logout-btn {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ezc-navbar:not(.scrolled) .ezc-logout-btn:hover {
+    border-color: #6f9483;
+    background: rgba(111, 148, 131, 0.1);
+    color: #4d6c5c;
+  }
+}
+
+/* ===================================================== */
+/* LOGOUT CONFIRMATION MODAL                              */
+/* ===================================================== */
+
+.ezc-logout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 37, 37, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: ezcLogoutFadeIn 0.2s ease;
+}
+
+.ezc-logout-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem 1.75rem 1.75rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  animation: ezcLogoutModalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ezc-logout-modal-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.ezc-logout-modal-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #17181a;
+  margin-bottom: 0.5rem;
+}
+
+.ezc-logout-modal-desc {
+  font-size: 0.875rem;
+  color: #5a5f5c;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.ezc-logout-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.ezc-logout-modal-cancel {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ezc-logout-modal-cancel:hover {
+  background: #f7f9f8;
+  border-color: #d1d5db;
+}
+
+.ezc-logout-modal-confirm {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.ezc-logout-modal-confirm:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.ezc-logout-modal-confirm:active {
+  transform: translateY(0);
+}
+
+@keyframes ezcLogoutFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ezcLogoutModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

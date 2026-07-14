@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Plus } from "lucide-react";
+import { LogOut, Plus, ChevronDown, Menu } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
 import useSalonStore from "../../store/salon.store";
 
-const Header = ({ title }) => {
+const Header = ({ title, onMenuToggle }) => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
@@ -41,49 +41,49 @@ const Header = ({ title }) => {
   };
 
   return (
-    <header className="dash-header">
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        <h1 className="dash-header-title">{title}</h1>
+    <header className="h-16 sm:h-17 bg-white border-b border-gray-100 px-4 sm:px-8 flex items-center justify-between gap-3 sticky top-0 z-50 shadow-sm">
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          type="button"
+          aria-label="Open sidebar"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 md:hidden"
+          onClick={onMenuToggle}
+        >
+          <Menu size={18} />
+        </button>
+
+        <h1 className="text-base sm:text-lg font-extrabold text-gray-800 tracking-tight truncate">{title}</h1>
 
         {isOwner && (
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div className="hidden md:flex items-center gap-3">
             {ownedSalons.length > 0 && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.75rem", color: "var(--gray-400)", fontWeight: 500 }}>Active Salon:</span>
-                <select
-                  value={activeSalonId || ""}
-                  onChange={(e) => {
-                    setActiveSalonId(e.target.value);
-                    if (location.search.includes("register=true")) {
-                      navigate(location.pathname);
-                    }
-                  }}
-                  style={{
-                    background: "#121214",
-                    color: "white",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: "var(--radius-md)",
-                    padding: "0.4rem 0.8rem",
-                    fontSize: "0.8125rem",
-                    fontWeight: 650,
-                    outline: "none",
-                    cursor: "pointer",
-                    boxShadow: "var(--shadow-sm)",
-                  }}
-                >
-                  {ownedSalons.map((s) => (
-                    <option key={s._id} value={s._id} style={{ background: "#121214", color: "white" }}>
-                      {s.name} {!s.isApproved ? "⏳" : ""}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 font-semibold whitespace-nowrap">Active Salon:</span>
+                <div className="relative">
+                  <select
+                    value={activeSalonId || ""}
+                    onChange={(e) => {
+                      setActiveSalonId(e.target.value);
+                      if (location.search.includes("register=true")) {
+                        navigate(location.pathname);
+                      }
+                    }}
+                    className="appearance-none bg-[#f7faf9] text-gray-700 border border-gray-200 rounded-lg pl-3 pr-8 py-1.5 text-[0.8125rem] font-semibold outline-none cursor-pointer hover:border-gray-300 focus:border-[#0d9488] transition-colors"
+                  >
+                    {ownedSalons.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name} {!s.isApproved ? "⏳" : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
               </div>
             )}
-            
+
             <button
               onClick={() => navigate("/owner/dashboard?register=true")}
-              className="btn btn-primary btn-sm"
-              style={{ display: "flex", alignItems: "center", gap: "0.25rem", borderRadius: "var(--radius-md)" }}
+              className="inline-flex items-center gap-1.5 bg-linear-to-br from-[#0d9488] to-[#0f766e] text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm transition-colors"
             >
               <Plus size={14} /> Register Salon
             </button>
@@ -91,33 +91,27 @@ const Header = ({ title }) => {
         )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+      <div className="flex items-center gap-3 shrink-0">
         {/* User info */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-          <div style={{
-            width: "2rem", height: "2rem",
-            borderRadius: "50%",
-            background: "var(--brand-accent)",
-            color: "#09090b",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.6875rem", fontWeight: 700,
-          }}>
+        <div className="hidden sm:flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0d9488] to-[#022525] text-white flex items-center justify-center text-[0.6875rem] font-extrabold shrink-0 shadow-sm">
             {user?.name?.slice(0, 2).toUpperCase() || "ME"}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-            <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "var(--gray-800)" }}>
-              {user?.name}
-            </span>
-            <span style={{ fontSize: "0.6875rem", color: "var(--gray-400)", fontWeight: 500, textTransform: "capitalize" }}>
+          <div className="flex flex-col leading-tight">
+            <span className="text-[0.8125rem] font-bold text-gray-800">{user?.name}</span>
+            <span className="text-[0.6875rem] text-gray-400 font-medium capitalize">
               {user?.role?.replace("_", " ")}
             </span>
           </div>
         </div>
 
         {/* Logout */}
-        <button className="btn btn-outline btn-sm" onClick={handleLogout} style={{ gap: "0.375rem" }}>
+        <button
+          onClick={handleLogout}
+          className="inline-flex items-center gap-1.5 bg-white hover:bg-gray-50 text-gray-600 border border-gray-200 font-semibold text-xs px-3 py-2 rounded-lg transition-colors"
+        >
           <LogOut size={13} />
-          Logout
+          <span className="hidden sm:inline">Logout</span>
         </button>
       </div>
     </header>

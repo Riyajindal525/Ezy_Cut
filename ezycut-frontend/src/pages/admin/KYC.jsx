@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { getAllKyc, approveKyc, rejectKyc } from "../../api/kyc.api";
 import toast from "../../utils/toast";
 import Loader from "../../components/common/Loader";
-import { ShieldCheck, ShieldX, Clock, CheckCircle2, XCircle, Eye, X, FileText, User } from "lucide-react";
+import { ShieldCheck, ShieldX, Clock, CheckCircle2, XCircle, Eye, X } from "lucide-react";
 
 const statusConfig = {
-  pending: { label: "Pending Review", color: "#f59e0b", bg: "rgba(245,158,11,0.1)", icon: <Clock size={14} /> },
-  approved: { label: "Approved", color: "#22c55e", bg: "rgba(34,197,94,0.1)", icon: <CheckCircle2 size={14} /> },
-  rejected: { label: "Rejected", color: "#ef4444", bg: "rgba(239,68,68,0.1)", icon: <XCircle size={14} /> },
+  pending: { label: "Pending Review", classes: "bg-amber-50 text-amber-700 border-amber-100", icon: <Clock size={14} /> },
+  approved: { label: "Approved", classes: "bg-emerald-50 text-emerald-700 border-emerald-100", icon: <CheckCircle2 size={14} /> },
+  rejected: { label: "Rejected", classes: "bg-rose-50 text-rose-600 border-rose-100", icon: <XCircle size={14} /> },
 };
 
 const idProofLabels = {
@@ -73,28 +73,54 @@ const AdminKYC = () => {
     }
   };
 
+  const fadeUp = (delayMs) => ({
+    className: "opacity-0 animate-[fadeUp_0.6s_ease_forwards]",
+    style: { animationDelay: `${delayMs}ms` },
+  });
+
+  const filters = ["pending", "approved", "rejected", ""];
+
   if (loading) return <Loader message="Loading KYC submissions..." />;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
-      {/* Header */}
-      <div className="owner-page-header">
-        <div>
-          <h3 className="owner-page-title">KYC Management</h3>
-          <p className="owner-page-desc">Review, approve or reject salon owner KYC submissions</p>
+    <div className="flex flex-col gap-6">
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+      `}</style>
+
+      {/* Page Header */}
+      <div
+        {...fadeUp(0)}
+        className={`${fadeUp(0).className} relative overflow-hidden rounded-2xl p-6 md:p-7 bg-white border border-gray-100 shadow-sm flex items-center justify-between gap-4 flex-wrap`}
+      >
+        <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.06)_0%,transparent_70%)] pointer-events-none" />
+
+        <div className="relative flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 shadow-sm shadow-teal-200 flex items-center justify-center shrink-0">
+            <ShieldCheck size={22} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight">
+              KYC Management
+            </h1>
+            <p className="text-slate-500 text-sm mt-0.5">
+              Review, approve or reject salon owner KYC submissions
+            </p>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          {["pending", "approved", "rejected", ""].map((s) => (
+
+        <div className="relative flex items-center gap-2 flex-wrap">
+          {filters.map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              style={{
-                padding: "0.5rem 1rem", borderRadius: "8px", fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer",
-                background: statusFilter === s ? "var(--brand-accent)" : "rgba(255,255,255,0.04)",
-                color: statusFilter === s ? "#09090b" : "#a1a1aa",
-                border: `1px solid ${statusFilter === s ? "var(--brand-accent)" : "rgba(255,255,255,0.08)"}`,
-                transition: "all 0.2s",
-              }}
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors border ${
+                statusFilter === s
+                  ? "bg-teal-600 text-white border-teal-600"
+                  : "bg-white text-slate-500 border-gray-200 hover:bg-slate-50"
+              }`}
             >
               {s === "" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
@@ -102,183 +128,209 @@ const AdminKYC = () => {
         </div>
       </div>
 
-      {/* KYC Cards */}
-      {kycList.length === 0 ? (
-        <div className="owner-card" style={{ textAlign: "center", padding: "3rem" }}>
-          <ShieldCheck size={40} style={{ color: "var(--brand-accent)", margin: "0 auto 1rem" }} />
-          <p style={{ color: "#71717a", fontSize: "0.9375rem" }}>
-            No {statusFilter || ""} KYC submissions found.
-          </p>
+      {/* KYC List */}
+      <div {...fadeUp(80)} className={`${fadeUp(80).className} bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden`}>
+        <div className="px-6 py-5 border-b border-gray-100 bg-slate-50/60">
+          <h3 className="text-base font-semibold text-slate-800">KYC Submissions</h3>
+          <p className="text-xs text-slate-400 mt-1">Identity and business proof review queue</p>
         </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {kycList.map((kyc) => {
-            const cfg = statusConfig[kyc.kycStatus] || statusConfig.pending;
-            return (
-              <div key={kyc._id} className="owner-card" style={{ padding: "1.25rem 1.5rem" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                    <div style={{ width: "2.75rem", height: "2.75rem", borderRadius: "50%", background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <ShieldCheck size={18} style={{ color: "var(--brand-accent)" }} />
-                    </div>
-                    <div>
-                      <p style={{ fontWeight: 700, color: "white", fontSize: "0.9375rem", marginBottom: "0.2rem" }}>
-                        {kyc.salon?.name || "Unknown Salon"}
-                      </p>
-                      <p style={{ fontSize: "0.8125rem", color: "#a1a1aa" }}>
-                        {kyc.owner?.name} · {kyc.owner?.email}
-                      </p>
-                      <p style={{ fontSize: "0.75rem", color: "#71717a", marginTop: "0.15rem" }}>
-                        Submitted: {new Date(kyc.submittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.75rem", borderRadius: "99px", background: cfg.bg, color: cfg.color, fontSize: "0.75rem", fontWeight: 600, border: `1px solid ${cfg.color}30` }}>
-                      {cfg.icon} {cfg.label}
-                    </span>
-                    <button
-                      onClick={() => { setSelectedKyc(kyc); setRejectReason(""); }}
-                      style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem", borderRadius: "8px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#a1a1aa", fontSize: "0.8125rem", cursor: "pointer", transition: "all 0.2s" }}
-                    >
-                      <Eye size={14} /> View Details
-                    </button>
-                  </div>
-                </div>
-
-                {kyc.kycStatus === "rejected" && kyc.rejectionReason && (
-                  <div style={{ marginTop: "0.875rem", padding: "0.75rem 1rem", background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: "8px", fontSize: "0.8125rem", color: "#fca5a5" }}>
-                    <strong>Rejection Reason:</strong> {kyc.rejectionReason}
-                  </div>
-                )}
+        <div className="p-6 pt-4">
+          {kycList.length === 0 ? (
+            <div className="flex flex-col items-center text-center gap-3 py-14">
+              <div className="w-16 h-16 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center">
+                <ShieldCheck size={24} className="text-teal-400" />
               </div>
-            );
-          })}
+              <h4 className="font-semibold text-slate-700 text-sm">No Submissions Found</h4>
+              <p className="text-xs text-slate-400 max-w-sm">
+                No {statusFilter || ""} KYC submissions found.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3.5">
+              {kycList.map((kyc, i) => {
+                const cfg = statusConfig[kyc.kycStatus] || statusConfig.pending;
+                return (
+                  <div
+                    key={kyc._id}
+                    {...fadeUp(120 + i * 30)}
+                    className={`${fadeUp(120 + i * 30).className} bg-slate-50 border border-slate-200 rounded-xl p-5 hover:bg-slate-100 hover:border-teal-300 hover:shadow-[0_6px_18px_rgba(15,118,110,0.1)] transition-all duration-200`}
+                  >
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-11 h-11 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
+                          <ShieldCheck size={18} className="text-teal-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-800 truncate">
+                            {kyc.salon?.name || "Unknown Salon"}
+                          </p>
+                          <p className="text-sm text-slate-500 truncate">
+                            {kyc.owner?.name} · {kyc.owner?.email}
+                          </p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            Submitted: {new Date(kyc.submittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border capitalize ${cfg.classes}`}>
+                          {cfg.icon} {cfg.label}
+                        </span>
+                        <button
+                          onClick={() => { setSelectedKyc(kyc); setRejectReason(""); }}
+                          className="inline-flex items-center gap-1.5 border border-gray-200 text-slate-600 hover:bg-white font-semibold text-xs px-3.5 py-2 rounded-lg transition-colors"
+                        >
+                          <Eye size={13} /> View Details
+                        </button>
+                      </div>
+                    </div>
+
+                    {kyc.kycStatus === "rejected" && kyc.rejectionReason && (
+                      <div className="mt-3.5 px-4 py-2.5 bg-rose-50 border border-rose-100 rounded-lg text-sm text-rose-600">
+                        <strong>Rejection Reason:</strong> {kyc.rejectionReason}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* KYC Detail Modal */}
       {selectedKyc && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-          <div style={{ background: "#18181b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", width: "100%", maxWidth: "640px", maxHeight: "90vh", overflowY: "auto", padding: "1.75rem" }}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
+          <div className="scrollbar-hide bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 animate-[modalIn_0.25s_ease]">
+            <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+
             {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+            <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 style={{ fontSize: "1.125rem", fontWeight: 800, color: "white", marginBottom: "0.25rem" }}>KYC Document Review</h3>
-                <p style={{ fontSize: "0.8125rem", color: "#71717a" }}>{selectedKyc.salon?.name} · {selectedKyc.owner?.name}</p>
+                <h3 className="text-lg font-bold text-slate-800">KYC Document Review</h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {selectedKyc.salon?.name} · {selectedKyc.owner?.name}
+                </p>
               </div>
-              <button onClick={() => setSelectedKyc(null)} style={{ background: "none", border: "none", color: "#71717a", cursor: "pointer" }}>
-                <X size={20} />
+              <button
+                onClick={() => setSelectedKyc(null)}
+                className="p-2 border border-gray-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors"
+              >
+                <X size={16} />
               </button>
             </div>
 
-            {/* Owner Info */}
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "1rem", marginBottom: "1rem" }}>
-              <p style={{ fontSize: "0.75rem", color: "#71717a", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.75rem", fontWeight: 600 }}>Owner Information</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-                {[
-                  { label: "Name", val: selectedKyc.owner?.name },
-                  { label: "Email", val: selectedKyc.owner?.email },
-                  { label: "Phone", val: selectedKyc.owner?.phone },
-                  { label: "Salon City", val: selectedKyc.salon?.city },
-                ].map(({ label, val }) => (
-                  <div key={label}>
-                    <span style={{ fontSize: "0.75rem", color: "#52525b" }}>{label}</span>
-                    <p style={{ fontSize: "0.875rem", color: "white", fontWeight: 500 }}>{val || "—"}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Documents */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.25rem" }}>
-              {/* ID Proof */}
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <p style={{ fontSize: "0.75rem", color: "#71717a", marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Identity Proof <span style={{ color: "#f87171" }}>*</span></p>
-                    <p style={{ fontWeight: 600, color: "white", fontSize: "0.875rem" }}>{idProofLabels[selectedKyc.ownerIdProofType] || selectedKyc.ownerIdProofType}</p>
-                  </div>
-                  <a href={selectedKyc.ownerIdProof} target="_blank" rel="noopener noreferrer"
-                    style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 0.875rem", borderRadius: "8px", background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)", color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 600, textDecoration: "none" }}>
-                    <Eye size={14} /> View File
-                  </a>
+            <div className="flex flex-col gap-4">
+              {/* Owner Info */}
+              <div className="bg-slate-50/60 border border-gray-100 rounded-xl p-4">
+                <p className="text-[0.7rem] text-slate-500 uppercase tracking-wide font-bold mb-3">Owner Information</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-slate-500">Name:</span> <strong className="text-slate-800">{selectedKyc.owner?.name || "—"}</strong></div>
+                  <div><span className="text-slate-500">Email:</span> <span className="text-slate-800">{selectedKyc.owner?.email || "—"}</span></div>
+                  <div><span className="text-slate-500">Phone:</span> <span className="text-slate-800">{selectedKyc.owner?.phone || "—"}</span></div>
+                  <div><span className="text-slate-500">Salon City:</span> <span className="text-slate-800">{selectedKyc.salon?.city || "—"}</span></div>
                 </div>
+              </div>
+
+              {/* ID Proof */}
+              <div className="bg-slate-50/60 border border-gray-100 rounded-xl p-4 flex justify-between items-center">
+                <div>
+                  <p className="text-[0.7rem] text-slate-500 uppercase tracking-wide mb-1">
+                    Identity Proof <span className="text-rose-500">*</span>
+                  </p>
+                  <p className="font-semibold text-slate-800 text-sm">
+                    {idProofLabels[selectedKyc.ownerIdProofType] || selectedKyc.ownerIdProofType}
+                  </p>
+                </div>
+                <a
+                  href={selectedKyc.ownerIdProof}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-100 font-semibold text-xs px-3.5 py-2 rounded-lg transition-colors"
+                >
+                  <Eye size={13} /> View File
+                </a>
               </div>
 
               {/* Business Proof */}
               {selectedKyc.businessProof && (
-                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "1rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <p style={{ fontSize: "0.75rem", color: "#71717a", marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Business Proof</p>
-                      <p style={{ fontWeight: 600, color: "white", fontSize: "0.875rem" }}>{bizProofLabels[selectedKyc.businessProofType] || "Document"}</p>
-                    </div>
-                    <a href={selectedKyc.businessProof} target="_blank" rel="noopener noreferrer"
-                      style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 0.875rem", borderRadius: "8px", background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)", color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 600, textDecoration: "none" }}>
-                      <Eye size={14} /> View File
-                    </a>
+                <div className="bg-slate-50/60 border border-gray-100 rounded-xl p-4 flex justify-between items-center">
+                  <div>
+                    <p className="text-[0.7rem] text-slate-500 uppercase tracking-wide mb-1">Business Proof</p>
+                    <p className="font-semibold text-slate-800 text-sm">
+                      {bizProofLabels[selectedKyc.businessProofType] || "Document"}
+                    </p>
                   </div>
+                  <a
+                    href={selectedKyc.businessProof}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-100 font-semibold text-xs px-3.5 py-2 rounded-lg transition-colors"
+                  >
+                    <Eye size={13} /> View File
+                  </a>
                 </div>
               )}
 
               {/* Salon Images */}
               {selectedKyc.salonImages?.length > 0 && (
-                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "1rem" }}>
-                  <p style={{ fontSize: "0.75rem", color: "#71717a", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>Salon Photos ({selectedKyc.salonImages.length})</p>
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <div className="bg-slate-50/60 border border-gray-100 rounded-xl p-4">
+                  <p className="text-[0.7rem] text-slate-500 uppercase tracking-wide font-bold mb-3">
+                    Salon Photos ({selectedKyc.salonImages.length})
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
                     {selectedKyc.salonImages.map((img, i) => (
                       <a key={i} href={img} target="_blank" rel="noopener noreferrer">
-                        <img src={img} alt={`Salon ${i + 1}`} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.08)" }} />
+                        <img
+                          src={img}
+                          alt={`Salon ${i + 1}`}
+                          className="w-20 h-20 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition-opacity"
+                        />
                       </a>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Action Buttons for Pending */}
-            {selectedKyc.kycStatus === "pending" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div style={{ display: "flex", gap: "0.75rem" }}>
+              {/* Action Buttons for Pending */}
+              {selectedKyc.kycStatus === "pending" ? (
+                <div className="flex flex-col gap-3 mt-1">
                   <button
                     onClick={() => handleApprove(selectedKyc._id)}
                     disabled={actionLoading}
-                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.875rem", borderRadius: "10px", background: "linear-gradient(135deg, #22c55e, #16a34a)", border: "none", color: "white", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer" }}
+                    className="flex items-center justify-center gap-2 w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-sm py-3 rounded-xl transition-colors"
                   >
                     <ShieldCheck size={16} /> {actionLoading ? "Processing..." : "Approve KYC"}
                   </button>
-                </div>
-                <div style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: "10px", padding: "1rem" }}>
-                  <label style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#fca5a5", display: "block", marginBottom: "0.5rem" }}>
-                    Rejection Reason (required to reject):
-                  </label>
-                  <textarea
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    rows="2"
-                    placeholder="e.g. ID proof is blurry or incomplete..."
-                    style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", padding: "0.625rem 0.875rem", color: "white", fontSize: "0.875rem", resize: "vertical", outline: "none", boxSizing: "border-box" }}
-                  />
-                  <button
-                    onClick={() => handleReject(selectedKyc._id)}
-                    disabled={actionLoading || !rejectReason.trim()}
-                    style={{ marginTop: "0.75rem", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.75rem", borderRadius: "10px", background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }}
-                  >
-                    <ShieldX size={16} /> {actionLoading ? "Processing..." : "Reject KYC"}
-                  </button>
-                </div>
-              </div>
-            )}
 
-            {selectedKyc.kycStatus !== "pending" && (
-              <div style={{ textAlign: "center", padding: "0.75rem", background: statusConfig[selectedKyc.kycStatus]?.bg, borderRadius: "10px", border: `1px solid ${statusConfig[selectedKyc.kycStatus]?.color}30` }}>
-                <p style={{ color: statusConfig[selectedKyc.kycStatus]?.color, fontWeight: 600, fontSize: "0.875rem" }}>
+                  <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
+                    <label className="text-[0.8125rem] font-semibold text-rose-500 block mb-2">
+                      Rejection Reason (required to reject):
+                    </label>
+                    <textarea
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      rows="2"
+                      placeholder="e.g. ID proof is blurry or incomplete..."
+                      className="w-full bg-white border border-rose-200 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-rose-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)] resize-y"
+                    />
+                    <button
+                      onClick={() => handleReject(selectedKyc._id)}
+                      disabled={actionLoading || !rejectReason.trim()}
+                      className="mt-3 flex items-center justify-center gap-2 w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm py-2.5 rounded-lg transition-colors"
+                    >
+                      <ShieldX size={16} /> {actionLoading ? "Processing..." : "Reject KYC"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className={`text-center py-3 rounded-xl font-bold text-sm border ${statusConfig[selectedKyc.kycStatus]?.classes}`}>
                   This KYC has already been {selectedKyc.kycStatus}.
-                </p>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

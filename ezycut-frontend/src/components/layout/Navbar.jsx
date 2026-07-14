@@ -1,7 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  Scissors,
   Bell,
   Star,
   CreditCard,
@@ -12,8 +11,11 @@ import {
   LogOut,
   Menu,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
+import navbarIcon from "../../assets/ezycut-icon.png";
+import "./Navbar.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -21,11 +23,23 @@ const Navbar = () => {
   const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 12);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate("/");
     setMenuOpen(false);
+    setShowLogoutConfirm(false);
   };
 
   const closeMenu = () => setMenuOpen(false);
@@ -40,108 +54,166 @@ const Navbar = () => {
     { to: "/profile", label: "Profile", icon: User },
   ];
 
+  const navLinkClass = ({ isActive }) =>
+    `ezc-nav-link ${isActive ? "active" : ""}`;
+
+  const navLinkSmClass = ({ isActive }) =>
+    `ezc-nav-link-sm ${isActive ? "active" : ""}`;
+
   return (
-    <nav className="navbar">
-      {/* Brand */}
-      <Link to="/" className="navbar-brand" onClick={closeMenu}>
-        <Scissors size={22} strokeWidth={2.5} style={{ color: "var(--brand-accent)" }} />
-        <span>Ezy<span>Cut</span></span>
-      </Link>
+    <>
+      <nav className={`ezc-navbar ${scrolled ? "scrolled" : ""}`}>
+        {/* Brand */}
+        <Link to="/" className="ezc-navbar-brand" onClick={closeMenu}>
+          <img
+            src={navbarIcon}
+            alt="EzyCut"
+            className={`ezc-navbar-logo ${scrolled ? "scrolled" : ""}`}
+          />
+          <span className="ezc-navbar-brand-text">
+      <span className="ezc-brand-ezy">EZY</span>
+      <span className="ezc-brand-cut">CUT</span>
+    </span>
+        </Link>
 
-      {/* Mobile toggle */}
-      <button
-        className="btn btn-outline btn-icon navbar-toggle"
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Toggle menu"
-        aria-expanded={menuOpen}
-      >
-        {menuOpen ? <X size={18} /> : <Menu size={18} />}
-      </button>
+        {/* Mobile toggle */}
+        <button
+          className="ezc-navbar-toggle"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
 
-      {/* Nav links (desktop row / mobile dropdown) */}
-      <div className={`navbar-links ${menuOpen ? "open" : ""}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        {!token ? (
-          <>
-            <NavLink to="/salons" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
-              Explore
-            </NavLink>
-            <NavLink to="/track" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
-              Track Queue
-            </NavLink>
-            <NavLink to="/login" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
-              Login
-            </NavLink>
-            <Link to="/register" className="btn btn-primary" style={{ marginLeft: "0.25rem" }} onClick={closeMenu}>
-              Get Started
-            </Link>
-          </>
-        ) : (
-          <>
-            <NavLink to="/salons" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
-              Salons
-            </NavLink>
-            <NavLink to="/track" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} onClick={closeMenu}>
-              Track Queue
-            </NavLink>
+        {/* Nav links (desktop row / mobile dropdown) */}
+        <div className={`ezc-navbar-links ${menuOpen ? "open" : ""}`}>
+          {!token ? (
+            <>
+              <NavLink to="/salons" className={navLinkClass} onClick={closeMenu}>
+                Explore
+              </NavLink>
+              <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
+              About Us
+              </NavLink>
+             <NavLink to="/partner-with-us" className={navLinkClass} onClick={closeMenu}>
+              Partner With Us
+             </NavLink>
+              <NavLink to="/track" className={navLinkClass} onClick={closeMenu}>
+                Track Queue
+              </NavLink>
+              <NavLink to="/login" className={navLinkClass} onClick={closeMenu}>
+                Login
+              </NavLink>
+              <Link
+                to="/register"
+                className="ezc-get-started-btn"
+                onClick={closeMenu}
+              >
+                Get Started
+              </Link>
+            </>
+          ) : (
+            <>
+              <NavLink to="/salons" className={navLinkClass} onClick={closeMenu}>
+                Salons
+              </NavLink>
+              <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
+               About Us
+               </NavLink>
+              <NavLink to="/track" className={navLinkClass} onClick={closeMenu}>
+                Track Queue
+              </NavLink>
 
-            {/* Customer links */}
-            {user?.role === "customer" && (
-              <div className="navbar-customer-links" style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                {customerLinks.map(({ to, label }) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
-                    style={{ fontSize: "0.8125rem" }}
+              {/* Customer links */}
+              {user?.role === "customer" && (
+                <div className="ezc-customer-links">
+                  {customerLinks.map(({ to, label }) => (
+                    <NavLink key={to} to={to} className={navLinkSmClass} onClick={closeMenu}>
+                      {label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+
+              {/* Owner dashboard + profile/notifications */}
+              {user?.role === "salon_owner" && (
+                <>
+                  <Link
+                    to="/owner/dashboard"
+                    className="ezc-dash-btn"
                     onClick={closeMenu}
                   >
-                    {label}
+                    <LayoutDashboard size={14} />
+                    Dashboard
+                  </Link>
+                  <NavLink to="/notifications" className={navLinkSmClass} onClick={closeMenu}>
+                    <Bell size={14} />
                   </NavLink>
-                ))}
-              </div>
-            )}
-
-            {/* Owner dashboard + profile/notifications */}
-            {user?.role === "salon_owner" && (
-              <>
-                <Link to="/owner/dashboard" className="btn btn-primary btn-sm" style={{ marginLeft: "0.25rem" }} onClick={closeMenu}>
+                  <NavLink to="/profile" className={navLinkSmClass} onClick={closeMenu}>
+                    Profile
+                  </NavLink>
+                </>
+              )}
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin/dashboard"
+                  className="ezc-dash-btn"
+                  onClick={closeMenu}
+                >
                   <LayoutDashboard size={14} />
-                  Dashboard
+                  Admin Panel
                 </Link>
-                <NavLink to="/notifications" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} style={{ fontSize: "0.8125rem" }} onClick={closeMenu}>
-                  <Bell size={14} />
-                </NavLink>
-                <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} style={{ fontSize: "0.8125rem" }} onClick={closeMenu}>
-                  Profile
-                </NavLink>
-              </>
-            )}
-            {user?.role === "admin" && (
-              <Link to="/admin/dashboard" className="btn btn-primary btn-sm" style={{ marginLeft: "0.25rem" }} onClick={closeMenu}>
-                <LayoutDashboard size={14} />
-                Admin Panel
-              </Link>
-            )}
+              )}
 
-            {/* User info + logout */}
-            <div className="navbar-user" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "0.5rem", paddingLeft: "0.75rem", borderLeft: "1px solid var(--gray-200)" }}>
-              <div style={{
-                width: "2rem", height: "2rem", borderRadius: "50%",
-                background: "var(--brand-primary)", color: "white",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "0.6875rem", fontWeight: 700,
-              }}>
-                {user?.name?.slice(0, 2).toUpperCase() || "ME"}
+              {/* User info + logout */}
+              <div className="ezc-user-section">
+                <div className="ezc-avatar">
+                  {user?.name?.slice(0, 2).toUpperCase() || "ME"}
+                </div>
+                <button
+                  className="ezc-logout-btn"
+                  onClick={() => setShowLogoutConfirm(true)}
+                >
+                  <LogOut size={13} />
+                  Logout
+                </button>
               </div>
-              <button className="btn btn-outline btn-sm" onClick={handleLogout} style={{ gap: "0.375rem" }}>
-                <LogOut size={13} />
+            </>
+          )}
+        </div>
+      </nav>
+
+      {/* Logout confirmation modal */}
+      {showLogoutConfirm && (
+        <div
+          className="ezc-logout-overlay"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div className="ezc-logout-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="ezc-logout-modal-icon">
+              <AlertTriangle size={22} />
+            </div>
+            <h3 className="ezc-logout-modal-title">Log out of EzyCut?</h3>
+            <p className="ezc-logout-modal-desc">
+              You&apos;ll need to sign in again to access your bookings, queue, and profile.
+            </p>
+            <div className="ezc-logout-modal-actions">
+              <button
+                className="ezc-logout-modal-cancel"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button className="ezc-logout-modal-confirm" onClick={handleLogout}>
+                <LogOut size={14} />
                 Logout
               </button>
             </div>
-          </>
-        )}
-      </div>
-    </nav>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

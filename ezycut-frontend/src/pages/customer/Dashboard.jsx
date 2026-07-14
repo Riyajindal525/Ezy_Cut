@@ -11,7 +11,13 @@ import {
   Users,
   CheckCircle,
   TrendingUp,
+  Sparkles,
+  Scissors,
+  Ticket,
+  Wand2,
+  ListChecks,
 } from "lucide-react";
+import smilingWomen from "../../assets/smilingWomen.png"
 import useAuthStore from "../../store/auth.store";
 import { getMyBookings } from "../../api/booking.api";
 import { getMyPayments } from "../../api/payment.api";
@@ -54,7 +60,7 @@ const CustomerDashboard = () => {
       setReviews(reviewsData.reviews || []);
       setNotifications(alertsData.notifications || []);
       setQueueStatus(queueData.queues || []);
-      
+
       const approvedSalons = (salonsData.salons || []).filter((s) => s.isApproved);
       setAllSalons(approvedSalons);
       setNearbySalons(approvedSalons.slice(0, 3)); // Fallback default
@@ -120,523 +126,493 @@ const CustomerDashboard = () => {
     return "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80";
   };
 
-  // Unified layout render
+  const fadeUp = (delayMs) => ({
+    className: "opacity-0 animate-[ezcFadeUp_0.6s_ease_forwards]",
+    style: { animationDelay: `${delayMs}ms` },
+  });
+
+  const statCards = [
+    { label: "Bookings", val: bookings.length, icon: Calendar, tint: "bg-[#f0fdfa] text-[#0d9488]" },
+    { label: "Payments", val: payments.length, icon: CreditCard, tint: "bg-emerald-50 text-emerald-700" },
+    { label: "Reviews", val: reviews.length, icon: Star, tint: "bg-amber-50 text-amber-700" },
+    { label: "Alerts", val: notifications.length, icon: Bell, tint: "bg-sky-50 text-sky-700" },
+    { label: "Queue Entry", val: queueStatus.length, icon: Ticket, tint: "bg-slate-100 text-slate-700" },
+  ];
+
+  const quickActions = [
+    { icon: Calendar, label: "Book Appointment", onClick: () => navigate("/salons") },
+    { icon: Wand2, label: "AI Recommendations", onClick: () => navigate("/ai-mentor") },
+    { icon: Scissors, label: "Browse Salons", onClick: () => navigate("/salons") },
+    { icon: Clock, label: "Live Queue", onClick: () => navigate("/my-queue") },
+    { icon: ListChecks, label: "My Bookings", onClick: () => navigate("/my-bookings") },
+    { icon: CreditCard, label: "Payments", onClick: () => navigate("/payment-history") },
+  ];
+
+  const SalonCard = ({ salon, badge }) => (
+    <div className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-[0_12px_32px_rgba(13,148,136,0.12)] hover:border-[#0d9488]/25 transition-all duration-300 overflow-hidden hover:-translate-y-1">
+      <div className="relative h-40 overflow-hidden">
+        <img
+          src={getSalonImage(salon)}
+          alt={salon.name}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
+        {badge && (
+          <span className="absolute top-3 left-3 bg-[#0f766e] text-white text-[0.65rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow">
+            {badge}
+          </span>
+        )}
+        <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+          <Star size={11} className="fill-amber-400 text-amber-400" />
+          {salon.rating > 0 ? salon.rating : "New"}
+        </span>
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="text-white font-bold text-[1.05rem] leading-tight drop-shadow-sm">{salon.name}</h3>
+        </div>
+      </div>
+      <div className="p-4 flex flex-col gap-2">
+        <div className="flex items-center gap-1.5 text-[#5b6b68] text-sm">
+          <MapPin size={13} className="text-[#0d9488] shrink-0" />
+          <span className="truncate">{salon.city}</span>
+        </div>
+        <p className="text-[#5b6b68] text-sm line-clamp-1">{salon.address}</p>
+        <button
+          onClick={() => navigate(`/salons/${salon._id}`)}
+          className="mt-1 w-full inline-flex items-center justify-center gap-1.5 border border-[#ccfbf1] text-[#0f766e] hover:bg-[#f0fdfa] font-semibold text-sm py-2 rounded-lg transition-colors"
+        >
+          View Details <ArrowRight size={14} />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div style={{ minHeight: "calc(100vh - 68px)", padding: "2.5rem 0", background: "#09090b" }}>
-      <div className="page-container" style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
-        
-        {/* Welcome Banner Card */}
-        <div className="card" style={{
-          background: "linear-gradient(135deg, #18181b 0%, #09090b 100%)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          padding: "2.5rem 2rem",
-          borderRadius: "var(--radius-xl)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1.5rem"
-        }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <span style={{
-              display: "inline-flex",
-              alignSelf: "flex-start",
-              background: "rgba(251,191,36,0.08)",
-              border: "1px solid rgba(251,191,36,0.2)",
-              borderRadius: "var(--radius-full)",
-              padding: "0.25rem 0.75rem",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              color: "var(--brand-accent)",
-              textTransform: "uppercase"
-            }}>
-              ✨ Customer Portal
-            </span>
-            <h1 style={{ fontSize: "2.25rem", fontWeight: 900, color: "white", margin: 0 }}>
-              Hello, {user?.name || "Customer"} 👋
+    <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
+      {/* ============ DARK HERO STRIP ============ */}
+      <div
+        {...fadeUp(0)}
+        className={`${fadeUp(0).className} relative overflow-hidden bg-gradient-to-br from-[#031715] via-[#042f2e] to-[#0f766e]`}
+      >
+        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_20%_20%,white,transparent_45%)]" />
+        <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.25)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.1)_0%,transparent_70%)] pointer-events-none" />
+
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-16 sm:pb-20 flex flex-wrap items-center justify-between gap-6">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+              Welcome back, {user?.name || "Customer"} 👋
             </h1>
-            <p style={{ color: "var(--gray-400)", fontSize: "0.9375rem", margin: 0 }}>
-              Welcome back to EzyCut. Choose your salon and secure your booking.
-            </p>
+            <p className="text-white/60 text-sm">Ready for your next self-care session?</p>
           </div>
-          <button onClick={() => navigate("/salons")} className="btn btn-primary" style={{ padding: "0.875rem 1.75rem", gap: "0.5rem", borderRadius: "var(--radius-md)", fontWeight: 700 }}>
+          <button
+            onClick={() => navigate("/salons")}
+            className="inline-flex items-center gap-2 bg-white text-[#0f766e] hover:bg-[#f0fdfa] font-bold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+          >
             Book Appointment <ArrowRight size={16} />
           </button>
         </div>
+      </div>
 
-        {/* Stats Row */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          gap: "1.25rem",
-        }}>
-          {[
-            { label: "Bookings", val: bookings.length, icon: Calendar, color: "#3b82f6" },
-            { label: "Payments", val: payments.length, icon: CreditCard, color: "#10b981" },
-            { label: "Reviews", val: reviews.length, icon: Star, color: "#fbbf24" },
-            { label: "Alerts", val: notifications.length, icon: Bell, color: "#8b5cf6" },
-            { label: "Queue Entry", val: queueStatus.length, icon: Clock, color: "#eab308" }
-          ].map(({ label, val, icon: Icon, color }) => (
-            <div key={label} className="card" style={{
-              padding: "1.25rem 1.5rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.75rem",
-              background: "#121214",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "var(--gray-400)" }}>{label}</span>
-                <div style={{
-                  width: "2rem", height: "2rem", borderRadius: "var(--radius-sm)",
-                  background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)",
-                  display: "flex", alignItems: "center", justifyContent: "center"
-                }}>
-                  <Icon size={14} style={{ color }} />
+      {/* ============ MAIN CONTENT (overlaps hero bottom) ============ */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-10 sm:-mt-12 pb-12 flex flex-col gap-6 sm:gap-8">
+
+        {/* Stats strip */}
+        <div
+          {...fadeUp(60)}
+          className={`${fadeUp(60).className} grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4`}
+        >
+          {statCards.map(({ label, val, icon: Icon, tint }) => (
+            <div
+              key={label}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[#0d9488]/20 transition-all duration-200 p-5 flex flex-col gap-3"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-[#5b6b68]">{label}</span>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${tint}`}>
+                  <Icon size={15} />
                 </div>
               </div>
-              <span style={{ fontSize: "2.25rem", fontWeight: 900, color: "white", lineHeight: 1 }}>{val}</span>
+              <span className="text-3xl font-extrabold text-[#022525] leading-none">{val}</span>
             </div>
           ))}
         </div>
 
-        {/* Active Reservation & Live Queue Split */}
-        {showMetricsDashboard && (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 420px), 1fr))",
-            gap: "2rem",
-          }}>
-            
-            {/* Upcoming Reservation Card */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span>📅</span> Upcoming Reservation
-                </h3>
-                <Link to="/my-bookings" style={{ color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 700, textDecoration: "none" }}>
-                  Manage &gt;
+        {/* Two-column layout: main + sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+
+          {/* ============ MAIN COLUMN ============ */}
+          <div className="lg:col-span-2 flex flex-col gap-6 sm:gap-8">
+
+            {/* AI Recommendation promo */}
+            <div
+              {...fadeUp(100)}
+              className={`${fadeUp(100).className} relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0f766e] to-[#0d9488] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg`}
+            >
+              <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.15)_0%,transparent_70%)] pointer-events-none" />
+              <div className="relative flex flex-col gap-2 max-w-md shrink">
+                <span className="inline-flex items-center gap-1.5 self-start bg-white/15 border border-white/20 rounded-full px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-wider text-white">
+                  <Wand2 size={11} /> AI Powered
+                </span>
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                  Your Personal Grooming Assistant
+                </h2>
+                <p className="text-white/75 text-sm leading-relaxed">
+                  Get AI-powered recommendations for hairstyles, beauty &amp; grooming services picked just for you.
+                </p>
+                <button
+                  onClick={() => navigate("/ai-mentor")}
+                  className="mt-2 self-start inline-flex items-center gap-2 bg-white text-[#0f766e] hover:bg-[#f0fdfa] font-bold text-sm px-5 py-2.5 rounded-xl shadow transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  <Sparkles size={15} /> Get Recommendations
+                </button>
+              </div>
+              <img
+                src={smilingWomen}
+                alt="Woman flipping her hair"
+                className="relative hidden sm:block shrink-0 w-48 h-56 lg:w-56 lg:h-64 rounded-2xl object-cover shadow-xl border-4 border-white/10"
+              />
+            </div>
+
+            {/* Nearby Salons */}
+            <div {...fadeUp(140)} className={`${fadeUp(140).className} flex flex-col gap-4`}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-extrabold text-[#022525] flex items-center gap-2">
+                  <MapPin size={17} className="text-[#0d9488]" /> Nearby Salons
+                </h2>
+                <Link to="/salons" className="text-[#0f766e] text-sm font-bold hover:underline">
+                  View All &gt;
                 </Link>
               </div>
-              
-              {upcomingBooking ? (
-                <div className="card" style={{
-                  background: "#121214",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  padding: "1.5rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1.25rem"
-                }}>
-                  <div style={{ display: "flex", gap: "0.75rem", borderLeft: "4px solid var(--brand-accent)", paddingLeft: "1rem" }}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontSize: "1.125rem", fontWeight: 800, color: "white" }}>{upcomingBooking.salon?.name}</span>
-                      <span style={{ fontSize: "0.875rem", color: "var(--gray-400)", fontWeight: 500 }}>{upcomingBooking.service?.name}</span>
-                    </div>
-                  </div>
-                  
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "1rem",
-                    padding: "1rem",
-                    background: "rgba(255,255,255,0.02)",
-                    borderRadius: "var(--radius-md)",
-                    fontSize: "0.8125rem",
-                  }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Date</span>
-                      <span style={{ color: "white", fontWeight: 700 }}>
-                        {new Date(upcomingBooking.bookingDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Time Window</span>
-                      <span style={{ color: "white", fontWeight: 700, fontFamily: "monospace" }}>{upcomingBooking.startTime} - {upcomingBooking.endTime}</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Total Price</span>
-                      <span style={{ color: "white", fontWeight: 700 }}>₹{upcomingBooking.totalAmount}</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Status</span>
-                      <span style={{
-                        alignSelf: "flex-start",
-                        background: "var(--success-light)",
-                        color: "var(--success)",
-                        padding: "0.15rem 0.5rem",
-                        borderRadius: "var(--radius-full)",
-                        fontSize: "0.6875rem",
-                        fontWeight: 850,
-                        textTransform: "uppercase"
-                      }}>
-                        {upcomingBooking.status}
-                      </span>
-                    </div>
-                  </div>
+
+              {geoLoading ? (
+                <div className="flex items-center gap-2 text-[#5b6b68] py-6">
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-[#0d9488] rounded-full animate-spin" />
+                  Detecting nearby salon listings...
                 </div>
+              ) : nearbySalons.length === 0 ? (
+                <p className="text-[#5b6b68]">No salons found in your proximity.</p>
               ) : (
-                <div className="card" style={{ padding: "1.5rem", textAlign: "center", color: "var(--gray-500)", background: "#121214", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  No upcoming appointments confirmed.
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {nearbySalons.map((salon) => (
+                    <SalonCard key={salon._id} salon={salon} />
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Live Line Entry Card */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span>⌛</span> Live Line Entry
-                </h3>
-                <Link to="/my-queue" style={{ color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 700, textDecoration: "none" }}>
-                  View Queue &gt;
+            {/* Top Rated Collections */}
+            <div {...fadeUp(180)} className={`${fadeUp(180).className} flex flex-col gap-4`}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-extrabold text-[#022525] flex items-center gap-2">
+                  <TrendingUp size={17} className="text-[#0d9488]" /> Top Rated Collections
+                </h2>
+                <Link to="/salons" className="text-[#0f766e] text-sm font-bold hover:underline">
+                  View All &gt;
                 </Link>
               </div>
-
-              {activeQueue ? (
-                <div className="card" style={{
-                  background: "#121214",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  padding: "1.5rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1.25rem"
-                }}>
-                  <div style={{ display: "flex", justify: "space-between", alignItems: "flex-start", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                      <span style={{ fontSize: "1.125rem", fontWeight: 800, color: "white" }}>
-                        {activeQueue.salon?.name || "Premium Salon"}
-                      </span>
-                      <span style={{ fontSize: "0.875rem", color: "var(--gray-400)", fontWeight: 500 }}>
-                        {activeQueue.service?.name}
-                      </span>
-                    </div>
-                    
-                    <div style={{ textAlign: "right" }}>
-                      <span style={{ display: "block", fontSize: "0.6875rem", color: "var(--gray-400)", textTransform: "uppercase", fontWeight: 700 }}>Position</span>
-                      <span style={{ fontSize: "1.875rem", fontWeight: 900, color: "white" }}>#{activeQueue.position}</span>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    <div style={{ width: "100%", height: "4px", background: "rgba(255,255,255,0.04)", borderRadius: "var(--radius-full)", overflow: "hidden" }}>
-                      <div style={{
-                        width: `${Math.max(10, 100 - activeQueue.position * 20)}%`,
-                        height: "100%",
-                        background: "var(--brand-accent)",
-                        borderRadius: "var(--radius-full)"
-                      }}></div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem", fontSize: "0.8125rem" }}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Wait Est.</span>
-                      <span style={{ color: "var(--brand-accent)", fontWeight: 800 }}>{activeQueue.estimatedWaitTime} mins</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Token Code</span>
-                      <span style={{ color: "white", fontWeight: 700, fontFamily: "monospace" }}>{activeQueue.tokenCode}</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ color: "var(--gray-400)" }}>Status</span>
-                      <span style={{
-                        alignSelf: "flex-start",
-                        background: "var(--warning-light)",
-                        color: "var(--warning)",
-                        padding: "0.15rem 0.5rem",
-                        borderRadius: "var(--radius-full)",
-                        fontSize: "0.6875rem",
-                        fontWeight: 850,
-                        textTransform: "uppercase"
-                      }}>
-                        {activeQueue.status.replace(/_/g, " ")}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="card" style={{ padding: "1.5rem", textAlign: "center", color: "var(--gray-500)", background: "#121214", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  You are not currently in any salon queue line.
-                </div>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {topRatedSalons.map((salon) => (
+                  <SalonCard key={salon._id} salon={salon} badge="Top Rated" />
+                ))}
+              </div>
             </div>
 
-          </div>
-        )}
-
-        {/* Nearby Salons Section */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span>📍</span> Nearby Salons
-            </h2>
-            <Link to="/salons" style={{ color: "var(--brand-accent)", fontSize: "0.875rem", fontWeight: 700, textDecoration: "none" }}>
-              Explore All &gt;
-            </Link>
-          </div>
-
-          {geoLoading ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--gray-500)", padding: "2rem 0" }}>
-              <div className="spinner" style={{ width: "16px", height: "16px" }} />
-              Detecting nearby salon listings...
-            </div>
-          ) : nearbySalons.length === 0 ? (
-            <p style={{ color: "var(--gray-400)" }}>No salons found in your proximity.</p>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
-              {nearbySalons.map((salon) => (
-                <div key={salon._id} className="card card-hover" style={{ display: "flex", flexDirection: "column" }}>
-                  <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
-                    <img
-                      src={getSalonImage(salon)}
-                      alt={salon.name}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                    <span style={{
-                      position: "absolute", top: "0.75rem", right: "0.75rem",
-                      background: "rgba(0,0,0,0.65)", color: "white",
-                      padding: "0.25rem 0.5rem", borderRadius: "var(--radius-sm)",
-                      fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.25rem"
-                    }}>
-                      ⭐ {salon.rating > 0 ? salon.rating : "N/A"}
-                    </span>
-                  </div>
-                  <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem", flex: 1 }}>
-                    <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0 }}>{salon.name}</h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", color: "var(--gray-500)", fontSize: "0.8125rem" }}>
-                      <MapPin size={12} />
-                      <span>{salon.city}</span>
+            {/* Recommended */}
+            {recommendedSalons.length > 0 && (
+              <div {...fadeUp(220)} className={`${fadeUp(220).className} relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#022525] to-[#0f766e] p-1`}>
+                <div className="bg-white rounded-[14px] flex flex-wrap overflow-hidden">
+                  {recommendedSalons.map((salon) => (
+                    <div key={salon._id} className="flex flex-wrap w-full">
+                      <div className="relative w-full sm:w-[220px] h-[160px] sm:h-auto overflow-hidden shrink-0">
+                        <img
+                          src={getSalonImage(salon)}
+                          alt={salon.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-2 right-2 inline-flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+                          <Star size={11} className="fill-amber-400 text-amber-400" /> {salon.rating}
+                        </span>
+                      </div>
+                      <div className="p-5 flex flex-col gap-1.5 flex-1 min-w-[220px]">
+                        <span className="inline-flex items-center gap-1.5 self-start bg-[#f0fdfa] text-[#0f766e] text-[0.625rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full mb-1">
+                          <Sparkles size={10} /> Recommended For You
+                        </span>
+                        <h3 className="text-[1.05rem] font-bold text-[#022525]">{salon.name}</h3>
+                        <div className="flex items-center gap-1.5 text-[#5b6b68] text-sm">
+                          <MapPin size={13} className="text-[#0d9488]" />
+                          <span>{salon.city}, {salon.state}</span>
+                        </div>
+                        <p className="text-[#5b6b68] text-sm mb-1">{salon.address}</p>
+                        <button
+                          onClick={() => navigate(`/salons/${salon._id}`)}
+                          className="self-start inline-flex items-center gap-1.5 border border-[#ccfbf1] text-[#0f766e] hover:bg-[#f0fdfa] font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
+                        >
+                          View Details <ArrowRight size={14} />
+                        </button>
+                      </div>
                     </div>
-                    <p style={{ color: "var(--gray-500)", fontSize: "0.8125rem", margin: 0, flex: 1 }}>{salon.address}</p>
-                    <button
-                      onClick={() => navigate(`/salons/${salon._id}`)}
-                      className="btn btn-outline btn-sm btn-full"
-                      style={{ marginTop: "0.75rem", fontWeight: 700 }}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Alerts & Recent Charges */}
+            <div {...fadeUp(260)} className={`${fadeUp(260).className} grid gap-6 sm:grid-cols-2`}>
+              {/* Recent Alerts */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[1.05rem] font-bold text-[#022525] flex items-center gap-2">
+                    <Bell size={17} className="text-[#0d9488]" /> Recent Alerts
+                  </h3>
+                  <Link to="/notifications" className="text-[#0f766e] text-sm font-bold hover:underline">
+                    Inbox &gt;
+                  </Link>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {notifications.slice(0, 4).map((alert) => (
+                    <div key={alert._id} className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4">
+                      <div className="font-bold text-[#022525] text-sm mb-1">{alert.title}</div>
+                      <div className="text-[#5b6b68] text-sm leading-relaxed">{alert.message}</div>
+                    </div>
+                  ))}
+                  {notifications.length === 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm text-[#5b6b68] py-4 text-center text-sm">
+                      No alerts registered.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Recent Charges */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[1.05rem] font-bold text-[#022525] flex items-center gap-2">
+                    <CreditCard size={17} className="text-[#0d9488]" /> Recent Charges
+                  </h3>
+                  <Link to="/payment-history" className="text-[#0f766e] text-sm font-bold hover:underline">
+                    Statements &gt;
+                  </Link>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {payments.slice(0, 3).map((pm) => (
+                    <div
+                      key={pm._id}
+                      className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4 flex items-center justify-between"
                     >
-                      View Details
-                    </button>
-                  </div>
+                      <div>
+                        <div className="font-bold text-[#022525] text-sm">{pm.booking?.service?.name || "Salon Service"}</div>
+                        <div className="text-[#5b6b68] text-sm mt-0.5">{pm.booking?.salon?.name || "Verified Salon"}</div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <span className="font-extrabold text-[#022525]">₹{pm.amount}</span>
+                        <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold uppercase">
+                          {pm.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {payments.length === 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm text-[#5b6b68] py-4 text-center text-sm">
+                      No billing history found.
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Top Rated Collections */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span>🏅</span> Top Rated Collections
-            </h2>
-            <Link to="/salons" style={{ color: "var(--brand-accent)", fontSize: "0.875rem", fontWeight: 700, textDecoration: "none" }}>
-              Explore All &gt;
-            </Link>
+            {/* Quick Navigation */}
+            <div {...fadeUp(300)} className={`${fadeUp(300).className} flex flex-col gap-4 pb-2`}>
+              <h3 className="text-[1.05rem] font-bold text-[#022525] flex items-center gap-2">
+                <Scissors size={17} className="text-[#0d9488]" /> Quick Navigation
+              </h3>
+              <div className="flex gap-3 flex-wrap">
+                <button
+                  onClick={() => navigate("/salons")}
+                  className="inline-flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  Book Salon Slot
+                </button>
+                <button
+                  onClick={() => navigate("/my-bookings")}
+                  className="inline-flex items-center gap-2 bg-white hover:bg-[#f0fdfa] text-[#0f766e] border border-[#ccfbf1] font-bold text-sm px-5 py-2.5 rounded-xl transition-colors"
+                >
+                  My Bookings
+                </button>
+                <button
+                  onClick={() => navigate("/my-queue")}
+                  className="inline-flex items-center gap-2 bg-white hover:bg-[#f0fdfa] text-[#0f766e] border border-[#ccfbf1] font-bold text-sm px-5 py-2.5 rounded-xl transition-colors"
+                >
+                  Live Queue
+                </button>
+                <button
+                  onClick={() => navigate("/payment-history")}
+                  className="inline-flex items-center gap-2 bg-white hover:bg-[#f0fdfa] text-[#0f766e] border border-[#ccfbf1] font-bold text-sm px-5 py-2.5 rounded-xl transition-colors"
+                >
+                  Payments
+                </button>
+                <button
+                  onClick={() => navigate("/my-reviews")}
+                  className="inline-flex items-center gap-2 bg-white hover:bg-[#f0fdfa] text-[#0f766e] border border-[#ccfbf1] font-bold text-sm px-5 py-2.5 rounded-xl transition-colors"
+                >
+                  My Reviews
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
-            {topRatedSalons.map((salon) => (
-              <div key={salon._id} className="card card-hover" style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
-                  <img
-                    src={getSalonImage(salon)}
-                    alt={salon.name}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                  <span style={{
-                    position: "absolute", top: "0.75rem", left: "0.75rem",
-                    background: "var(--brand-accent)", color: "#09090b",
-                    padding: "0.25rem 0.5rem", borderRadius: "var(--radius-sm)",
-                    fontSize: "0.6875rem", fontWeight: 800, textTransform: "uppercase"
-                  }}>
-                    Top Rated
-                  </span>
-                  <span style={{
-                    position: "absolute", top: "0.75rem", right: "0.75rem",
-                    background: "rgba(0,0,0,0.65)", color: "white",
-                    padding: "0.25rem 0.5rem", borderRadius: "var(--radius-sm)",
-                    fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.25rem"
-                  }}>
-                    ⭐ {salon.rating > 0 ? salon.rating : "0"}
-                  </span>
-                </div>
-                <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem", flex: 1 }}>
-                  <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0 }}>{salon.name}</h3>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", color: "var(--gray-500)", fontSize: "0.8125rem" }}>
-                    <MapPin size={12} />
-                    <span>{salon.city}</span>
-                  </div>
-                  <p style={{ color: "var(--gray-500)", fontSize: "0.8125rem", margin: 0, flex: 1 }}>{salon.address}</p>
+          {/* ============ SIDEBAR COLUMN ============ */}
+          <div className="lg:col-span-1 flex flex-col gap-6 sm:gap-8 lg:sticky lg:top-6">
+
+            {/* Quick Actions */}
+            <div {...fadeUp(100)} className={`${fadeUp(100).className} bg-white rounded-2xl border border-gray-200 shadow-sm p-5`}>
+              <h3 className="text-sm font-bold text-[#5b6b68] uppercase tracking-wide mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {quickActions.map(({ icon: Icon, label, onClick }) => (
                   <button
-                    onClick={() => navigate(`/salons/${salon._id}`)}
-                    className="btn btn-outline btn-sm btn-full"
-                    style={{ marginTop: "0.75rem", fontWeight: 700 }}
+                    key={label}
+                    onClick={onClick}
+                    className="group flex flex-col items-center justify-center gap-2 bg-[#fafbfb] border border-gray-100 rounded-xl py-4 px-1.5 text-center transition-all duration-200 hover:border-[#0d9488]/30 hover:bg-[#f0fdfa]"
                   >
-                    View Details
+                    <div className="w-9 h-9 rounded-lg bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center transition-colors duration-200 group-hover:bg-[#0d9488] group-hover:border-[#0d9488]">
+                      <Icon size={15} className="text-[#0d9488] transition-colors duration-200 group-hover:text-white" />
+                    </div>
+                    <span className="text-[0.625rem] font-semibold text-[#134e4a] leading-tight">{label}</span>
                   </button>
+                ))}
+              </div>
+            </div>
+
+            {showMetricsDashboard && (
+              <>
+                {/* Upcoming Reservation */}
+                <div {...fadeUp(140)} className={`${fadeUp(140).className} flex flex-col gap-3`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-[#5b6b68] uppercase tracking-wide flex items-center gap-1.5">
+                      <Calendar size={14} className="text-[#0d9488]" /> Upcoming Booking
+                    </h3>
+                    <Link to="/my-bookings" className="text-[#0f766e] text-xs font-bold hover:underline">
+                      View All &gt;
+                    </Link>
+                  </div>
+
+                  {upcomingBooking ? (
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="relative h-24 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=500&q=80"
+                          alt="Salon interior"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <span className="absolute bottom-2 left-3 text-white font-bold text-sm drop-shadow">
+                          {upcomingBooking.salon?.name}
+                        </span>
+                      </div>
+                      <div className="p-4 flex flex-col gap-3">
+                        <span className="text-sm text-[#5b6b68] font-medium">{upcomingBooking.service?.name}</span>
+                        <div className="flex flex-col gap-1.5 text-sm">
+                          <div className="flex items-center gap-2 text-[#022525] font-semibold">
+                            <Calendar size={13} className="text-[#0d9488]" />
+                            {new Date(upcomingBooking.bookingDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+                          </div>
+                          <div className="flex items-center gap-2 text-[#022525] font-semibold font-mono">
+                            <Clock size={13} className="text-[#0d9488]" />
+                            {upcomingBooking.startTime} - {upcomingBooking.endTime}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                          <span className="text-[#022525] font-extrabold">₹{upcomingBooking.totalAmount}</span>
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold uppercase">
+                            <CheckCircle size={10} /> {upcomingBooking.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center text-[#5b6b68] text-sm">
+                      No upcoming appointments confirmed.
+                    </div>
+                  )}
+                </div>
+
+                {/* Live Line Entry */}
+                <div {...fadeUp(180)} className={`${fadeUp(180).className} flex flex-col gap-3`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-[#5b6b68] uppercase tracking-wide flex items-center gap-1.5">
+                      <Clock size={14} className="text-[#0d9488]" /> Live Line Entry
+                    </h3>
+                    <Link to="/my-queue" className="text-[#0f766e] text-xs font-bold hover:underline">
+                      View &gt;
+                    </Link>
+                  </div>
+
+                  {activeQueue ? (
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col gap-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-extrabold text-[#022525]">
+                            {activeQueue.salon?.name || "Premium Salon"}
+                          </span>
+                          <span className="text-sm text-[#5b6b68] font-medium">{activeQueue.service?.name}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="block text-[0.625rem] text-[#9ca3af] uppercase font-bold">Position</span>
+                          <span className="text-2xl font-extrabold text-[#022525]">#{activeQueue.position}</span>
+                        </div>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#0d9488] rounded-full transition-all duration-700"
+                          style={{ width: `${Math.max(10, 100 - activeQueue.position * 20)}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between flex-wrap gap-3 text-sm">
+                        <div className="flex flex-col">
+                          <span className="text-[#9ca3af] text-[0.625rem] font-semibold uppercase">Wait Est.</span>
+                          <span className="text-[#0f766e] font-extrabold">{activeQueue.estimatedWaitTime} mins</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[#9ca3af] text-[0.625rem] font-semibold uppercase">Token</span>
+                          <span className="text-[#022525] font-bold font-mono">{activeQueue.tokenCode}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center text-[#5b6b68] text-sm">
+                      You are not currently in any salon queue line.
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Rewards style summary card */}
+            <div {...fadeUp(220)} className={`${fadeUp(220).className} relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#022525] to-[#0f766e] p-5 flex flex-col gap-4 shadow-lg`}>
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.2)_0%,transparent_70%)] pointer-events-none" />
+              <div className="relative flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white/80 uppercase tracking-wide flex items-center gap-1.5">
+                  <Users size={14} className="text-[#5eead4]" /> Your Activity
+                </h3>
+              </div>
+              <div className="relative grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[0.625rem] text-white/50 font-semibold uppercase">Reviews Given</span>
+                  <span className="text-xl font-extrabold text-white">{reviews.length}</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[0.625rem] text-white/50 font-semibold uppercase">Total Payments</span>
+                  <span className="text-xl font-extrabold text-white">{payments.length}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recommended Section */}
-        {recommendedSalons.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span>📈</span> Recommended For You
-              </h2>
-              <Link to="/salons" style={{ color: "var(--brand-accent)", fontSize: "0.875rem", fontWeight: 700, textDecoration: "none" }}>
-                Explore All &gt;
+              <Link
+                to="/my-reviews"
+                className="relative inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors"
+              >
+                View My Reviews <ArrowRight size={14} />
               </Link>
             </div>
-            <div>
-              {recommendedSalons.map((salon) => (
-                <div key={salon._id} className="card card-hover" style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", maxWidth: "560px" }}>
-                  <div style={{ position: "relative", width: "200px", height: "150px", minWidth: "150px" }}>
-                    <img
-                      src={getSalonImage(salon)}
-                      alt={salon.name}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                    <span style={{
-                      position: "absolute", top: "0.5rem", right: "0.5rem",
-                      background: "rgba(0,0,0,0.65)", color: "white",
-                      padding: "0.2rem 0.4rem", borderRadius: "var(--radius-sm)",
-                      fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.2"
-                    }}>
-                      ⭐ {salon.rating}
-                    </span>
-                  </div>
-                  <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.375rem", flex: 1, minWidth: "220px" }}>
-                    <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0 }}>{salon.name}</h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", color: "var(--gray-500)", fontSize: "0.8125rem" }}>
-                      <MapPin size={12} />
-                      <span>{salon.city}, {salon.state}</span>
-                    </div>
-                    <p style={{ color: "var(--gray-500)", fontSize: "0.8125rem", margin: "0 0 0.5rem" }}>{salon.address}</p>
-                    <button
-                      onClick={() => navigate(`/salons/${salon._id}`)}
-                      className="btn btn-outline btn-sm"
-                      style={{ alignSelf: "flex-start", fontWeight: 700 }}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Recent Alerts & Recent Charges */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 420px), 1fr))",
-          gap: "2rem",
-        }}>
-          
-          {/* Recent Alerts Column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span>🔔</span> Recent Alerts
-              </h3>
-              <Link to="/notifications" style={{ color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 700, textDecoration: "none" }}>
-                Inbox &gt;
-              </Link>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {notifications.slice(0, 4).map((alert) => (
-                <div key={alert._id} className="card" style={{
-                  padding: "1rem 1.25rem",
-                  background: "#121214",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}>
-                  <div style={{ fontWeight: 800, color: "white", fontSize: "0.875rem", marginBottom: "0.25rem" }}>{alert.title}</div>
-                  <div style={{ color: "var(--gray-500)", fontSize: "0.8125rem", lineHeight: 1.4 }}>{alert.message}</div>
-                </div>
-              ))}
-              {notifications.length === 0 && (
-                <div style={{ color: "var(--gray-500)", padding: "1rem", textAlign: "center" }}>No alerts registered.</div>
-              )}
-            </div>
-          </div>
-
-          {/* Recent Charges Column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span>💳</span> Recent Charges
-              </h3>
-              <Link to="/payment-history" style={{ color: "var(--brand-accent)", fontSize: "0.8125rem", fontWeight: 700, textDecoration: "none" }}>
-                Statements &gt;
-              </Link>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {payments.slice(0, 3).map((pm) => (
-                <div key={pm._id} className="card" style={{
-                  padding: "1rem 1.25rem",
-                  background: "#121214",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
-                }}>
-                  <div>
-                    <div style={{ fontWeight: 800, color: "white", fontSize: "0.875rem" }}>{pm.booking?.service?.name || "Salon Service"}</div>
-                    <div style={{ color: "var(--gray-500)", fontSize: "0.8125rem", marginTop: "0.15rem" }}>{pm.booking?.salon?.name || "Verified Salon"}</div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.375rem" }}>
-                    <span style={{ fontWeight: 800, color: "white", fontSize: "1rem" }}>₹{pm.amount}</span>
-                    <span style={{
-                      background: "var(--success-light)",
-                      color: "var(--success)",
-                      padding: "0.1rem 0.4rem",
-                      borderRadius: "var(--radius-full)",
-                      fontSize: "0.625rem",
-                      fontWeight: 800,
-                      textTransform: "uppercase"
-                    }}>{pm.status}</span>
-                  </div>
-                </div>
-              ))}
-              {payments.length === 0 && (
-                <div style={{ color: "var(--gray-500)", padding: "1rem", textAlign: "center" }}>No billing history found.</div>
-              )}
-            </div>
-          </div>
-
-        </div>
-
-        {/* Quick Navigation Footer Row */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <h3 style={{ fontSize: "1.0625rem", fontWeight: 800, color: "white", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span>✨</span> Quick Navigation
-          </h3>
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            <button onClick={() => navigate("/salons")} className="btn btn-primary" style={{ fontWeight: 700, borderRadius: "var(--radius-md)" }}>
-              Book Salon Slot
-            </button>
-            <button onClick={() => navigate("/my-bookings")} className="btn btn-outline" style={{ fontWeight: 700, borderRadius: "var(--radius-md)" }}>
-              My Bookings
-            </button>
-            <button onClick={() => navigate("/my-queue")} className="btn btn-outline" style={{ fontWeight: 700, borderRadius: "var(--radius-md)" }}>
-              Live Queue
-            </button>
-            <button onClick={() => navigate("/payment-history")} className="btn btn-outline" style={{ fontWeight: 700, borderRadius: "var(--radius-md)" }}>
-              Payments
-            </button>
-            <button onClick={() => navigate("/my-reviews")} className="btn btn-outline" style={{ fontWeight: 700, borderRadius: "var(--radius-md)" }}>
-              My Reviews
-            </button>
           </div>
         </div>
-
       </div>
     </div>
   );

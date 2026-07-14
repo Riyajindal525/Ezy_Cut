@@ -1,9 +1,31 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Scissors, UserPlus, AlertCircle, User, Briefcase } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  UserPlus,
+  AlertCircle,
+  User,
+  Briefcase,
+  CheckCircle2,
+} from "lucide-react";
 import { registerUser, loginUser } from "../../api/auth.api";
 import useAuthStore from "../../store/auth.store";
 import toast from "../../utils/toast";
+import iconWatermark from "../../assets/ezycut-icon-watermark.png";
+import "../../css/Register.css";
+
+const FEATURES = [
+  "Browse verified top-rated salons",
+  "Book appointments in under 60 seconds",
+  "Real-time queue tracking",
+  "Secure online payments",
+];
+
+const ROLES = [
+  { value: "customer", label: "Customer", icon: User, desc: "Book appointments" },
+  { value: "salon_owner", label: "Salon Owner", icon: Briefcase, desc: "Manage my salon" },
+];
 
 const Register = () => {
   const navigate = useNavigate();
@@ -54,107 +76,137 @@ const Register = () => {
   };
 
   return (
-    <div className="register-page">
+    <div className="ezyauth-register-page">
       {/* Left Panel - Brand */}
-      <div className="register-brand-panel">
-        <div className="register-glow" />
+      <div className="ezyauth-register-brand-panel">
+        <img
+          src={iconWatermark}
+          alt=""
+          aria-hidden="true"
+          className="ezyauth-register-watermark"
+        />
 
-        <div className="register-brand-content">
-          <div className="register-logo">
-            <div className="register-logo-icon">
-              <Scissors size={18} strokeWidth={2.5} style={{ color: "#0a0a0a" }} />
-            </div>
-            <span className="register-logo-text">EzyCut</span>
-          </div>
-
-          <h2 className="register-heading">
-            Join EzyCut today
-          </h2>
-          <p className="register-subtext">
-            Create your account and start booking salon appointments in seconds. Free forever.
+        <div className="ezyauth-register-brand-content">
+          <h2 className="ezyauth-register-heading">Join EzyCut today</h2>
+          <p className="ezyauth-register-subtext">
+            Create your account and start booking salon appointments in
+            seconds. Free forever.
           </p>
 
-          {[
-            "Browse verified top-rated salons",
-            "Book appointments in under 60 seconds",
-            "Real-time queue tracking",
-            "Secure online payments",
-          ].map((item) => (
-            <div key={item} className="register-feature-item">
-              <div className="register-feature-check">✓</div>
-              {item}
-            </div>
-          ))}
+          <div className="ezyauth-register-feature-list">
+            {FEATURES.map((item) => (
+              <div key={item} className="ezyauth-register-feature-item">
+                <span className="ezyauth-register-feature-icon">
+                  <CheckCircle2 size={15} strokeWidth={2.25} />
+                </span>
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
+
+        <p className="ezyauth-register-brand-footer">Smart grooming. Better prices.</p>
       </div>
 
       {/* Right Panel - Form */}
-      <div className="register-form-panel">
-        <div className="register-form-wrap">
-          <div style={{ marginBottom: "2rem" }}>
-            <h1 className="register-form-title">
-              Create Account
-            </h1>
-            <p className="register-form-subtitle">
+      <div className="ezyauth-register-form-panel">
+        <div className="ezyauth-register-form-wrap">
+          <div className="ezyauth-register-form-header">
+            <h1 className="ezyauth-register-form-title">Create Account</h1>
+            <p className="ezyauth-register-form-subtitle">
               Already have an account?{" "}
-              <Link to="/login" className="register-link">
+              <Link to="/login" className="ezyauth-register-link">
                 Sign in
               </Link>
             </p>
           </div>
 
-          {/* Error message */}
           {error && (
-            <div className="register-notice register-notice-error">
-              <AlertCircle size={15} />
+            <div className="ezyauth-register-notice ezyauth-register-notice-error">
+              <AlertCircle size={16} strokeWidth={2.25} />
               {error}
             </div>
           )}
 
           {/* Role Selector */}
-          <div style={{ marginBottom: "1.25rem" }}>
-            <label className="form-label register-form-label" style={{ marginBottom: "0.625rem", display: "block" }}>I am a...</label>
-            <div className="register-role-grid">
-              {[
-                { value: "customer", label: "Customer", icon: User, desc: "Book appointments" },
-                { value: "salon_owner", label: "Salon Owner", icon: Briefcase, desc: "Manage my salon" },
-              ].map(({ value, label, icon: Icon, desc }) => (
+          <div className="ezyauth-register-role-section">
+            <label className="ezyauth-register-form-label ezyauth-register-role-label">
+              I am a...
+            </label>
+            <div className="ezyauth-register-role-grid">
+              {ROLES.map(({ value, label, icon: Icon, desc }) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setFormData({ ...formData, role: value })}
-                  className={`register-role-btn ${formData.role === value ? "active" : ""}`}
+                  className={`ezyauth-register-role-btn ${
+                    formData.role === value ? "active" : ""
+                  }`}
                 >
-                  <Icon size={18} className="register-role-icon" />
-                  <div className="register-role-label">{label}</div>
-                  <div className="register-role-desc">{desc}</div>
+                  <Icon size={18} className="ezyauth-register-role-icon" strokeWidth={2.25} />
+                  <div className="ezyauth-register-role-title">{label}</div>
+                  <div className="ezyauth-register-role-desc">{desc}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div className="form-group">
-              <label className="form-label register-form-label" htmlFor="name">Full Name</label>
-              <input id="name" type="text" name="name" value={formData.name} onChange={handleChange}
-                placeholder="Your full name" className="form-input register-input" required autoComplete="name" />
+          <form onSubmit={handleSubmit} className="ezyauth-register-form">
+            <div className="ezyauth-register-form-group">
+              <label className="ezyauth-register-form-label" htmlFor="name">
+                Full Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Your full name"
+                className="ezyauth-register-input"
+                required
+                autoComplete="name"
+              />
             </div>
 
-            <div className="form-group">
-              <label className="form-label register-form-label" htmlFor="email">Email Address</label>
-              <input id="email" type="email" name="email" value={formData.email} onChange={handleChange}
-                placeholder="you@example.com" className="form-input register-input" required autoComplete="email" />
+            <div className="ezyauth-register-form-group">
+              <label className="ezyauth-register-form-label" htmlFor="email">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className="ezyauth-register-input"
+                required
+                autoComplete="email"
+              />
             </div>
 
-            <div className="form-group">
-              <label className="form-label register-form-label" htmlFor="phone">Phone Number</label>
-              <input id="phone" type="tel" name="phone" value={formData.phone} onChange={handleChange}
-                placeholder="+91 98765 43210" className="form-input register-input" required />
+            <div className="ezyauth-register-form-group">
+              <label className="ezyauth-register-form-label" htmlFor="phone">
+                Phone Number
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+91 98765 43210"
+                className="ezyauth-register-input"
+                required
+              />
             </div>
 
-            <div className="form-group">
-              <label className="form-label register-form-label" htmlFor="password">Password</label>
-              <div style={{ position: "relative" }}>
+            <div className="ezyauth-register-form-group">
+              <label className="ezyauth-register-form-label" htmlFor="password">
+                Password
+              </label>
+              <div className="ezyauth-register-input-wrap">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -162,30 +214,34 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a strong password"
-                  className="form-input register-input"
+                  className="ezyauth-register-input ezyauth-register-input-icon-right"
                   required
-                  style={{ paddingRight: "2.75rem" }}
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="register-eye-toggle"
+                  className="ezyauth-register-eye-toggle"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary btn-full register-submit-btn"
+              className="ezyauth-register-submit-btn"
               disabled={loading}
             >
               {loading ? (
-                <><div className="spinner" style={{ width: "16px", height: "16px", borderWidth: "2px" }} /> Creating Account...</>
+                <>
+                  <span className="ezyauth-register-spinner" /> Creating Account...
+                </>
               ) : (
-                <><UserPlus size={16} /> Create Account</>
+                <>
+                  <UserPlus size={16} strokeWidth={2.25} /> Create Account
+                </>
               )}
             </button>
           </form>

@@ -8,7 +8,7 @@ import {
 } from "../../api/payment.api";
 import toast from "../../utils/toast";
 import Loader from "../../components/common/Loader";
-import { Wallet, AlertTriangle, CreditCard, X } from "lucide-react";
+import { Wallet, AlertTriangle, CreditCard, X, TrendingUp, Receipt, ArrowDownRight } from "lucide-react";
 
 const OwnerPayments = () => {
   const user = useAuthStore((state) => state.user);
@@ -87,12 +87,17 @@ const OwnerPayments = () => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "paid":     return "owner-badge-green";
-      case "refunded": return "owner-badge-amber";
-      case "failed":   return "owner-badge-red";
-      default:         return "owner-badge-neutral";
+      case "paid":     return "bg-emerald-50 text-emerald-700 border border-emerald-100";
+      case "refunded": return "bg-amber-50 text-amber-600 border border-amber-100";
+      case "failed":   return "bg-rose-50 text-rose-600 border border-rose-100";
+      default:         return "bg-gray-50 text-gray-500 border border-gray-100";
     }
   };
+
+  const fadeUp = (delayMs) => ({
+    className: "opacity-0 animate-[ezcFadeUp_0.6s_ease_forwards]",
+    style: { animationDelay: `${delayMs}ms` },
+  });
 
   if (loading) {
     return <Loader message="Compiling ledger records..." />;
@@ -100,19 +105,18 @@ const OwnerPayments = () => {
 
   if (salons.filter(s => s.owner?._id === user?.id || s.owner === user?.id).length === 0) {
     return (
-      <div className="owner-welcome-card">
-        <div className="owner-welcome-icon">
-          <Wallet size={36} style={{ color: "var(--brand-accent)" }} />
+      <div className="max-w-xl mx-auto my-10 bg-white border border-gray-100 rounded-3xl shadow-sm p-10 text-center">
+        <div className="w-20 h-20 rounded-full bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center mx-auto mb-6">
+          <Wallet size={32} className="text-[#0d9488]" />
         </div>
-        <h3 className="owner-welcome-title">Salon Setup Required</h3>
-        <p className="owner-welcome-desc">
+        <h3 className="font-['Outfit'] text-2xl font-extrabold text-gray-800 mb-3">Salon Setup Required</h3>
+        <p className="text-gray-500 text-[0.9375rem] leading-relaxed">
           You have not registered a salon profile yet. Please complete your salon setup first.
         </p>
-        <div style={{ marginTop: "2rem" }}>
+        <div className="mt-8">
           <Link
             to="/owner/dashboard?register=true"
-            className="owner-btn owner-btn-solid-gold"
-            style={{ padding: "0.875rem 2rem", fontSize: "0.875rem", borderRadius: "12px", textDecoration: "none", display: "inline-flex" }}
+            className="inline-flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-md shadow-[#0d9488]/20 transition-colors"
           >
             Go to Onboarding Form
           </Link>
@@ -122,114 +126,147 @@ const OwnerPayments = () => {
   }
 
   return (
-    <div className="owner-page-wrapper">
+    <div className="flex flex-col gap-6">
+      {/* Page heading */}
+      <div {...fadeUp(0)} className={fadeUp(0).className}>
+        <h1 className="font-['Outfit'] text-2xl md:text-[1.75rem] font-extrabold text-[#042f2e] tracking-[-0.02em] flex items-center gap-2.5">
+          <span className="w-9 h-9 rounded-xl bg-[#f0fdfa] text-[#0d9488] flex items-center justify-center">
+            <Wallet size={18} />
+          </span>
+          Payments & Earnings
+        </h1>
+        <p className="text-[#6b7280] text-sm mt-1">Track transactions, revenue and refunds for your salon.</p>
+      </div>
 
       {/* Financial Summary Cards */}
-      <div className="owner-stat-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
-
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {/* Gross Earnings */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Gross Earnings</span>
-            <div className="owner-stat-icon" style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.15)" }}>
-              <Wallet size={16} style={{ color: "#34d399" }} />
+        <div
+          {...fadeUp(60)}
+          className={`${fadeUp(60).className} group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-[0_14px_32px_rgba(13,148,136,0.12)] hover:-translate-y-1 hover:border-[#0d9488]/25 transition-all duration-300 p-6 flex flex-col gap-4 overflow-hidden`}
+        >
+          <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.1)_0%,transparent_70%)] pointer-events-none" />
+          <div className="relative flex justify-between items-start">
+            <span className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider">Gross Earnings</span>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#f0fdfa] text-[#0d9488] group-hover:scale-110 transition-transform duration-300">
+              <TrendingUp size={17} />
             </div>
           </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value">₹{totalPaid}</h3>
-            <p className="owner-stat-sub" style={{ color: "#34d399" }}>Total revenue collected</p>
+          <div className="relative">
+            <h3 className="font-['Outfit'] text-3xl font-extrabold text-[#042f2e] tracking-tight">₹{totalPaid}</h3>
+            <p className="text-xs font-semibold text-[#0d9488] mt-1.5">Total revenue collected</p>
           </div>
         </div>
 
         {/* Total Refunded */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Total Refunded</span>
-            <div className="owner-stat-icon" style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.15)" }}>
-              <CreditCard size={16} style={{ color: "#f87171" }} />
+        <div
+          {...fadeUp(120)}
+          className={`${fadeUp(120).className} group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-[0_14px_32px_rgba(244,63,94,0.1)] hover:-translate-y-1 hover:border-rose-200 transition-all duration-300 p-6 flex flex-col gap-4 overflow-hidden`}
+        >
+          <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-[radial-gradient(circle,rgba(244,63,94,0.08)_0%,transparent_70%)] pointer-events-none" />
+          <div className="relative flex justify-between items-start">
+            <span className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider">Total Refunded</span>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-500 group-hover:scale-110 transition-transform duration-300">
+              <ArrowDownRight size={17} />
             </div>
           </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value">₹{totalRefunded}</h3>
-            <p className="owner-stat-sub" style={{ color: "#f87171" }}>Returned transaction funds</p>
+          <div className="relative">
+            <h3 className="font-['Outfit'] text-3xl font-extrabold text-[#042f2e] tracking-tight">₹{totalRefunded}</h3>
+            <p className="text-xs font-semibold text-rose-500 mt-1.5">Returned transaction funds</p>
           </div>
         </div>
 
         {/* Net Income */}
-        <div className="owner-stat-card">
-          <div className="owner-stat-header">
-            <span className="owner-stat-label">Net Income</span>
-            <div className="owner-stat-icon" style={{ background: "rgba(212, 175, 55, 0.08)", border: "1px solid rgba(212, 175, 55, 0.15)" }}>
-              <Wallet size={16} style={{ color: "var(--brand-accent)" }} />
+        <div
+          {...fadeUp(180)}
+          className={`${fadeUp(180).className} group relative bg-gradient-to-br from-[#0f766e] to-[#042f2e] border border-[#0d9488]/20 rounded-2xl shadow-[0_10px_28px_rgba(15,118,110,0.25)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(15,118,110,0.35)] transition-all duration-300 p-6 flex flex-col gap-4 overflow-hidden`}
+        >
+          <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.2)_0%,transparent_70%)] pointer-events-none" />
+          <div className="relative flex justify-between items-start">
+            <span className="text-[0.6875rem] font-bold text-white/60 uppercase tracking-wider">Net Income</span>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white/10 border border-white/20 text-white group-hover:scale-110 transition-transform duration-300">
+              <Wallet size={17} />
             </div>
           </div>
-          <div className="owner-stat-body">
-            <h3 className="owner-stat-value" style={{ color: "var(--brand-accent)" }}>₹{netEarnings}</h3>
-            <p className="owner-stat-sub" style={{ color: "#fbbf24" }}>Net profit after refunds</p>
+          <div className="relative">
+            <h3 className="font-['Outfit'] text-3xl font-extrabold text-white tracking-tight">₹{netEarnings}</h3>
+            <p className="text-xs font-semibold text-[#5eead4] mt-1.5">Net profit after refunds</p>
           </div>
         </div>
       </div>
 
       {/* Transaction History Table */}
-      <div className="owner-card">
-        <div className="owner-card-header">
+      <div {...fadeUp(240)} className={`${fadeUp(240).className} bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden`}>
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap bg-gradient-to-r from-[#f7fdfc] to-white">
           <div>
-            <h3 className="owner-card-title">
-              <Wallet size={18} style={{ color: "var(--brand-accent)" }} />
+            <h3 className="font-['Outfit'] text-base font-bold text-[#042f2e] flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-[#f0fdfa] text-[#0d9488] flex items-center justify-center">
+                <Receipt size={16} />
+              </span>
               Payment Transactions — {salon?.name}
             </h3>
-            <p className="owner-card-subtitle">{payments.length} transaction{payments.length !== 1 ? "s" : ""} recorded</p>
+            <p className="text-xs text-gray-400 font-medium mt-1 ml-10">
+              {payments.length} transaction{payments.length !== 1 ? "s" : ""} recorded
+            </p>
           </div>
         </div>
-        <div className="owner-card-pad">
+        <div className="p-6">
           {payments.length === 0 ? (
-            <div className="owner-empty">
-              <div className="owner-empty-icon">
-                <CreditCard size={24} color="#52525b" />
+            <div className="flex flex-col items-center text-center gap-3 py-14">
+              <div className="relative w-20 h-20 rounded-full bg-[#f7faf9] border border-gray-100 flex items-center justify-center">
+                <CreditCard size={26} className="text-gray-300" />
               </div>
-              <p className="owner-empty-title">No Transactions Recorded</p>
-              <p className="owner-empty-desc">
+              <h4 className="font-['Outfit'] text-lg font-bold text-gray-700">No Transactions Recorded</h4>
+              <p className="text-sm text-gray-400 max-w-sm">
                 Any online checkout transactions completed by clients will populate here.
               </p>
             </div>
           ) : (
-            <div className="owner-table-container">
-              <table className="owner-table">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr>
-                    <th>Customer</th>
-                    <th>Service</th>
-                    <th>Amount</th>
-                    <th>Paid Date</th>
-                    <th>Payment ID</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                  <tr className="border-b border-gray-100">
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Customer</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Service</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Amount</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Paid Date</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Payment ID</th>
+                    <th className="text-left text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3 pr-4">Status</th>
+                    <th className="text-right text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider pb-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {payments.map((p) => (
-                    <tr key={p._id}>
-                      <td>
-                        <div style={{ fontWeight: 700, color: "#ffffff" }}>{p.customer?.name}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#71717a", marginTop: "0.125rem" }}>{p.customer?.email}</div>
+                  {payments.map((p, i) => (
+                    <tr
+                      key={p._id}
+                      {...fadeUp(280 + i * 50)}
+                      className={`${fadeUp(280 + i * 50).className} border-b border-gray-50 last:border-none hover:bg-[#f7fdfc] transition-colors duration-200`}
+                    >
+                      <td className="py-3.5 pr-4">
+                        <div className="font-bold text-[#042f2e]">{p.customer?.name}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">{p.customer?.email}</div>
                       </td>
-                      <td style={{ fontWeight: 600 }}>{p.service?.name}</td>
-                      <td style={{ fontWeight: 800, color: "var(--brand-accent)", fontSize: "1rem" }}>₹{p.amount}</td>
-                      <td style={{ color: "#71717a" }}>{p.paidAt ? new Date(p.paidAt).toLocaleString() : "Pending"}</td>
-                      <td style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#a1a1aa" }}>{p.razorpayPaymentId || "N/A"}</td>
-                      <td>
-                        <span className={`owner-badge ${getStatusClass(p.status)}`}>{p.status}</span>
+                      <td className="py-3.5 pr-4 font-semibold text-gray-700">{p.service?.name}</td>
+                      <td className="py-3.5 pr-4 font-extrabold text-[#0d9488] text-base">₹{p.amount}</td>
+                      <td className="py-3.5 pr-4 text-gray-500">
+                        {p.paidAt ? new Date(p.paidAt).toLocaleString() : "Pending"}
                       </td>
-                      <td>
+                      <td className="py-3.5 pr-4 font-mono text-xs text-gray-400">{p.razorpayPaymentId || "N/A"}</td>
+                      <td className="py-3.5 pr-4">
+                        <span className={`inline-flex items-center text-[0.625rem] font-extrabold uppercase tracking-wide px-2.5 py-1 rounded-full ${getStatusClass(p.status)}`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 text-right">
                         {p.status === "paid" ? (
                           <button
                             onClick={() => handleRefund(p._id)}
-                            className="owner-btn owner-btn-amber"
+                            className="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 hover:scale-105 active:scale-95 text-amber-600 font-bold text-[0.6875rem] px-3 py-1.5 rounded-lg transition-all duration-200"
                           >
                             Issue Refund
                           </button>
                         ) : (
-                          <span style={{ fontSize: "0.75rem", color: "#52525b", fontStyle: "italic" }}>Unavailable</span>
+                          <span className="text-xs text-gray-300 italic">Unavailable</span>
                         )}
                       </td>
                     </tr>
@@ -243,40 +280,40 @@ const OwnerPayments = () => {
 
       {/* Refund Modal */}
       {refundModalOpen && (
-        <div className="owner-modal-overlay">
-          <div className="owner-modal owner-modal-md">
-            <div className="owner-modal-header">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div className="owner-modal-icon" style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
-                  <AlertTriangle size={18} style={{ color: "#f87171" }} />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-[modalIn_0.25s_ease]">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                  <AlertTriangle size={18} className="text-rose-500" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "1.125rem", fontWeight: 800, color: "white", margin: 0 }}>Issue Refund</h3>
-                  <p style={{ fontSize: "0.75rem", color: "#71717a", margin: "0.125rem 0 0" }}>Initiate payment chargeback</p>
+                  <h3 className="font-['Outfit'] text-lg font-extrabold text-gray-800">Issue Refund</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Initiate payment chargeback</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setRefundModalOpen(false)}
-                className="owner-modal-close"
+                className="p-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <form onSubmit={submitRefund} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-              <div className="owner-form-group">
-                <label className="owner-form-label">Reason (Optional)</label>
+            <form onSubmit={submitRefund} className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[0.8125rem] font-semibold text-gray-600">Reason (Optional)</label>
                 <textarea
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
                   placeholder="e.g. Salon closed today, customer requested cancellation..."
                   rows="3"
-                  className="owner-form-textarea"
+                  className="w-full bg-[#f9fafb] border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-[#9ca3af] outline-none resize-y transition-all duration-200 focus:border-[#0d9488] focus:shadow-[0_0_0_3px_rgba(13,148,136,0.12)]"
                 />
               </div>
 
-              <div className="owner-modal-footer" style={{ marginTop: 0 }}>
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => {
@@ -284,18 +321,23 @@ const OwnerPayments = () => {
                     setSelectedPaymentId(null);
                     setRefundReason("");
                   }}
-                  className="owner-btn owner-btn-outline"
-                  style={{ padding: "0.6rem 1.125rem" }}
+                  className="border border-gray-200 text-gray-600 text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={refundLoading}
-                  className="owner-btn owner-btn-solid-red"
-                  style={{ padding: "0.6rem 1.375rem" }}
+                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all duration-200"
                 >
-                  {refundLoading ? "Processing..." : "Confirm Refund"}
+                  {refundLoading ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm Refund"
+                  )}
                 </button>
               </div>
             </form>

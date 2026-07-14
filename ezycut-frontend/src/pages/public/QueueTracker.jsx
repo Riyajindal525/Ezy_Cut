@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Search, Clock, Hash, Timer, Key, Scissors, ArrowLeft, RefreshCw } from "lucide-react";
+import {
+  Search,
+  Clock,
+  Hash,
+  Timer,
+  Key,
+  Scissors,
+  ArrowLeft,
+  RefreshCw,
+  Radar,
+  SearchX,
+} from "lucide-react";
 import { getQueueByToken } from "../../api/queue.api";
 import Loader from "../../components/common/Loader";
 import toast from "../../utils/toast";
@@ -70,37 +81,40 @@ const QueueTracker = () => {
     navigate("/track");
   };
 
-  return (
-    <div style={{ minHeight: "calc(100vh - 68px)", padding: "3rem 0" }}>
-      <div className="page-container" style={{ maxWidth: "600px" }}>
-        
-        {/* Header */}
-        <div style={{ marginBottom: "2rem", textAlign: "center" }}>
-          <h1 className="page-title">Live Queue Status</h1>
-          <p style={{ color: "var(--gray-500)", marginTop: "0.375rem" }}>
-            Track salon waiting lines anonymously in real time
-          </p>
-        </div>
+  const isInService = queue?.status === "in_service";
 
+  return (
+    <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
+      {/* ============ DARK HERO STRIP ============ */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#031715] via-[#042f2e] to-[#0f766e]">
+        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_20%_20%,white,transparent_45%)]" />
+        <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.25)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.1)_0%,transparent_70%)] pointer-events-none" />
+
+        <div className="relative max-w-xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-10 sm:pb-14 flex flex-col items-center text-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">Live Queue Status</h1>
+          <p className="text-white/60 text-sm">Track salon waiting lines anonymously in real time</p>
+        </div>
+      </div>
+
+      {/* ============ MAIN CONTENT ============ */}
+      <div className="relative z-10 max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {/* Input Form if no queue details are loaded */}
         {!activeTokenCode && (
-          <div className="card" style={{ padding: "2rem" }}>
-            <form onSubmit={handleSearchSubmit} className="space-y-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8 animate-[ezcFadeUp_0.5s_ease_forwards]">
+            <form onSubmit={handleSearchSubmit} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Enter Token Code</label>
-                <div style={{ position: "relative" }}>
-                  <Key size={16} style={{
-                    position: "absolute", left: "0.875rem", top: "50%",
-                    transform: "translateY(-50%)", color: "var(--gray-400)",
-                    pointerEvents: "none",
-                  }} />
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  Enter Token Code
+                </label>
+                <div className="relative">
+                  <Key size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                   <input
                     type="text"
                     value={inputTokenCode}
                     onChange={(e) => setInputTokenCode(e.target.value)}
                     placeholder="e.g. EZ-ABCD1"
-                    className="form-input"
-                    style={{ paddingLeft: "2.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-[#f7f9f8] text-[#022525] uppercase tracking-wide font-semibold text-sm outline-none transition-all focus:border-[#0d9488] focus:bg-white focus:ring-4 focus:ring-[#0d9488]/10"
                     required
                   />
                 </div>
@@ -108,8 +122,7 @@ const QueueTracker = () => {
 
               <button
                 type="submit"
-                className="btn btn-primary btn-full"
-                style={{ gap: "0.5rem" }}
+                className="inline-flex items-center justify-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-semibold text-sm py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <Search size={16} />
                 Track Queue Status
@@ -123,87 +136,91 @@ const QueueTracker = () => {
 
         {/* Results view */}
         {!loading && activeTokenCode && queue && (
-          <div className="space-y-6">
-            
+          <div className="flex flex-col gap-5">
             {/* Status Card Banner */}
-            <div style={{
-              background: queue.status === "in_service"
-                ? "linear-gradient(135deg, #1d4ed8, #2563eb)"
-                : "linear-gradient(135deg, var(--brand-primary), #312e81)",
-              borderRadius: "var(--radius-xl)",
-              padding: "2rem",
-              color: "white",
-              position: "relative",
-              overflow: "hidden",
-            }}>
-              <div style={{
-                position: "absolute", right: "-40px", top: "-40px",
-                width: "200px", height: "200px",
-                background: "rgba(255,255,255,0.05)",
-                borderRadius: "50%",
-              }} />
+            <div
+              className={`relative overflow-hidden rounded-2xl p-6 sm:p-8 text-white shadow-lg animate-[ezcFadeUp_0.5s_ease_forwards] opacity-0 ${
+                isInService
+                  ? "bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-700"
+                  : "bg-gradient-to-br from-[#031715] via-[#0f4d47] to-[#0f766e]"
+              }`}
+            >
+              <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/[0.06] pointer-events-none" />
+              <div className="absolute -bottom-16 -left-8 w-52 h-52 rounded-full bg-white/[0.04] pointer-events-none" />
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div className="relative flex justify-between items-start flex-wrap gap-3">
                 <div>
-                  <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.25rem" }}>
-                    {queue.salon?.name}
-                  </h2>
-                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                  <h2 className="text-xl sm:text-2xl font-extrabold mb-1">{queue.salon?.name}</h2>
+                  <p className="text-white/70 text-sm flex items-center gap-1.5">
                     <Scissors size={13} />
                     {queue.service?.name}
                   </p>
                 </div>
 
-                <span style={{
-                  background: queue.status === "in_service" ? "rgba(255,255,255,0.2)" : "rgba(251,191,36,0.25)",
-                  border: `1px solid ${queue.status === "in_service" ? "rgba(255,255,255,0.3)" : "rgba(251,191,36,0.4)"}`,
-                  borderRadius: "var(--radius-full)",
-                  padding: "0.375rem 0.875rem",
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                  color: queue.status === "in_service" ? "white" : "#fde68a",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}>
-                  {queue.status === "in_service" ? "✂ In Service" : "⏳ Waiting"}
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide ${
+                    isInService
+                      ? "bg-white/20 border border-white/30 text-white"
+                      : "bg-amber-400/20 border border-amber-300/40 text-amber-200"
+                  }`}
+                >
+                  {isInService ? (
+                    <>
+                      <Scissors size={12} /> In Service
+                    </>
+                  ) : (
+                    <>
+                      <Clock size={12} className="animate-pulse" /> Waiting
+                    </>
+                  )}
                 </span>
               </div>
             </div>
 
             {/* Metrics Panel */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
               {[
-                { label: "Token #", value: `#${queue.tokenNumber}`, icon: Hash, color: "var(--brand-accent)" },
-                { label: "Position", value: queue.status === "in_service" ? "Serving" : queue.position, icon: Clock, color: "var(--success)" },
-                { label: "Est. Wait", value: `${queue.estimatedWaitTime}m`, icon: Timer, color: "var(--warning)" },
-              ].map(({ label, value, icon: Icon, color }) => (
-                <div key={label} className="stat-card" style={{ textAlign: "center" }}>
-                  <div style={{ display: "flex", justify: "center", marginBottom: "0.5rem" }}>
-                    <Icon size={18} style={{ color }} />
+                { label: "Token #", value: `#${queue.tokenNumber}`, icon: Hash, accent: "text-[#0d9488]", bg: "bg-[#0d9488]/10" },
+                { label: "Position", value: isInService ? "Serving" : queue.position, icon: Clock, accent: "text-emerald-600", bg: "bg-emerald-50" },
+                { label: "Est. Wait", value: `${queue.estimatedWaitTime}m`, icon: Timer, accent: "text-amber-600", bg: "bg-amber-50" },
+              ].map(({ label, value, icon: Icon, accent, bg }, si) => (
+                <div
+                  key={label}
+                  className="bg-white rounded-2xl border border-gray-200 shadow-sm px-3 py-4 sm:p-5 flex flex-col items-center text-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md animate-[ezcFadeUp_0.5s_ease_forwards] opacity-0"
+                  style={{ animationDelay: `${si * 70 + 80}ms` }}
+                >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center ${bg}`}>
+                    <Icon size={16} className={accent} />
                   </div>
-                  <div className="stat-value" style={{ fontSize: "1.5rem", color }}>
-                    {value}
-                  </div>
-                  <div className="stat-label">{label}</div>
+                  <div className={`text-xl sm:text-2xl font-extrabold ${accent}`}>{value}</div>
+                  <div className="text-[0.7rem] font-bold uppercase tracking-wide text-gray-400">{label}</div>
                 </div>
               ))}
             </div>
 
             {/* Refresh & Details Footer */}
-            <div className="card" style={{ padding: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center justify-between flex-wrap gap-3">
               <div>
-                <div style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", color: "var(--gray-400)", marginBottom: "0.15rem" }}>
+                <div className="text-[0.7rem] font-bold uppercase tracking-wide text-gray-400 mb-0.5">
                   Token Code
                 </div>
-                <div style={{ fontFamily: "monospace", fontSize: "1.125rem", fontWeight: 800, color: "var(--gray-800)", letterSpacing: "0.05em" }}>
+                <div className="font-mono text-lg font-extrabold text-[#022525] tracking-widest">
                   {activeTokenCode}
                 </div>
               </div>
 
               {lastUpdated && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.8125rem", color: "var(--gray-400)" }}>
-                  <RefreshCw size={12} className="animate-spin" />
-                  Synced {lastUpdated.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", second: "2-digit" })}
+                <div className="flex items-center gap-1.5 text-[0.8125rem] text-gray-400 font-medium">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d9488]" />
+                  </span>
+                  Synced{" "}
+                  {lastUpdated.toLocaleTimeString("en-IN", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
                 </div>
               )}
             </div>
@@ -211,8 +228,7 @@ const QueueTracker = () => {
             {/* Back Button */}
             <button
               onClick={handleClear}
-              className="btn btn-outline btn-full"
-              style={{ gap: "0.375rem" }}
+              className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f0fdfa] text-[#022525] font-semibold text-sm py-3 rounded-xl border border-gray-200 hover:border-[#99f6e4] transition-all duration-200"
             >
               <ArrowLeft size={16} />
               Track Another Token
@@ -222,17 +238,19 @@ const QueueTracker = () => {
 
         {/* Token not found or cleared states */}
         {!loading && activeTokenCode && !queue && (
-          <div className="card" style={{ padding: "2rem", textAlign: "center", spaceY: "1.5rem" }}>
-            <h3 style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--gray-700)", marginBottom: "0.5rem" }}>
-              Token Search Completed
-            </h3>
-            <p style={{ color: "var(--gray-500)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
-              No active queue entry found matching code "{activeTokenCode}".
-            </p>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center text-center gap-4 py-12 px-6 animate-[ezcFadeUp_0.5s_ease_forwards]">
+            <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center">
+              <SearchX size={26} className="text-rose-500" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <h3 className="text-lg font-bold text-[#022525]">Token Search Completed</h3>
+              <p className="text-[#5b6b68] text-sm max-w-sm">
+                No active queue entry found matching code &quot;{activeTokenCode}&quot;.
+              </p>
+            </div>
             <button
               onClick={handleClear}
-              className="btn btn-primary"
-              style={{ gap: "0.375rem", margin: "0 auto" }}
+              className="inline-flex items-center gap-1.5 bg-[#0d9488] hover:bg-[#0f766e] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
             >
               <ArrowLeft size={16} />
               Back to Tracker Input

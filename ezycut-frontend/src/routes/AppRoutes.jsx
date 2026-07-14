@@ -22,6 +22,7 @@ import Notifications from "../pages/customer/Notifications";
 import MyQueue from "../pages/customer/MyQueue";
 import Profile from "../pages/customer/Profile";
 import CustomerDashboard from "../pages/customer/Dashboard";
+import AiMentor from "../pages/AI-Mentor/AiMentor"
 
 // Owner Pages
 import OwnerDashboard from "../pages/owner/Dashboard";
@@ -44,6 +45,10 @@ import ProtectedRoute from "../components/common/ProtectedRoute";
 import CustomerLayout from "../components/layout/CustomerLayout";
 import OwnerLayout from "../components/layout/OwnerLayout";
 import AdminLayout from "../components/layout/AdminLayout";
+import AboutUs from "../pages/public/AboutUs";
+import PartnerWithUs from "../pages/public/PartnerWithUs";
+import PolicyPages from "../pages/public/PolicyPages";
+import Sitemap from "../pages/public/Sitemap";
 
 const AppRoutes = () => {
   return (
@@ -56,7 +61,11 @@ const AppRoutes = () => {
           <Route path="/salons/:id" element={<SalonDetails />} />
           <Route path="/track" element={<QueueTracker />} />
           <Route path="/track/:tokenCode" element={<QueueTracker />} />
+          <Route path="/about" element={<AboutUs />} />
+         <Route path="/partner-with-us" element={<PartnerWithUs />} />   
           <Route path="/terms" element={<Terms />} />
+          <Route path="/policy" element={<PolicyPages />} />
+          <Route path="/sitemap" element={<Sitemap />}/>
         </Route>
 
         {/* Auth routes (no Navbar/Footer layout) */}
@@ -72,6 +81,7 @@ const AppRoutes = () => {
             <Route path="/payment-history" element={<PaymentHistory />} />
             <Route path="/my-reviews" element={<MyReviews />} />
             <Route path="/my-queue" element={<MyQueue />} />
+              <Route path="/ai-mentor" element={<AiMentor />} />
           </Route>
         </Route>
 

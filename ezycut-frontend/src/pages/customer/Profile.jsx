@@ -1,4 +1,4 @@
-import { User, Mail, Phone, Shield, Lock } from "lucide-react";
+import { User, Mail, Phone, Shield, Lock, Sparkles } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
 
 const roleConfig = {
@@ -19,75 +19,57 @@ const Profile = () => {
   ];
 
   return (
-    <div style={{ padding: "2rem 0" }}>
-      <div className="page-container" style={{ maxWidth: "720px" }}>
-        {/* Header */}
-        <div style={{ marginBottom: "2rem" }}>
-          <h1 className="page-title">My Profile</h1>
-          <p style={{ color: "var(--gray-500)", marginTop: "0.25rem" }}>Your EzyCut account information</p>
+    <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
+      {/* ============ DARK HERO STRIP ============ */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#031715] via-[#042f2e] to-[#0f766e]">
+        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_20%_20%,white,transparent_45%)]" />
+        <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.25)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.1)_0%,transparent_70%)] pointer-events-none" />
+
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-16 sm:pb-20 flex flex-col gap-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">My Profile</h1>
+          <p className="text-white/60 text-sm">Your EzyCut account information</p>
         </div>
+      </div>
+
+      {/* ============ MAIN CONTENT (overlaps hero bottom) ============ */}
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 -mt-6 sm:-mt-8 pb-12 flex flex-col gap-6">
 
         {/* Profile Hero Card */}
-        <div className="card" style={{ marginBottom: "1.5rem" }}>
-          <div style={{
-            background: "linear-gradient(135deg, var(--brand-primary) 0%, #312e81 100%)",
-            borderRadius: "var(--radius-xl) var(--radius-xl) 0 0",
-            padding: "2.5rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "1.5rem",
-            flexWrap: "wrap",
-          }}>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          {/* Identity strip */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#022525] to-[#0f766e] p-6 sm:p-8 flex items-center gap-5 flex-wrap">
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.2)_0%,transparent_70%)] pointer-events-none" />
+
             {/* Avatar */}
-            <div style={{
-              width: "5rem", height: "5rem",
-              borderRadius: "50%",
-              background: "var(--brand-accent)",
-              border: "3px solid rgba(255,255,255,0.2)",
-              color: "white",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "1.75rem", fontWeight: 800,
-              flexShrink: 0,
-            }}>
+            <div className="relative w-20 h-20 rounded-full bg-[#0d9488] border-4 border-white/15 text-white flex items-center justify-center text-2xl font-extrabold shrink-0 shadow-lg">
               {user?.name?.slice(0, 2).toUpperCase() || "ME"}
             </div>
 
-            <div>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "white", letterSpacing: "-0.02em" }}>
-                {user?.name}
-              </h2>
-              <div style={{
-                display: "inline-flex",
-                marginTop: "0.5rem",
-                padding: "0.25rem 0.75rem",
-                borderRadius: "var(--radius-full)",
-                background: "rgba(255,255,255,0.15)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                fontSize: "0.8125rem",
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.9)",
-              }}>
+            <div className="relative flex flex-col gap-1.5">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">{user?.name}</h2>
+              <span className="inline-flex self-start items-center px-3 py-1 rounded-full bg-white/15 border border-white/20 text-[0.8125rem] font-bold text-white/90">
                 {role.label}
-              </div>
+              </span>
             </div>
           </div>
 
           {/* Fields */}
-          <div style={{ padding: "1.5rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1rem" }}>
+          <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {fields.map(({ label, value, icon: Icon }) => (
-              <div key={label} style={{
-                background: "var(--gray-50)",
-                border: "1px solid var(--gray-100)",
-                borderRadius: "var(--radius-md)",
-                padding: "1rem",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                  <Icon size={14} style={{ color: "var(--gray-400)" }} />
-                  <span style={{ fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--gray-400)" }}>
+              <div
+                key={label}
+                className="bg-[#f7f9f8] border border-gray-100 rounded-xl p-4 flex flex-col gap-2 transition-colors hover:border-[#0d9488]/20"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center shrink-0">
+                    <Icon size={13} className="text-[#0d9488]" />
+                  </div>
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-[#9ca3af]">
                     {label}
                   </span>
                 </div>
-                <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--gray-800)" }}>
+                <div className="text-[0.9375rem] font-bold text-[#022525] break-words">
                   {value}
                 </div>
               </div>
@@ -96,21 +78,13 @@ const Profile = () => {
         </div>
 
         {/* Info notice */}
-        <div style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "0.75rem",
-          padding: "1rem 1.25rem",
-          background: "var(--gray-50)",
-          border: "1px solid var(--gray-200)",
-          borderRadius: "var(--radius-md)",
-          fontSize: "0.875rem",
-          color: "var(--gray-500)",
-        }}>
-          <Lock size={15} style={{ flexShrink: 0, marginTop: "0.125rem", color: "var(--gray-400)" }} />
-          <span>
+        <div className="flex items-start gap-3 px-5 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm text-sm text-[#5b6b68]">
+          <div className="w-7 h-7 rounded-lg bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center shrink-0 mt-0.5">
+            <Lock size={13} className="text-[#0d9488]" />
+          </div>
+          <span className="leading-relaxed">
             Account information is locked for security. To update your registered credentials, please contact{" "}
-            <strong>support@ezycut.in</strong>.
+            <strong className="text-[#022525]">support@ezycut.in</strong>.
           </span>
         </div>
       </div>

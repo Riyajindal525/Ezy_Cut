@@ -1,0 +1,494 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap");
+
+.ezyauth-login-page {
+  --ezy-sage: #6f9483;
+  --ezy-sage-light: #a3c4b3;
+  --ezy-sage-pale: #eaf1ed;
+  --ezy-sage-dark: #4d6c5c;
+  --ezy-ink: #17181a;
+  --ezy-gray-600: #5a5f5c;
+  --ezy-gray-300: #dfe4e1;
+  --ezy-off-white: #f7f9f8;
+  --ezy-white: #ffffff;
+  --ezy-error: #dc2626;
+  --ezy-error-bg: #fef2f2;
+  --ezy-warning: #b45309;
+  --ezy-warning-bg: #fffbeb;
+  --ezy-radius: 14px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  min-height: 100vh;
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  background: var(--ezy-white);
+}
+
+/* ---------- Brand panel ---------- */
+.ezyauth-login-brand-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.5rem 3rem;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(163, 196, 179, 0.35), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(111, 148, 131, 0.18), transparent 50%),
+    linear-gradient(180deg, var(--ezy-sage-pale) 0%, var(--ezy-white) 100%);
+  border-right: 1px solid var(--ezy-gray-300);
+  color: var(--ezy-ink);
+}
+
+.ezyauth-login-brand-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, var(--ezy-sage) 40%, var(--ezy-sage-dark) 60%, transparent);
+  opacity: 0.5;
+}
+
+.ezyauth-login-watermark {
+  position: absolute;
+  top: 50%;
+  left: 55%;
+  width: 460px;
+  max-width: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.07;
+  pointer-events: none;
+  user-select: none;
+  -webkit-mask-image: radial-gradient(circle at center, #000 55%, transparent 85%);
+  mask-image: radial-gradient(circle at center, #000 55%, transparent 85%);
+}
+
+.ezyauth-login-brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+}
+
+.ezyauth-login-heading {
+  font-family: "Poppins", sans-serif;
+  font-size: 2.3rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 0.9rem;
+  letter-spacing: -0.02em;
+  color: var(--ezy-ink);
+}
+
+.ezyauth-login-subtext {
+  font-size: 0.97rem;
+  line-height: 1.65;
+  color: var(--ezy-gray-600);
+  margin: 0 0 2.25rem;
+}
+
+.ezyauth-login-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ezyauth-login-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ezy-ink);
+}
+
+.ezyauth-login-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--ezy-sage), var(--ezy-sage-dark));
+  color: var(--ezy-white);
+  box-shadow: 0 3px 8px rgba(77, 108, 92, 0.28);
+}
+
+.ezyauth-login-brand-footer {
+  position: relative;
+  z-index: 1;
+  margin: 2.75rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(111, 148, 131, 0.25);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ezy-gray-600);
+  font-weight: 600;
+}
+
+/* ---------- Form panel ---------- */
+.ezyauth-login-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  background: var(--ezy-white);
+  overflow-y: auto;
+}
+
+.ezyauth-login-form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.ezyauth-login-form-header {
+  margin-bottom: 1.75rem;
+}
+
+.ezyauth-login-form-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--ezy-ink);
+  margin: 0 0 0.45rem;
+  letter-spacing: -0.01em;
+}
+
+.ezyauth-login-form-subtitle {
+  font-size: 0.9rem;
+  color: var(--ezy-gray-600);
+  margin: 0;
+}
+
+.ezyauth-login-link {
+  color: var(--ezy-sage-dark);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.ezyauth-login-link:hover {
+  border-bottom-color: var(--ezy-sage-dark);
+}
+
+.ezyauth-login-link-muted {
+  color: var(--ezy-gray-600);
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.ezyauth-login-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.4rem;
+}
+
+.ezyauth-login-notice-warning {
+  background: var(--ezy-warning-bg);
+  color: var(--ezy-warning);
+  border: 1px solid #fde8c7;
+}
+
+.ezyauth-login-notice-error {
+  background: var(--ezy-error-bg);
+  color: var(--ezy-error);
+  border: 1px solid #fbd5d5;
+}
+
+.ezyauth-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.ezyauth-login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ezyauth-login-form-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ezy-ink);
+}
+
+.ezyauth-login-input {
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  font-size: max(0.93rem, 16px); /* prevents iOS auto-zoom on focus */
+  padding: 0.75rem 0.95rem;
+  border: 1.5px solid var(--ezy-gray-300);
+  border-radius: 11px;
+  background: var(--ezy-off-white);
+  color: var(--ezy-ink);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.ezyauth-login-input::placeholder {
+  color: #9aa19d;
+}
+
+.ezyauth-login-input:hover {
+  border-color: var(--ezy-sage-light);
+}
+
+.ezyauth-login-input:focus {
+  border-color: var(--ezy-sage);
+  background: var(--ezy-white);
+  box-shadow: 0 0 0 4px rgba(111, 148, 131, 0.16);
+}
+
+.ezyauth-login-input-wrap {
+  position: relative;
+}
+
+.ezyauth-login-input-icon-right {
+  padding-right: 2.75rem;
+}
+
+.ezyauth-login-eye-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  display: flex;
+  color: var(--ezy-gray-600);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.ezyauth-login-eye-toggle:hover {
+  color: var(--ezy-sage-dark);
+  background: var(--ezy-sage-pale);
+}
+
+.ezyauth-login-form-meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.5rem;
+}
+
+.ezyauth-login-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: 11px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  color: var(--ezy-white);
+  background: linear-gradient(135deg, var(--ezy-sage-dark), var(--ezy-sage));
+  cursor: pointer;
+  box-shadow: 0 5px 16px rgba(77, 108, 92, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  margin-top: 0.4rem;
+  min-height: 46px;
+}
+
+.ezyauth-login-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(77, 108, 92, 0.34);
+}
+
+.ezyauth-login-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ezyauth-login-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ezyauth-login-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--ezy-white);
+  border-radius: 50%;
+  animation: ezy-spin 0.7s linear infinite;
+}
+
+@keyframes ezy-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   RESPONSIVE — same breakpoint system as Register.css
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  .ezyauth-login-brand-panel {
+    padding: 3rem 2.5rem;
+  }
+
+  .ezyauth-login-heading {
+    font-size: 2rem;
+  }
+
+  .ezyauth-login-watermark {
+    width: 400px;
+  }
+
+  .ezyauth-login-form-panel {
+    padding: 2.25rem 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ezyauth-login-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100%;
+  }
+
+  .ezyauth-login-brand-panel {
+    padding: 2rem 1.5rem;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--ezy-gray-300);
+  }
+
+  .ezyauth-login-brand-panel::after {
+    display: none;
+  }
+
+  .ezyauth-login-watermark {
+    width: 260px;
+    opacity: 0.06;
+  }
+
+  .ezyauth-login-brand-content {
+    max-width: 100%;
+  }
+
+  .ezyauth-login-heading {
+    font-size: 1.55rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .ezyauth-login-subtext {
+    font-size: 0.88rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ezyauth-login-feature-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+  }
+
+  .ezyauth-login-feature-item {
+    font-size: 0.8rem;
+  }
+
+  .ezyauth-login-feature-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ezyauth-login-brand-footer {
+    margin-top: 1.25rem;
+    padding-top: 0.9rem;
+    font-size: 0.68rem;
+  }
+
+  .ezyauth-login-form-panel {
+    padding: 2rem 1.5rem 2.5rem;
+    align-items: flex-start;
+  }
+
+  .ezyauth-login-form-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .ezyauth-login-brand-panel {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .ezyauth-login-watermark {
+    width: 200px;
+  }
+
+  .ezyauth-login-heading {
+    font-size: 1.35rem;
+  }
+
+  .ezyauth-login-subtext {
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .ezyauth-login-feature-list {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .ezyauth-login-brand-footer {
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+  }
+
+  .ezyauth-login-form-panel {
+    padding: 1.5rem 1.1rem 2rem;
+  }
+
+  .ezyauth-login-form-title {
+    font-size: 1.5rem;
+  }
+
+  .ezyauth-login-form-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .ezyauth-login-input {
+    padding: 0.68rem 0.85rem;
+  }
+
+  .ezyauth-login-submit-btn {
+    padding: 0.8rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  .ezyauth-login-form-meta {
+    margin-top: -0.25rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .ezyauth-login-heading {
+    font-size: 1.2rem;
+  }
+
+  .ezyauth-login-form-title {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-height: 700px) and (min-width: 769px) {
+  .ezyauth-login-form-panel {
+    align-items: flex-start;
+    padding-top: 1.5rem;
+  }
+}
