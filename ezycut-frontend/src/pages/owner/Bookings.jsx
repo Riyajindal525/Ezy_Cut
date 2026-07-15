@@ -4,13 +4,14 @@ import useAuthStore from "../../store/auth.store";
 import useSalonStore from "../../store/salon.store";
 import {
   getSalonBookings,
+  acceptBooking,
   completeBooking,
   markNoShow,
   ownerCancelBooking,
 } from "../../api/booking.api";
 import toast from "../../utils/toast";
 import Loader from "../../components/common/Loader";
-import { Calendar, User, Phone, CheckCircle, AlertTriangle, XCircle, Clock, Scissors } from "lucide-react";
+import { Calendar, CheckCircle, AlertTriangle, XCircle, Clock, Scissors, ThumbsUp } from "lucide-react";
 
 const SALON_HERO_IMG =
   "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1400&q=80";
@@ -84,6 +85,8 @@ const OwnerBookings = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
+      case "pending":
+        return "bg-orange-50 text-orange-600 border border-orange-200";
       case "confirmed":
         return "bg-emerald-50 text-emerald-600";
       case "completed":
@@ -226,11 +229,38 @@ const OwnerBookings = () => {
                         </span>
                       </td>
                       <td className="py-3.5 text-right">
-                        {b.status === "confirmed" ? (
+                        {b.status === "pending" ? (
                           <div className="inline-flex gap-1.5 justify-end flex-wrap">
                             <button
                               onClick={() =>
-                                triggerActionConfirmation(b._id, completeBooking, "Are you sure you want to mark this booking as completed?")
+                                triggerActionConfirmation(
+                                  b._id,
+                                  acceptBooking,
+                                  "Accept this booking and confirm the customer's appointment?"
+                                )
+                              }
+                              className="inline-flex items-center gap-1 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-[0.6875rem] px-2.5 py-1.5 rounded-lg transition-colors border border-teal-200"
+                            >
+                              <ThumbsUp size={12} /> Accept
+                            </button>
+                            <button
+                              onClick={() =>
+                                triggerActionConfirmation(
+                                  b._id,
+                                  ownerCancelBooking,
+                                  "Decline this booking? If payment was made, it will be automatically refunded."
+                                )
+                              }
+                              className="inline-flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[0.6875rem] px-2.5 py-1.5 rounded-lg transition-colors"
+                            >
+                              <XCircle size={12} /> Decline
+                            </button>
+                          </div>
+                        ) : b.status === "confirmed" ? (
+                          <div className="inline-flex gap-1.5 justify-end flex-wrap">
+                            <button
+                              onClick={() =>
+                                triggerActionConfirmation(b._id, completeBooking, "Mark this booking as completed?")
                               }
                               className="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-bold text-[0.6875rem] px-2.5 py-1.5 rounded-lg transition-colors"
                             >
@@ -238,7 +268,7 @@ const OwnerBookings = () => {
                             </button>
                             <button
                               onClick={() =>
-                                triggerActionConfirmation(b._id, markNoShow, "Are you sure you want to mark this client as a No Show?")
+                                triggerActionConfirmation(b._id, markNoShow, "Mark this client as a No Show?")
                               }
                               className="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-amber-600 font-bold text-[0.6875rem] px-2.5 py-1.5 rounded-lg transition-colors"
                             >
@@ -249,7 +279,7 @@ const OwnerBookings = () => {
                                 triggerActionConfirmation(
                                   b._id,
                                   ownerCancelBooking,
-                                  "Cancel this booking? Note: Refund must be processed manually if payment was done."
+                                  "Cancel this booking? If payment was made, it will be automatically refunded."
                                 )
                               }
                               className="inline-flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[0.6875rem] px-2.5 py-1.5 rounded-lg transition-colors"

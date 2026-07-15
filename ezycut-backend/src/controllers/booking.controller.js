@@ -5,6 +5,7 @@ const asyncHandler = require(
 const {
   getAvailableSlotsService,
   createBookingService,
+  acceptBookingService,
   getMyBookingsService,
   cancelBookingService,
   getSalonBookingsService,
@@ -153,13 +154,32 @@ const ownerCancelBooking =
   ) => {
     const booking =
       await ownerCancelBookingService(
-        req.booking
+        req.booking,
+        req.body?.reason || ""
       );
 
     res.status(200).json({
       success: true,
       message:
         "Booking cancelled by owner",
+      booking,
+    });
+  });
+
+const acceptBooking =
+  asyncHandler(async (
+    req,
+    res
+  ) => {
+    const booking =
+      await acceptBookingService(
+        req.booking
+      );
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Booking accepted and confirmed",
       booking,
     });
   });
@@ -173,4 +193,5 @@ module.exports = {
   completeBooking,
   markNoShow,
   ownerCancelBooking,
+  acceptBooking,
 };

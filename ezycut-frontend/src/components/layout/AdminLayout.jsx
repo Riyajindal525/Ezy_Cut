@@ -9,6 +9,8 @@ const titleMap = {
   users: "User Directory",
   payments: "Global Ledger",
   analytics: "Revenue Analytics",
+  kyc: "KYC Verifications",
+  "refund-requests": "Refund Requests",
 };
 
 const getTitle = (path) => {
