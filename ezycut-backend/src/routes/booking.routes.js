@@ -1,32 +1,12 @@
 const express = require("express");
-
 const router = express.Router();
 
-const protect = require(
-  "../middleware/auth.middleware"
-);
-
-const authorizeRoles = require(
-  "../middleware/role.middleware"
-);
-
-const salonBookingAccess = require(
-  "../middleware/salonBookingAccess.middleware"
-);
-
-const bookingOwnership = require(
-  "../middleware/bookingOwnership.middleware"
-);
-
-const bookingManagement = require(
-  "../middleware/bookingManagement.middleware"
-);
-
-const {
-  validateBooking,
-} = require(
-  "../validations/booking.validation"
-);
+const protect = require("../middleware/auth.middleware");
+const authorizeRoles = require("../middleware/role.middleware");
+const salonBookingAccess = require("../middleware/salonBookingAccess.middleware");
+const bookingOwnership = require("../middleware/bookingOwnership.middleware");
+const bookingManagement = require("../middleware/bookingManagement.middleware");
+const { validateBooking } = require("../validations/booking.validation");
 
 const {
   getAvailableSlots,
@@ -37,9 +17,8 @@ const {
   completeBooking,
   markNoShow,
   ownerCancelBooking,
-} = require(
-  "../controllers/booking.controller"
-);
+  acceptBooking,
+} = require("../controllers/booking.controller");
 
 /*
 |--------------------------------------------------------------------------
@@ -48,10 +27,7 @@ const {
 */
 
 // GET /api/bookings/available-slots
-router.get(
-  "/available-slots",
-  getAvailableSlots
-);
+router.get("/available-slots", getAvailableSlots);
 
 /*
 |--------------------------------------------------------------------------
@@ -63,10 +39,7 @@ router.get(
 router.post(
   "/",
   protect,
-  authorizeRoles(
-    "customer",
-    "admin"
-  ),
+  authorizeRoles("customer", "admin"),
   validateBooking,
   createBooking
 );
@@ -75,10 +48,7 @@ router.post(
 router.get(
   "/my-bookings",
   protect,
-  authorizeRoles(
-    "customer",
-    "admin"
-  ),
+  authorizeRoles("customer", "admin"),
   getMyBookings
 );
 
@@ -86,10 +56,7 @@ router.get(
 router.patch(
   "/:id/cancel",
   protect,
-  authorizeRoles(
-    "customer",
-    "admin"
-  ),
+  authorizeRoles("customer", "admin"),
   bookingOwnership,
   cancelBooking
 );
@@ -104,22 +71,25 @@ router.patch(
 router.get(
   "/salon/:salonId",
   protect,
-  authorizeRoles(
-    "salon_owner",
-    "admin"
-  ),
+  authorizeRoles("salon_owner", "admin"),
   salonBookingAccess,
   getSalonBookings
+);
+
+// PATCH /api/bookings/:id/accept  ← Owner accepts a pending booking
+router.patch(
+  "/:id/accept",
+  protect,
+  authorizeRoles("salon_owner", "admin"),
+  bookingManagement,
+  acceptBooking
 );
 
 // PATCH /api/bookings/:id/complete
 router.patch(
   "/:id/complete",
   protect,
-  authorizeRoles(
-    "salon_owner",
-    "admin"
-  ),
+  authorizeRoles("salon_owner", "admin"),
   bookingManagement,
   completeBooking
 );
@@ -128,10 +98,7 @@ router.patch(
 router.patch(
   "/:id/no-show",
   protect,
-  authorizeRoles(
-    "salon_owner",
-    "admin"
-  ),
+  authorizeRoles("salon_owner", "admin"),
   bookingManagement,
   markNoShow
 );
@@ -140,10 +107,7 @@ router.patch(
 router.patch(
   "/:id/owner-cancel",
   protect,
-  authorizeRoles(
-    "salon_owner",
-    "admin"
-  ),
+  authorizeRoles("salon_owner", "admin"),
   bookingManagement,
   ownerCancelBooking
 );

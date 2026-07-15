@@ -56,3 +56,25 @@ export const getPlatformMonthlyRevenue = async () => {
   const response = await api.get("/payments/analytics/monthly-revenue");
   return response.data;
 };
+
+// ── Admin: Refund Request Management ────────────────────────────
+
+// Get all pending customer refund requests
+export const getRefundRequests = async () => {
+  const response = await api.get("/payments/refund-requests");
+  return response.data;
+};
+
+// Admin approves a refund request (triggers Razorpay refund)
+export const approveRefundRequest = async (paymentId) => {
+  const response = await api.patch(`/payments/refund-requests/${paymentId}/approve`);
+  return response.data;
+};
+
+// Admin rejects a refund request
+export const rejectRefundRequest = async (paymentId, rejectionNote) => {
+  const response = await api.patch(`/payments/refund-requests/${paymentId}/reject`, {
+    rejectionNote,
+  });
+  return response.data;
+};

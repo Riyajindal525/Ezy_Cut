@@ -1,29 +1,17 @@
 import { useEffect, useState } from "react";
-import {
-  getAllPayments,
-  refundPayment,
-} from "../../api/payment.api";
-import toast from "../../utils/toast";
+import { getAllPayments } from "../../api/payment.api";
 import {
   Wallet,
   Receipt,
   CalendarClock,
   Store,
   AlertCircle,
-  RotateCcw,
-  X,
 } from "lucide-react";
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Refund Modal States
-  const [refundModalOpen, setRefundModalOpen] = useState(false);
-  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
-  const [refundReason, setRefundReason] = useState("");
-  const [refundLoading, setRefundLoading] = useState(false);
 
   const fetchPaymentsList = async () => {
     try {
@@ -41,31 +29,6 @@ const AdminPayments = () => {
     fetchPaymentsList();
   }, []);
 
-  const handleRefund = (paymentId) => {
-    setSelectedPaymentId(paymentId);
-    setRefundReason("");
-    setRefundModalOpen(true);
-  };
-
-  const submitRefund = async (e) => {
-    e.preventDefault();
-    if (!selectedPaymentId) return;
-    setRefundLoading(true);
-    try {
-      await refundPayment(selectedPaymentId, refundReason);
-      toast.success("Refund processed successfully! 🎉");
-      setRefundModalOpen(false);
-      setSelectedPaymentId(null);
-      setRefundReason("");
-      fetchPaymentsList();
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to process refund.");
-    } finally {
-      setRefundLoading(false);
-    }
-  };
-
   const statusStyles = (status) => {
     switch (status) {
       case "paid":
@@ -74,6 +37,8 @@ const AdminPayments = () => {
         return "bg-amber-50 text-amber-700 border-amber-100";
       case "failed":
         return "bg-rose-50 text-rose-600 border-rose-100";
+      case "pending":
+        return "bg-orange-50 text-orange-600 border-orange-100";
       default:
         return "bg-slate-100 text-slate-600 border-slate-200";
     }
@@ -83,9 +48,6 @@ const AdminPayments = () => {
     className: "opacity-0 animate-[fadeUp_0.6s_ease_forwards]",
     style: { animationDelay: `${delayMs}ms` },
   });
-
-  const inputClass =
-    "w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-teal-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(13,148,136,0.12)]";
 
   if (loading) {
     return (
@@ -108,8 +70,6 @@ const AdminPayments = () => {
     <div className="flex flex-col gap-6">
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
       `}</style>
 
       {/* Page Header */}
@@ -128,7 +88,10 @@ const AdminPayments = () => {
               Global Payments Ledger
             </h1>
             <p className="text-slate-500 text-sm mt-0.5">
-              Audit all online transaction logs, Razorpay references, and issue universal refunds
+              Audit all online transaction logs and Razorpay references.
+              Refund requests are handled via the{" "}
+              <span className="text-teal-600 font-semibold">Refund Requests</span>{" "}
+              panel.
             </p>
           </div>
         </div>
@@ -143,7 +106,7 @@ const AdminPayments = () => {
       <div {...fadeUp(80)} className={`${fadeUp(80).className} bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden`}>
         <div className="px-6 py-5 border-b border-gray-100 bg-slate-50/60">
           <h3 className="text-base font-semibold text-slate-800">Transaction Records</h3>
-          <p className="text-xs text-slate-400 mt-1">Payment status and refund actions per order</p>
+          <p className="text-xs text-slate-400 mt-1">Read-only payment ledger — view status and Razorpay references</p>
         </div>
 
         <div className="p-6 pt-4">
@@ -179,12 +142,14 @@ const AdminPayments = () => {
                       <span
                         className={`inline-flex items-center text-[0.65rem] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full whitespace-nowrap border capitalize ${statusStyles(p.status)}`}
                       >
-                        {p.status}
+                        {p.status === "refunded" && p.refundStatus === "pending"
+                          ? "Refund Pending"
+                          : p.status}
                       </span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <p className="text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wide mb-1">Salon & Service</p>
                       <p className="inline-flex items-center gap-1.5 text-sm text-slate-700">
@@ -207,18 +172,10 @@ const AdminPayments = () => {
                       <span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-xs text-slate-500 break-all">
                         {p.razorpayPaymentId || "N/A"}
                       </span>
-                    </div>
-
-                    <div className="flex sm:justify-end items-start">
-                      {p.status === "paid" ? (
-                        <button
-                          onClick={() => handleRefund(p._id)}
-                          className="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-100 font-semibold text-xs px-3.5 py-2 rounded-lg transition-colors"
-                        >
-                          <RotateCcw size={13} /> Refund
-                        </button>
-                      ) : (
-                        <span className="text-xs text-slate-400 italic">No action available</span>
+                      {p.refundReason && (
+                        <p className="text-xs text-amber-600 italic mt-1 truncate" title={p.refundReason}>
+                          {p.refundReason}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -228,74 +185,6 @@ const AdminPayments = () => {
           )}
         </div>
       </div>
-
-      {/* Refund Modal */}
-      {refundModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-[modalIn_0.25s_ease]">
-            <div className="flex justify-between items-start pb-4 mb-4 border-b border-gray-100">
-              <div>
-                <h3 className="text-lg font-bold text-slate-800">Issue Refund</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Provide a reason for initiating this refund (optional)
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setRefundModalOpen(false);
-                  setSelectedPaymentId(null);
-                  setRefundReason("");
-                }}
-                className="p-2 border border-gray-200 rounded-lg text-slate-500 hover:bg-slate-50 transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={submitRefund} className="flex flex-col gap-5">
-              <div>
-                <label className="text-[0.8125rem] font-semibold text-slate-600 mb-2 block">Reason (Optional)</label>
-                <textarea
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value)}
-                  placeholder="e.g. Booking cancelled, duplicate transaction..."
-                  rows="3"
-                  className={`${inputClass} resize-y`}
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRefundModalOpen(false);
-                    setSelectedPaymentId(null);
-                    setRefundReason("");
-                  }}
-                  className="border border-gray-200 text-slate-600 text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={refundLoading}
-                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all duration-200"
-                >
-                  {refundLoading ? (
-                    <>
-                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    "Confirm Refund"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

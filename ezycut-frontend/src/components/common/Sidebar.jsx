@@ -13,6 +13,7 @@ import {
   LogOut,
   User,
   ShieldCheck,
+  RefreshCw,
   X,
 } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
@@ -35,6 +36,7 @@ const adminLinks = [
   { name: "Payments", path: "/admin/payments", icon: DollarSign },
   { name: "Analytics", path: "/admin/analytics", icon: BarChart2 },
   { name: "KYC Review", path: "/admin/kyc", icon: ShieldCheck },
+  { name: "Refund Requests", path: "/admin/refund-requests", icon: RefreshCw },
 ];
 
 const Sidebar = ({ isMobileOpen = false, onMobileClose = () => {} }) => {

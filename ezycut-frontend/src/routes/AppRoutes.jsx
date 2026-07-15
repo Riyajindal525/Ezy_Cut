@@ -39,6 +39,7 @@ import AdminUsers from "../pages/admin/Users";
 import AdminPayments from "../pages/admin/Payments";
 import AdminAnalytics from "../pages/admin/Analytics";
 import AdminKYC from "../pages/admin/KYC";
+import AdminRefundRequests from "../pages/admin/RefundRequests";
 
 // Layouts & Guards
 import ProtectedRoute from "../components/common/ProtectedRoute";
@@ -115,6 +116,7 @@ const AppRoutes = () => {
             <Route path="/admin/payments" element={<AdminPayments />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/kyc" element={<AdminKYC />} />
+            <Route path="/admin/refund-requests" element={<AdminRefundRequests />} />
           </Route>
         </Route>
       </Routes>
