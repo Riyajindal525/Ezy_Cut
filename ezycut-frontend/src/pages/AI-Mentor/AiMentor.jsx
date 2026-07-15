@@ -13,8 +13,10 @@ import {
   ShieldCheck,
   Zap,
   ArrowRight,
+  LockKeyhole,
+  X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 /* ------------------------------------------------------------------ */
 /* Static config                                                       */
@@ -77,6 +79,8 @@ const MOCK_RECOMMENDATIONS = [
 ];
 
 const AiMentor = () => {
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(true);
   const [faceShape, setFaceShape] = useState(null);
   const [hairType, setHairType] = useState(null);
   const [occasion, setOccasion] = useState(null);
@@ -86,6 +90,11 @@ const AiMentor = () => {
   const [loadingStep, setLoadingStep] = useState(0);
 
   const canSubmit = faceShape && hairType && occasion && !loading;
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    navigate(-1);
+  };
 
   const loadingMessages = [
     "Reading your preferences...",
@@ -131,6 +140,51 @@ const AiMentor = () => {
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
+
+      {/* ============ COMING SOON MODAL ============ */}
+      {showModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backdropFilter: "blur(6px)", backgroundColor: "rgba(0,0,0,0.35)" }}
+        >
+          <div
+            className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center animate-[ezcFadeUp_0.3s_ease_forwards]"
+          >
+            {/* Close × */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+
+            {/* Lock icon */}
+            <div className="w-14 h-14 rounded-full bg-[#e6f7f5] flex items-center justify-center mb-5">
+              <LockKeyhole size={26} className="text-[#0d9488]" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-[1.125rem] font-extrabold text-gray-900 mb-2">
+              This feature isn&apos;t available yet
+            </h2>
+
+            {/* Description */}
+            <p className="text-sm text-gray-500 leading-relaxed mb-7">
+              AI Mentor is currently unavailable to make your experience even better.
+              We&apos;re working on it &mdash; check back soon!
+            </p>
+
+            {/* Got it button */}
+            <button
+              onClick={handleCloseModal}
+              className="w-full py-3 rounded-2xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-base transition-colors shadow-md hover:shadow-lg"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
       {/* ============ HERO ============ */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#031715] via-[#042f2e] to-[#0f766e]">
         <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_20%_20%,white,transparent_45%)]" />
