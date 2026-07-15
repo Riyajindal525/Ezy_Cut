@@ -8,8 +8,6 @@ import {
   Tag,
   FileText,
   CheckCircle,
-  ShieldCheck,
-  Loader2,
 } from "lucide-react";
 import { getServiceById } from "../../api/service.api";
 import { createOrder, verifyPayment } from "../../api/payment.api";
@@ -113,7 +111,7 @@ const Booking = () => {
         order_id: orderData.order.orderId,
         name: "EzyCut",
         description: service.name,
-        theme: { color: "#0d9488" },
+        theme: { color: "#6366f1" },
         handler: async function (response) {
           try {
             await verifyPayment({
@@ -122,6 +120,8 @@ const Booking = () => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
+            // Invalidate the cache to ensure the new booking shows up instantly
+            useBookingStore.getState().clearBookingCache();
             toast.success("Booking confirmed! 🎉");
             navigate("/my-bookings");
           } catch (err) {
@@ -149,115 +149,57 @@ const Booking = () => {
 
   if (!service) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 bg-white pt-24">
-        <div className="w-16 h-16 rounded-2xl bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center">
-          <Calendar size={26} className="text-[#0d9488]" />
-        </div>
-        <h2 className="text-2xl font-bold text-[#374151]">Service Not Found</h2>
-        <Link
-          to="/salons"
-          className="inline-flex items-center gap-1.5 border border-gray-200 text-[#134e4a] text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#f0fdfa] transition-colors"
-        >
-          <ArrowLeft size={14} />
-          Back to Salons
-        </Link>
+      <div style={{ padding: "3rem 0", textAlign: "center" }}>
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--gray-700)", marginBottom: "1rem" }}>
+          Service Not Found
+        </h2>
+        <Link to="/salons" className="btn btn-outline">← Back to Salons</Link>
       </div>
     );
   }
 
-  // step progress: 1 = date, 2 = slot, 3 = confirm
-  const step = selectedSlot ? 3 : date ? 2 : 1;
-
   return (
-    <div className="min-h-[calc(100vh-68px)] bg-white pt-24 md:pt-28 pb-16">
-      <div className="page-container max-w-[760px]">
+    <div style={{ padding: "2rem 0" }}>
+      <div className="page-container" style={{ maxWidth: "760px" }}>
         {/* Back */}
-        <Link
-          to={`/salons/${service.salon}`}
-          className="inline-flex items-center gap-1.5 border border-gray-200 text-[#134e4a] text-sm font-semibold px-3.5 py-2 rounded-lg mb-5 hover:bg-[#f0fdfa] hover:border-[#0d9488]/30 transition-all duration-200 animate-[ezcFadeUp_0.4s_ease_forwards]"
-        >
+        <Link to={`/salons/${service.salon}`} className="btn btn-outline btn-sm" style={{ gap: "0.375rem", marginBottom: "1.5rem" }}>
           <ArrowLeft size={14} />
           Back to Salon
         </Link>
 
-        <h1
-          className="text-2xl md:text-3xl font-extrabold text-[#022525] tracking-[-0.02em] mb-2 animate-[ezcFadeUp_0.4s_ease_forwards]"
-          style={{ opacity: 0 }}
-        >
-          Book Appointment
-        </h1>
-        <p
-          className="text-sm text-[#5b6b68] mb-6 animate-[ezcFadeUp_0.4s_ease_forwards]"
-          style={{ animationDelay: "40ms", opacity: 0 }}
-        >
-          Pick a date, choose a slot, and confirm — takes less than a minute.
-        </p>
-
-        {/* Step indicator */}
-        <div
-          className="flex items-center gap-2 mb-8 animate-[ezcFadeUp_0.4s_ease_forwards]"
-          style={{ animationDelay: "70ms", opacity: 0 }}
-        >
-          {[
-            { n: 1, label: "Date" },
-            { n: 2, label: "Slot" },
-            { n: 3, label: "Confirm" },
-          ].map((s, idx) => (
-            <div key={s.n} className="flex items-center gap-2 flex-1">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors duration-300 ${
-                    step >= s.n
-                      ? "bg-[#0d9488] text-white"
-                      : "bg-[#f0fdfa] text-[#5b6b68] border border-[#ccfbf1]"
-                  }`}
-                >
-                  {step > s.n ? <CheckCircle size={14} /> : s.n}
-                </div>
-                <span
-                  className={`text-xs font-semibold hidden sm:block ${
-                    step >= s.n ? "text-[#134e4a]" : "text-[#9ca3af]"
-                  }`}
-                >
-                  {s.label}
-                </span>
-              </div>
-              {idx < 2 && (
-                <div
-                  className={`h-[2px] flex-1 rounded-full transition-colors duration-300 ${
-                    step > s.n ? "bg-[#0d9488]" : "bg-[#e5e7eb]"
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        <h1 className="page-title" style={{ marginBottom: "1.5rem" }}>Book Appointment</h1>
 
         {/* Service Info Card */}
-        <div
-          className="rounded-2xl border border-gray-200 overflow-hidden mb-5 shadow-sm animate-[ezcFadeUp_0.4s_ease_forwards]"
-          style={{ animationDelay: "100ms", opacity: 0 }}
-        >
-          <div className="relative p-6 bg-gradient-to-br from-[#0f766e] to-[#042f2e] overflow-hidden">
-            <div className="absolute -right-14 -top-14 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.18)_0%,transparent_70%)] pointer-events-none" />
+        <div className="card" style={{ marginBottom: "1.5rem" }}>
+          <div style={{
+            padding: "1.5rem",
+            background: "linear-gradient(135deg, var(--brand-primary) 0%, #312e81 100%)",
+            borderRadius: "var(--radius-xl) var(--radius-xl) 0 0",
+          }}>
             {service.category && (
-              <span className="relative inline-flex items-center gap-1 bg-white/10 border border-white/20 text-[#5eead4] text-[0.6875rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full mb-3">
-                <Tag size={10} />
-                {service.category}
+              <span style={{
+                fontSize: "0.6875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em",
+                color: "#c7d2fe", background: "rgba(99,102,241,0.3)",
+                padding: "0.2rem 0.5rem", borderRadius: "var(--radius-full)",
+                display: "inline-flex", alignItems: "center", gap: "0.25rem", marginBottom: "0.75rem",
+              }}>
+                <Tag size={10} />{service.category}
               </span>
             )}
-            <h2 className="relative text-xl md:text-2xl font-extrabold text-white mb-1.5">{service.name}</h2>
+            <h2 style={{ fontSize: "1.375rem", fontWeight: 800, color: "white", marginBottom: "0.375rem" }}>
+              {service.name}
+            </h2>
             {service.description && (
-              <p className="relative text-white/65 text-sm leading-relaxed">{service.description}</p>
+              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.9rem" }}>{service.description}</p>
             )}
           </div>
 
-          <div className="flex items-center gap-6 p-5 bg-white">
-            <div className="flex items-center gap-2 font-bold text-[#022525]">
-              <IndianRupee size={16} className="text-[#0d9488]" />
-              <span className="text-xl">₹{service.price}</span>
+          <div style={{ padding: "1.25rem", display: "flex", gap: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, color: "var(--gray-800)" }}>
+              <IndianRupee size={16} style={{ color: "var(--success)" }} />
+              <span style={{ fontSize: "1.25rem" }}>₹{service.price}</span>
             </div>
-            <div className="flex items-center gap-2 text-[#5b6b68] text-sm">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--gray-500)", fontSize: "0.9rem" }}>
               <Clock size={15} />
               {service.duration} minutes
             </div>
@@ -265,12 +207,9 @@ const Booking = () => {
         </div>
 
         {/* Date Picker */}
-        <div
-          className="bg-white border border-gray-200 rounded-2xl p-6 mb-5 shadow-sm animate-[ezcFadeUp_0.4s_ease_forwards]"
-          style={{ animationDelay: "140ms", opacity: 0 }}
-        >
-          <h3 className="flex items-center gap-2 text-[0.9375rem] font-bold text-[#022525] mb-4">
-            <Calendar size={16} className="text-[#0d9488]" />
+        <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+          <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--gray-800)", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Calendar size={16} style={{ color: "var(--brand-accent)" }} />
             Select Date
           </h3>
           <input
@@ -278,36 +217,34 @@ const Booking = () => {
             value={date}
             min={today}
             onChange={handleDateChange}
-            className="w-full max-w-[240px] border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-[#022525] outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/15 transition-all duration-150"
+            className="form-input"
+            style={{ maxWidth: "240px" }}
           />
         </div>
 
         {/* Slots */}
         {date && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-5 shadow-sm animate-[ezcFadeUp_0.35s_ease_forwards]" style={{ opacity: 0 }}>
-            <h3 className="flex items-center gap-2 text-[0.9375rem] font-bold text-[#022525] mb-4">
-              <Clock size={16} className="text-[#0d9488]" />
+          <div className="card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
+            <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--gray-800)", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Clock size={16} style={{ color: "var(--brand-accent)" }} />
               Available Slots
             </h3>
 
             {slotsLoading ? (
-              <div className="flex items-center gap-2.5 text-[#5b6b68] text-sm py-2">
-                <Loader2 size={16} className="animate-spin text-[#0d9488]" />
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", color: "var(--gray-500)", padding: "0.5rem 0" }}>
+                <div className="spinner" style={{ width: "16px", height: "16px" }} />
                 Fetching available slots...
               </div>
             ) : slots.length === 0 ? (
-              <p className="text-[#5b6b68] text-sm">No slots available for this date.</p>
+              <p style={{ color: "var(--gray-500)", fontSize: "0.9rem" }}>No slots available for this date.</p>
             ) : (
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2.5">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "0.625rem" }}>
                 {slots.map((slot) => (
                   <button
                     key={slot}
                     onClick={() => setSelectedSlot(slot)}
-                    className={`font-mono text-[0.8125rem] font-bold rounded-lg py-2.5 border transition-all duration-150 ${
-                      selectedSlot === slot
-                        ? "bg-[#0d9488] border-[#0d9488] text-white shadow-md shadow-[#0d9488]/20"
-                        : "bg-white border-gray-200 text-[#374151] hover:border-[#0d9488]/40 hover:bg-[#f0fdfa]"
-                    }`}
+                    className={`btn ${selectedSlot === slot ? "btn-accent" : "btn-outline"}`}
+                    style={{ fontSize: "0.8125rem", fontFamily: "monospace", fontWeight: 700 }}
                   >
                     {slot}
                   </button>
@@ -319,41 +256,40 @@ const Booking = () => {
 
         {/* Confirmation & Notes */}
         {selectedSlot && (
-          <div
-            className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm animate-[ezcFadeUp_0.35s_ease_forwards]"
-            style={{ opacity: 0 }}
-          >
-            <h3 className="flex items-center gap-2 text-[0.9375rem] font-bold text-[#022525] mb-4">
-              <CheckCircle size={16} className="text-[#0d9488]" />
+          <div className="card" style={{ padding: "1.5rem" }}>
+            <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--gray-800)", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <CheckCircle size={16} style={{ color: "var(--success)" }} />
               Confirm Booking
             </h3>
 
             {/* Summary */}
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-xl p-4 mb-5 flex flex-col gap-2.5 text-sm">
-              <div className="flex gap-2">
-                <span className="text-[#5b6b68] min-w-[80px]">Date</span>
-                <span className="font-semibold text-[#022525]">
-                  {new Date(date).toLocaleDateString("en-IN", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
+            <div style={{
+              background: "var(--gray-50)",
+              borderRadius: "var(--radius)",
+              padding: "1rem",
+              marginBottom: "1rem",
+              display: "flex", flexDirection: "column", gap: "0.5rem",
+              fontSize: "0.875rem", color: "var(--gray-600)",
+            }}>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <span style={{ color: "var(--gray-400)", minWidth: "80px" }}>Date</span>
+                <span style={{ fontWeight: 600, color: "var(--gray-800)" }}>
+                  {new Date(date).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                 </span>
               </div>
-              <div className="flex gap-2">
-                <span className="text-[#5b6b68] min-w-[80px]">Time</span>
-                <span className="font-semibold text-[#022525] font-mono">{selectedSlot}</span>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <span style={{ color: "var(--gray-400)", minWidth: "80px" }}>Time</span>
+                <span style={{ fontWeight: 600, color: "var(--gray-800)", fontFamily: "monospace" }}>{selectedSlot}</span>
               </div>
-              <div className="flex gap-2">
-                <span className="text-[#5b6b68] min-w-[80px]">Amount</span>
-                <span className="font-bold text-[#022525]">₹{service.price}</span>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <span style={{ color: "var(--gray-400)", minWidth: "80px" }}>Amount</span>
+                <span style={{ fontWeight: 700, color: "var(--gray-800)" }}>₹{service.price}</span>
               </div>
             </div>
 
             {/* Notes */}
-            <div className="flex flex-col gap-1.5 mb-5">
-              <label className="flex items-center gap-1.5 text-xs font-bold text-[#5b6b68] uppercase tracking-wide">
+            <div className="form-group" style={{ marginBottom: "1.25rem" }}>
+              <label className="form-label" style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
                 <FileText size={13} />
                 Special Requests (Optional)
               </label>
@@ -361,7 +297,7 @@ const Booking = () => {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows="3"
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-[#022525] outline-none resize-y focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/15 transition-all duration-150 placeholder:text-[#9ca3af]"
+                className="form-input form-textarea"
                 placeholder="Any special requests, preferences, or notes for the salon..."
               />
             </div>
@@ -369,24 +305,18 @@ const Booking = () => {
             <button
               onClick={handlePayment}
               disabled={payLoading}
-              className="w-full flex items-center justify-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm py-3.5 rounded-xl transition-all duration-200 shadow-md shadow-[#0d9488]/20 hover:shadow-lg hover:-translate-y-0.5"
+              className="btn btn-accent btn-lg btn-full"
+              style={{ gap: "0.5rem" }}
             >
               {payLoading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Processing...
-                </>
+                <><div className="spinner" style={{ width: "16px", height: "16px", borderWidth: "2px", borderTopColor: "white" }} /> Processing...</>
               ) : (
-                <>
-                  <IndianRupee size={16} />
-                  Pay ₹{service.price} & Confirm
-                </>
+                <><IndianRupee size={16} /> Pay ₹{service.price} & Confirm</>
               )}
             </button>
 
-            <p className="flex items-center justify-center gap-1.5 text-xs text-[#9ca3af] mt-3">
-              <ShieldCheck size={12} />
-              Secured by Razorpay. Your payment info is never stored.
+            <p style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--gray-400)", marginTop: "0.75rem" }}>
+              🔒 Secured by Razorpay. Your payment info is never stored.
             </p>
           </div>
         )}
