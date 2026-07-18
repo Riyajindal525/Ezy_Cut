@@ -50,6 +50,8 @@ const Notifications = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+  // Show only unread notifications
+  const unreadNotifications = notifications.filter((n) => !n.isRead);
 
   if (loading) return <Loader message="Loading notifications..." />;
 
@@ -73,7 +75,7 @@ const Notifications = () => {
               )}
             </h1>
             <p className="text-white/60 text-sm">
-              {unreadCount} unread &middot; {notifications.length} total
+              {unreadCount} unread
             </p>
           </div>
 
@@ -96,7 +98,7 @@ const Notifications = () => {
 
       {/* ============ MAIN CONTENT ============ */}
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {notifications.length === 0 ? (
+        {unreadNotifications.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center text-center gap-4 py-16 px-6">
             <div className="relative w-16 h-16 rounded-2xl bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center">
               <BellOff size={26} className="text-[#0d9488]" />
@@ -104,13 +106,13 @@ const Notifications = () => {
             <div className="flex flex-col gap-1.5">
               <h3 className="text-lg font-bold text-[#022525]">All caught up!</h3>
               <p className="text-[#5b6b68] text-sm max-w-sm">
-                You have no notifications. We&apos;ll let you know when something happens.
+                You&apos;re all caught up — no unread notifications.
               </p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {notifications.map((n, i) => (
+            {unreadNotifications.map((n, i) => (
               <div
                 key={n._id}
                 className={`group relative bg-white rounded-2xl border shadow-sm px-5 py-4 flex gap-4 items-start transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md animate-[ezcFadeUp_0.5s_ease_forwards] opacity-0 ${
