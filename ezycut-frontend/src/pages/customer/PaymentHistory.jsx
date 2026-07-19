@@ -18,7 +18,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { getMyPayments } from "../../api/payment.api";
+import { getMyPayments, getSpendTrend } from "../../api/payment.api";
 import Loader from "../../components/common/Loader";
 import toast from "../../utils/toast";
 import avatarIcon from "../../assets/sidefacesilhouette.png";
@@ -63,6 +63,8 @@ const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [monthlyTrend, setMonthlyTrend] = useState([]);
+  const [trendLoading, setTrendLoading] = useState(true); 
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -70,14 +72,26 @@ const PaymentHistory = () => {
         const data = await getMyPayments();
         setPayments(data.payments);
       } catch (err) {
-        toast.error("Failed to load payment history.");
+       toast.error("Failed to load payment history.");
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
+     const fetchTrend = async () => {
+    try {
+      const data = await getSpendTrend();
+      setMonthlyTrend(data.trend);
+    } catch (err) {
+      console.error(err);
+      // silent fail — trend chart just shows empty state, isn't critical
+    } finally {
+      setTrendLoading(false);
+    }
+  };
 
     fetchPayments();
+    fetchTrend();
   }, []);
 
   // Summary
@@ -90,18 +104,6 @@ const PaymentHistory = () => {
     ? payments
     : payments.filter((p) => p.status === activeFilter);
 
-  // Derived monthly spend trend (paid transactions only) — purely presentational, no new data source
-  const monthlyTrend = (() => {
-    const map = {};
-    payments
-      .filter((p) => p.status === "paid")
-      .forEach((p) => {
-        const d = new Date(p.createdAt);
-        const key = d.toLocaleDateString("en-IN", { month: "short" });
-        map[key] = (map[key] || 0) + p.amount;
-      });
-    return Object.entries(map).map(([label, value]) => ({ label, value }));
-  })();
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
@@ -309,7 +311,11 @@ const PaymentHistory = () => {
               <p className="text-sm text-[#5b6b68]">Your spend over time</p>
             </div>
 
-            {monthlyTrend.length === 0 ? (
+            {trendLoading ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+                <p className="text-sm text-[#5b6b68]">Loading trend...</p>
+              </div>
+            ) : monthlyTrend.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
                 <TrendingUp size={22} className="text-[#0d9488]" />
                 <p className="text-sm text-[#5b6b68]">No spend data yet</p>

@@ -15,6 +15,7 @@ const {
   checkExpiredPendingBookings,
   checkPaymentTimeouts,
   getMyPayments,
+  getMySpendTrend,
   getSalonPayments,
   getAllPayments,
   getTotalRevenue,
@@ -52,6 +53,14 @@ router.get(
   protect,
   authorizeRoles("customer"),
   getMyPayments
+);
+
+// GET /api/payments/spend-trend
+router.get(
+  "/spend-trend",
+  protect,
+  authorizeRoles("customer"),
+  getMySpendTrend
 );
 
 /*

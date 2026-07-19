@@ -84,7 +84,7 @@ const Profile = () => {
           </div>
           <span className="leading-relaxed">
             Account information is locked for security. To update your registered credentials, please contact{" "}
-            <strong className="text-[#022525]">support@ezycut.in</strong>.
+            <strong className="text-[#022525]">support@ezycut.co.in</strong>
           </span>
         </div>
       </div>

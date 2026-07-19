@@ -90,24 +90,50 @@ const SalonDetails = () => {
           Back to Salons
         </Link>
 
-        {/* ================= GALLERY ================= */}
+       {/* ================= GALLERY ================= */}
         <div
           className="mb-6 animate-[ezcFadeUp_0.5s_ease_forwards]"
           style={{ opacity: 0 }}
         >
-          <div className="w-full h-[300px] md:h-[380px] rounded-2xl overflow-hidden relative border border-gray-200 bg-[#f0fdfa] shadow-[0_8px_30px_rgba(13,148,136,0.08)]">
+          <div className="w-full h-[320px] md:h-[420px] rounded-2xl overflow-hidden relative border border-gray-200 bg-[#f0fdfa] shadow-[0_12px_40px_rgba(13,148,136,0.12)]">
             {hasImages ? (
               <>
+                {/* Blurred background fill — hides letterboxing */}
+                <img
+                  src={images[activeImage]}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
+                />
+                {/* Actual image — fully visible, no cropping */}
                 <img
                   key={activeImage}
                   src={images[activeImage]}
                   alt={`${salon.name} photo ${activeImage + 1}`}
-                  className="w-full h-full object-cover"
+                  className="relative w-full h-full object-contain"
                   style={{ animation: "ezcKenBurns 8s ease-out forwards" }}
                 />
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                <div className="absolute bottom-3 right-4 bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-                  {activeImage + 1} / {images.length}
+                {/* Bottom gradient — always present for a premium, grounded feel */}
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
+
+                {/* Salon name overlay on the hero itself */}
+                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-white font-['Outfit'] text-lg md:text-xl font-extrabold drop-shadow-md truncate">
+                      {salon.name}
+                    </p>
+                    <p className="text-white/80 text-xs font-medium flex items-center gap-1 mt-0.5">
+                      <MapPin size={11} className="shrink-0" />
+                      {salon.city}
+                    </p>
+                  </div>
+
+                  {/* Only show counter when there's more than 1 photo */}
+                  {images.length > 1 && (
+                    <div className="shrink-0 bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                      {activeImage + 1} / {images.length}
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
@@ -135,9 +161,9 @@ const SalonDetails = () => {
                   key={idx}
                   type="button"
                   onClick={() => setActiveImage(idx)}
-                  className={`shrink-0 w-[88px] h-[64px] rounded-lg overflow-hidden p-0 transition-all duration-200 ${
+                  className={`shrink-0 w-[92px] h-[68px] rounded-lg overflow-hidden p-0 transition-all duration-200 ${
                     idx === activeImage
-                      ? "border-2 border-[#0d9488] opacity-100 scale-[1.03]"
+                      ? "border-2 border-[#0d9488] opacity-100 scale-[1.03] shadow-md"
                       : "border-2 border-transparent opacity-60 hover:opacity-90"
                   }`}
                 >

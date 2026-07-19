@@ -149,8 +149,8 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail size={14} className="text-[#2dd4bf] shrink-0" />
-                <a href="mailto:support@ezycut.com" className="hover:text-[#2dd4bf] transition-colors duration-150 break-all">
-                  support@ezycut.com
+                <a href="mailto:support@ezycut.co.in" className="hover:text-[#2dd4bf] transition-colors duration-150 break-all">
+                  support@ezycut.co.in
                 </a>
               </div>
               <div className="flex items-center gap-2.5">

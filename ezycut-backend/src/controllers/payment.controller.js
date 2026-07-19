@@ -11,6 +11,7 @@ const {
   checkExpiredPendingBookingsService,
   checkPaymentTimeoutsService,
   getMyPaymentsService,
+  getMySpendTrendService,
   getSalonPaymentsService,
   getAllPaymentsService,
   getTotalRevenueService,
@@ -146,6 +147,13 @@ const getMyPayments = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, count: payments.length, payments });
 });
 
+/* ─── My Spend Trend (Customer) ─────────────────────────────────── */
+
+const getMySpendTrend = asyncHandler(async (req, res) => {
+  const trend = await getMySpendTrendService(req.user._id);
+  res.status(200).json({ success: true, trend });
+});
+
 /* ─── Salon Payments (Owner) ────────────────────────────────────── */
 
 const getSalonPayments = asyncHandler(async (req, res) => {
@@ -198,6 +206,7 @@ module.exports = {
   checkExpiredPendingBookings,
   checkPaymentTimeouts,
   getMyPayments,
+  getMySpendTrend,
   getSalonPayments,
   getAllPayments,
   getTotalRevenue,

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Payment = require("../models/payment.model");
 const Salon = require("../models/salon.model");
 const Service = require("../models/service.model");
@@ -492,6 +493,36 @@ const getMyPaymentsService = async (customerId) => {
     .sort({ createdAt: -1 });
 };
 
+/* ─── My Spend Trend (Customer) ─────────────────────────────────── */
+const getMySpendTrendService = async (customerId) => {
+  const results = await Payment.aggregate([
+    {
+      $match: {
+        customer: new mongoose.Types.ObjectId(customerId),
+        status: "paid",
+        paidAt: { $ne: null },
+      },
+    },
+    {
+      $group: {
+        _id: { year: { $year: "$paidAt" }, month: { $month: "$paidAt" } },
+        value: { $sum: "$amount" },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+  ]);
+
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+
+  return results.map((r) => ({
+    label: `${monthNames[r._id.month - 1]} ${r._id.year}`,
+    value: r.value,
+  }));
+};
+
 const getSalonPaymentsService = async (salonId) => {
   return await Payment.find({ salon: salonId })
     .populate("customer", "name email")
@@ -578,6 +609,7 @@ module.exports = {
   checkExpiredPendingBookingsService,
   checkPaymentTimeoutsService,
   getMyPaymentsService,
+  getMySpendTrendService,
   getSalonPaymentsService,
   getAllPaymentsService,
   getTotalRevenueService,

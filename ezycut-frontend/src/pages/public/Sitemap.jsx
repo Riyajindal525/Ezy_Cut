@@ -104,7 +104,7 @@ const SITE_MAP = [
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Cancellation & Refunds", href: "/policy#refunds" },
       { label: "Help Center", href: "/support" },
-      { label: "Email Support", href: "mailto:support@ezycut.com" },
+      { label: "Email Support", href: "mailto:support@ezycut.co.in" },
     ],
   },
   {
@@ -195,10 +195,10 @@ export default function EzyCutSitemap() {
               </a>
               , or email us at{" "}
               <a
-                href="mailto:support@ezycut.com"
+                href="mailto:support@ezycut.co.in"
                 className="underline hover:text-teal-600"
               >
-                support@ezycut.com
+                support@ezycut.co.in
               </a>
               .
             </p>
