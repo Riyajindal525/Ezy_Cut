@@ -32,6 +32,16 @@ export const verifyPayment =
     return response.data;
   };
 
+  export const getSpendTrend = 
+  async () => {
+  const res = 
+  await api.get(
+    "/payments/spend-trend"
+  );
+  
+  return res.data; // { success, trend: [{ label, value }] }
+};
+
 export const getSalonPayments = async (salonId) => {
   const response = await api.get(`/payments/salon/${salonId}`);
   return response.data;
