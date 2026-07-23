@@ -9,6 +9,7 @@ import {
   Briefcase,
   CheckCircle2,
 } from "lucide-react";
+import SEO from "../../components/common/SEO";
 import { registerUser, loginUser } from "../../api/auth.api";
 import useAuthStore from "../../store/auth.store";
 import toast from "../../utils/toast";
@@ -77,6 +78,12 @@ const Register = () => {
 
   return (
     <div className="ezyauth-register-page">
+      <SEO
+        title="Register — Create Account"
+        description="Register a new EzyCut account to easily book grooming appointments and track your salon slots live."
+        canonical="https://www.ezycut.co.in/register"
+        noIndex={true}
+      />
       {/* Left Panel - Brand */}
       <div className="ezyauth-register-brand-panel">
         <img

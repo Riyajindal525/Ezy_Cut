@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import SEO from "../../components/common/SEO";
 
 /**
  * EzyCut — Site Map
@@ -151,6 +152,11 @@ function SitemapCard({ group, icon, links, delay }) {
 export default function EzyCutSitemap() {
   return (
     <div className="min-h-screen bg-white font-sans">
+      <SEO
+        title="Site Map"
+        description="Browse the directory of all EzyCut pages, including salon finder, queue tracker, corporate pages, policies, and legal documentation."
+        canonical="https://www.ezycut.co.in/sitemap"
+      />
       {/* Header */}
       <header className="relative bg-gradient-to-br from-teal-700 via-teal-600 to-teal-500 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-20 pointer-events-none">

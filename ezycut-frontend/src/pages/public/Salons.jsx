@@ -6,6 +6,7 @@ import SalonCard from "../../components/salon/SalonCard";
 import Loader from "../../components/common/Loader";
 import EmptyState from "../../components/common/EmptyState";
 import toast from "../../utils/toast";
+import SEO from "../../components/common/SEO";
 
 const Salons = () => {
   const fetchSalonsFromStore = useSalonStore((state) => state.fetchSalons);
@@ -107,6 +108,11 @@ const Salons = () => {
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-white pb-16">
+      <SEO
+        title="Find Salons Near You — Book Instantly"
+        description="Browse verified salons, barber shops, and beauty parlours near you. Check reviews, compare services, and book your appointment instantly on EzyCut."
+        canonical="https://www.ezycut.co.in/salons"
+      />
     {/* ===== Hero header ===== */}
 <div className="relative overflow-hidden bg-gradient-to-b from-[#f0fdfa] to-white border-b border-[#ccfbf1] pt-24 pb-10 md:pt-28 md:pb-12">
   <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(20,184,166,0.14)_0%,transparent_70%)] pointer-events-none" />

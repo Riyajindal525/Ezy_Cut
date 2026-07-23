@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import SEO from "../../components/common/SEO";
 import {
   Users,
   Store,
@@ -185,6 +186,11 @@ const PartnerWithUs = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <SEO
+        title="Partner With Us — Grow Your Salon Business"
+        description="Join EzyCut as a salon partner, barber shop, or independent grooming professional. Get more bookings, manage staff, accept digital payments, and grow your brand."
+        canonical="https://www.ezycut.co.in/partner-with-us"
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
         @keyframes float-slow {

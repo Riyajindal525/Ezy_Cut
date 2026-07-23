@@ -12,6 +12,7 @@ import {
   BadgeCheck,
   Users,
 } from "lucide-react";
+import SEO from "../../components/common/SEO";
 import { getSalonById } from "../../api/salon.api";
 import { getServicesBySalon } from "../../api/service.api";
 import { getSalonReviews } from "../../api/review.api";
@@ -80,6 +81,12 @@ const SalonDetails = () => {
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-white pt-24 md:pt-28 pb-16">
+      <SEO
+        title={`${salon.name || "Salon Details"} in ${salon.city || "India"}`}
+        description={`Book appointments at ${salon.name} in ${salon.city}. Located at ${salon.address}. Check services, prices, and reviews on EzyCut.`}
+        canonical={`https://www.ezycut.co.in/salons/${id}`}
+        ogImage={salon.images?.[0] || undefined}
+      />
       <div className="page-container">
         {/* Back link */}
         <Link

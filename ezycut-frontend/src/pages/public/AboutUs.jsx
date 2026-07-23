@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import SEO from "../../components/common/SEO";
 import {
   Target,
   Eye,
@@ -127,6 +128,11 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <SEO
+        title="About Us — Our Story & Mission"
+        description="Learn about EzyCut's mission to digitize India's grooming industry. We bridge the gap between customers and salons with smart appointment booking and queue tracking."
+        canonical="https://www.ezycut.co.in/about"
+      />
       {/* Distinctive display font, loaded once for this page */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');

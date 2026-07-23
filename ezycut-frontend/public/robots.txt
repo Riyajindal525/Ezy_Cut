@@ -1,0 +1,21 @@
+# EzyCut — robots.txt
+# https://www.ezycut.co.in
+
+User-agent: *
+Allow: /
+
+# Block private/authenticated dashboard routes from crawlers
+Disallow: /dashboard
+Disallow: /owner/
+Disallow: /admin/
+Disallow: /booking/
+Disallow: /my-bookings
+Disallow: /my-queue
+Disallow: /my-reviews
+Disallow: /payment-history
+Disallow: /notifications
+Disallow: /profile
+Disallow: /ai-mentor
+
+# Sitemap location
+Sitemap: https://www.ezycut.co.in/sitemap.xml

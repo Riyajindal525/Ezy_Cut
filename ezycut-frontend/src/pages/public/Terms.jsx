@@ -18,6 +18,7 @@ import {
   Building2,
   ArrowUpRight,
 } from "lucide-react";
+import SEO from "../../components/common/SEO";
 
 const sections = [
   {
@@ -109,6 +110,11 @@ const companyInfo = [
 const Terms = () => {
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="Terms of Service"
+        description="Review the terms and conditions governing the use of EzyCut's salon booking and queue management services."
+        canonical="https://www.ezycut.co.in/terms"
+      />
       {/* ================= DARK HERO ================= */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#09090b] via-[#0a1a18] to-[#09090b] pt-28 pb-20 md:pt-32 md:pb-24">
         <div className="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.22)_0%,transparent_70%)] pointer-events-none" />

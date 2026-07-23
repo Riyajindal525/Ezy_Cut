@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import SEO from "../../components/common/SEO";
 import {
   ArrowRight,
   Scissors,
@@ -88,6 +89,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] overflow-x-hidden pb-10">
+      <SEO
+        title="Smart Salon Booking & Queue Management"
+        description="Book salon appointments online, skip the queue, and get AI-powered grooming recommendations. Find top salons near you — EzyCut, India's smartest salon platform."
+        canonical="https://www.ezycut.co.in/"
+      />
       {/* ============ HERO VIDEO SLIDESHOW ============ */}
 <section className="relative w-full h-[100svh] min-h-[560px] max-h-[900px] overflow-hidden bg-[#09090b]">
   {/* Background video slides */}

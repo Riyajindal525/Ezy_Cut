@@ -85,6 +85,11 @@ const QueueTracker = () => {
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-[#f7f9f8]">
+      <SEO
+        title="Live Queue Tracker — Track Your Slot"
+        description="Track your salon appointment queue position, estimated wait times, and status anonymously in real time using EzyCut queue tracking."
+        canonical={activeTokenCode ? `https://www.ezycut.co.in/track/${activeTokenCode}` : "https://www.ezycut.co.in/track"}
+      />
       {/* ============ DARK HERO STRIP ============ */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#031715] via-[#042f2e] to-[#0f766e]">
         <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_20%_20%,white,transparent_45%)]" />
