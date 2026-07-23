@@ -37,6 +37,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!-- Google Analytics 4 (G-F8EBMHFZVQ) -->
+    <!-- send_page_view:false — page views are fired manually on each React Router navigation -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F8EBMHFZVQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-F8EBMHFZVQ', { send_page_view: false });
+    </script>
+
     <style>
   #app-loader {
     position: fixed;

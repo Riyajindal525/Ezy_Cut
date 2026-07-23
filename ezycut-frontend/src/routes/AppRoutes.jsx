@@ -50,10 +50,13 @@ import AboutUs from "../pages/public/AboutUs";
 import PartnerWithUs from "../pages/public/PartnerWithUs";
 import PolicyPages from "../pages/public/PolicyPages";
 import Sitemap from "../pages/public/Sitemap";
+import GoogleAnalytics from "../components/common/GoogleAnalytics";
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
+      {/* GA4 page-view tracker — fires on every React Router navigation */}
+      <GoogleAnalytics />
       <Routes>
         {/* Public Routes with CustomerLayout (Navbar & Footer) */}
         <Route element={<CustomerLayout />}>
