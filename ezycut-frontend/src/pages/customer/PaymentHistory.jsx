@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   IndianRupee,
   Calendar,
@@ -8,6 +9,7 @@ import {
   Wallet,
   TrendingDown,
   TrendingUp,
+  FileText,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -60,6 +62,7 @@ const SpendTooltip = ({ active, payload, label }) => {
 };
 
 const PaymentHistory = () => {
+  const navigate = useNavigate();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -240,42 +243,55 @@ const PaymentHistory = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-3">
                 {filteredPayments.map((payment) => {
                   const status = statusConfig[payment.status] || { label: payment.status, class: "badge-pending" };
                   const iconStyle = statusIconStyles[payment.status] || statusIconStyles.created;
+                  const canViewInvoice =
+                    payment.invoice && (payment.invoice.status === "raised" || payment.invoice.status === "paid");
 
                   return (
                     <div
                       key={payment._id}
-                      className="group flex items-center gap-4 flex-wrap sm:flex-nowrap rounded-xl px-3 py-3 hover:bg-[#f7f9f8] transition-colors"
+                      className="group flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border border-gray-100 sm:border-0 px-4 py-4 sm:px-3 hover:bg-[#f7f9f8] transition-colors"
                     >
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${iconStyle.bg}`}>
-                        <span
-                          aria-hidden="true"
-                          style={{
-                            display: "inline-block",
-                            width: 23,
-                            height: 23,
-                            backgroundColor: iconStyle.hex,
-                            WebkitMaskImage: `url(${avatarIcon})`,
-                            maskImage: `url(${avatarIcon})`,
-                            WebkitMaskSize: "contain",
-                            maskSize: "contain",
-                            WebkitMaskRepeat: "no-repeat",
-                            maskRepeat: "no-repeat",
-                            WebkitMaskPosition: "center",
-                            maskPosition: "center",
-                          }}
-                        />
+                      {/* Row 1 on mobile: icon + salon info + amount */}
+                      <div className="flex items-start justify-between gap-3 sm:contents">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${iconStyle.bg}`}>
+                            <span
+                              aria-hidden="true"
+                              style={{
+                                display: "inline-block",
+                                width: 21,
+                                height: 21,
+                                backgroundColor: iconStyle.hex,
+                                WebkitMaskImage: `url(${avatarIcon})`,
+                                maskImage: `url(${avatarIcon})`,
+                                WebkitMaskSize: "contain",
+                                maskSize: "contain",
+                                WebkitMaskRepeat: "no-repeat",
+                                maskRepeat: "no-repeat",
+                                WebkitMaskPosition: "center",
+                                maskPosition: "center",
+                              }}
+                            />
+                          </div>
+
+                          <div className="min-w-0 sm:w-[160px] shrink-0">
+                            <div className="text-[0.9375rem] font-bold text-[#022525] truncate">{payment.salon?.name}</div>
+                            <div className="text-sm text-[#5b6b68] truncate">{payment.service?.name}</div>
+                          </div>
+                        </div>
+
+                        {/* Amount — shown top-right on mobile, own column on desktop */}
+                        <div className="sm:hidden text-right shrink-0">
+                          <span className="text-lg font-extrabold text-[#022525]">₹{payment.amount}</span>
+                        </div>
                       </div>
 
-                      <div className="min-w-[160px]">
-                        <div className="text-[0.9375rem] font-bold text-[#022525]">{payment.salon?.name}</div>
-                        <div className="text-sm text-[#5b6b68]">{payment.service?.name}</div>
-                      </div>
-
-                      <div className="flex flex-col gap-1 text-[0.8125rem] text-[#9ca3af] font-medium min-w-[150px]">
+                      {/* Meta info: date + refund status */}
+                      <div className="flex flex-col gap-1 text-[0.8125rem] text-[#9ca3af] font-medium sm:min-w-[150px] sm:shrink-0">
                         <div className="flex items-center gap-1.5">
                           <Calendar size={12} />
                           {new Date(payment.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -287,15 +303,28 @@ const PaymentHistory = () => {
                       </div>
 
                       {payment.salon?.city && (
-                        <div className="hidden md:flex items-center gap-1.5 text-[0.8125rem] text-[#9ca3af] font-medium">
+                        <div className="hidden md:flex items-center gap-1.5 text-[0.8125rem] text-[#9ca3af] font-medium sm:shrink-0">
                           <MapPin size={12} />
                           {payment.salon.city}
                         </div>
                       )}
 
-                      <div className="ml-auto flex flex-col items-end gap-1.5">
-                        <span className="text-lg font-extrabold text-[#022525]">₹{payment.amount}</span>
-                        <span className={`badge ${status.class}`}>{status.label}</span>
+                      {/* Amount + status + invoice link — clean right-aligned block on desktop */}
+                      <div className="flex items-center justify-between sm:justify-end sm:ml-auto gap-3 sm:gap-4 pt-2 sm:pt-0 border-t border-gray-100 sm:border-0">
+                        <span className="hidden sm:inline text-lg font-extrabold text-[#022525] shrink-0">₹{payment.amount}</span>
+
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <span className={`badge ${status.class}`}>{status.label}</span>
+                          {canViewInvoice && (
+                            <button
+                              onClick={() => navigate(`/invoices/${payment.invoice.invoiceId}`)}
+                              className="inline-flex items-center gap-1 text-[#0d9488] hover:text-[#0f766e] text-xs font-semibold transition-colors whitespace-nowrap"
+                            >
+                              <FileText size={12} />
+                              View Invoice
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

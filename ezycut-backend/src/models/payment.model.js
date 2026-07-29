@@ -37,6 +37,20 @@ const paymentSchema =
         required: true,
       },
 
+      baseAmount: {
+        type: Number,
+      },
+
+      gstRate: {
+        type: Number,
+        default: 0,
+      },
+
+      gstAmount: {
+        type: Number,
+        default: 0,
+      },
+
       currency: {
         type: String,
         default: "INR",

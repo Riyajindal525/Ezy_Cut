@@ -6,11 +6,14 @@ const http = require("http");
 const app = require("./app");
 
 const connectDB = require("./config/db");
+const { initSocket } = require("./config/socket.js");
 
 const PORT = process.env.PORT || 5000;
 
 // Create HTTP server
 const server = http.createServer(app);
+
+initSocket(server);
 
 // Global Error Handlers
 process.on("uncaughtException", (error) => {

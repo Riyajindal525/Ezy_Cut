@@ -257,6 +257,46 @@ const SalonProfile = () => {
           {salon?.isApproved ? <ShieldCheck size={13} /> : <Clock size={13} />}
           {salon?.isApproved ? "Approved & Live" : "Pending Review"}
         </span>
+      {/* Open/Closed toggle — real switch-style design */}
+        <button
+          type="button"
+          onClick={async () => {
+            const newStatus = !salon.isOpen;
+            try {
+              setSalon((prev) => ({ ...prev, isOpen: newStatus }));
+              await updateSalon(salon._id, { isOpen: newStatus });
+              toast.success(newStatus ? "Salon marked as Open" : "Salon marked as Closed");
+              fetchSalons(true);
+            } catch (err) {
+              console.error(err);
+              setSalon((prev) => ({ ...prev, isOpen: !newStatus }));
+              toast.error("Failed to update salon status.");
+            }
+          }}
+          className="relative flex items-center gap-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-2xl pl-4 pr-3.5 py-2.5 transition-colors duration-300"
+        >
+          <div className="flex flex-col items-start leading-tight">
+            <span className="text-[0.6rem] font-bold uppercase tracking-wider text-white/50">
+              Salon Status
+            </span>
+            <span className={`text-sm font-extrabold ${salon?.isOpen !== false ? "text-emerald-300" : "text-rose-300"}`}>
+              {salon?.isOpen !== false ? "Open Now" : "Closed"}
+            </span>
+          </div>
+
+          {/* The actual switch track */}
+          <div
+            className={`relative w-11 h-6 rounded-full transition-colors duration-300 shrink-0 ${
+              salon?.isOpen !== false ? "bg-emerald-400" : "bg-white/20"
+            }`}
+          >
+            <div
+              className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ease-out ${
+                salon?.isOpen !== false ? "translate-x-[22px]" : "translate-x-0.5"
+              }`}
+            />
+          </div>
+        </button>
       </div>
 
       {/* Profile Form Card */}

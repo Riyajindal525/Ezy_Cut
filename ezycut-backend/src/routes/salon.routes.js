@@ -28,8 +28,20 @@ const {
   updateSalon,
   deleteSalon,
   assignOwner,
+  updateSalonCommission,
+  getSalonStats
 } = require(
   "../controllers/salon.controller"
+);
+
+router.get("/stats", getSalonStats);
+
+// SET CUSTOM COMMISSION RATE (admin only)
+router.patch(
+  "/:id/commission",
+  protect,
+  authorizeRoles("admin"),
+  updateSalonCommission
 );
 
 // PUBLIC

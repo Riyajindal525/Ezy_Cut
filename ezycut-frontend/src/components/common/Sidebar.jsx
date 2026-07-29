@@ -14,10 +14,14 @@ import {
   User,
   ShieldCheck,
   RefreshCw,
+  Receipt, 
+  Landmark, 
+  Settings,  
+  TrendingUp,
   X,
 } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
-import logo from "../../assets/ezycut-icon.png";
+import logo from "../../assets/ezycut-navbar-icon.png";
 
 const ownerLinks = [
   { name: "Overview", path: "/owner/dashboard", icon: LayoutDashboard },
@@ -25,6 +29,8 @@ const ownerLinks = [
   { name: "Services", path: "/owner/services", icon: Wrench },
   { name: "Live Queue", path: "/owner/queue", icon: Clock },
   { name: "Earnings", path: "/owner/payments", icon: Wallet },
+  { name: "Invoices", path: "/owner/invoices", icon: Receipt },
+  { name: "Settlement", path: "/owner/wallet", icon: Landmark }, 
   { name: "Salon Profile", path: "/owner/salon", icon: Store },
   { name: "My Profile", path: "/owner/profile", icon: User },
 ];
@@ -36,7 +42,11 @@ const adminLinks = [
   { name: "Payments", path: "/admin/payments", icon: DollarSign },
   { name: "Analytics", path: "/admin/analytics", icon: BarChart2 },
   { name: "KYC Review", path: "/admin/kyc", icon: ShieldCheck },
+  { name: "Revenue & Finance", path: "/admin/revenue", icon: Wallet },
+  { name: "Cash Flow & P&L", path: "/admin/pnl", icon: TrendingUp },
+  { name: "Invoice Register", path: "/admin/invoices", icon: Receipt },
   { name: "Refund Requests", path: "/admin/refund-requests", icon: RefreshCw },
+  { name: "Finance Settings", path: "/admin/finance-settings", icon: Settings },
 ];
 
 const Sidebar = ({ isMobileOpen = false, onMobileClose = () => {} }) => {
@@ -85,10 +95,10 @@ const Sidebar = ({ isMobileOpen = false, onMobileClose = () => {} }) => {
         </button>
       </div>
 
-      {/* Brand */}
+     {/* Brand */}
       <div className="px-5 pt-4 pb-5 border-b border-gray-100 flex items-center gap-3">
-  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 overflow-hidden">
-    <img src={logo} alt="EzyCut" className="w-full h-full object-contain scale-125" />
+  <div className="w-13 h-13 rounded-xl bg-white ring-1 ring-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+    <img src={logo} alt="EzyCut" className="w-full h-full object-contain p-1" />
   </div>
   <div className="min-w-0">
     <div className="text-xl font-black leading-tight tracking-tight truncate">
@@ -102,7 +112,7 @@ const Sidebar = ({ isMobileOpen = false, onMobileClose = () => {} }) => {
 </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col px-3 py-5 overflow-hidden">
+      <nav className="flex-1 flex flex-col px-3 py-5 overflow-y-auto min-h-0 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
         <span className="px-3 mb-2 text-[0.6875rem] font-bold uppercase tracking-wider text-gray-300">
           Menu
         </span>

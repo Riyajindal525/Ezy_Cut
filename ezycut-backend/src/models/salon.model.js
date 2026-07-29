@@ -105,6 +105,28 @@ const salonSchema = new mongoose.Schema(
         required: true,
       },
     },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
+     // Owner-controlled — whether salon is currently accepting walk-ins/bookings
+    isOpen: {
+      type: Boolean,
+      default: true,
+    },
+    // Custom commission override for this salon.
+    // null/undefined => fallback to global PlatformSettings.commissionRate
+    customCommissionRate: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: null,
+    },
+
+    kycSubmitted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

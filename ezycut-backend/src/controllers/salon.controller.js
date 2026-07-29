@@ -10,9 +10,12 @@ const {
   updateSalonService,
   deleteSalonService,
   assignOwnerService,
+  updateSalonCommissionService, 
 } = require(
   "../services/salon.service"
 );
+
+const { getSalonStatsService } = require("../services/salonStats.service");
 
 const createSalon = asyncHandler(
   async (req, res) => {
@@ -135,6 +138,31 @@ const assignOwner = asyncHandler(
   }
 );
 
+const updateSalonCommission = asyncHandler(
+  async (req, res) => {
+    const { customCommissionRate } = req.body;
+
+    const salon = await updateSalonCommissionService(
+      req.params.id,
+      customCommissionRate === "" ||
+      customCommissionRate === undefined
+        ? null
+        : Number(customCommissionRate)
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Commission rate updated successfully",
+      salon,
+    });
+  }
+);
+
+const getSalonStats = asyncHandler(async (req, res) => {
+  const stats = await getSalonStatsService();
+  res.status(200).json({ success: true, stats });
+});
+
 module.exports = {
   createSalon,
   getAllSalons,
@@ -143,4 +171,6 @@ module.exports = {
   updateSalon,
   deleteSalon,
   assignOwner,
+  updateSalonCommission,
+  getSalonStats,
 };

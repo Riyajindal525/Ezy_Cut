@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
+import { SocketProvider } from "../../context/SocketContext";
 
 // Public Pages
 import Home from "../pages/public/Home";
@@ -12,6 +13,8 @@ import Salons from "../pages/public/Salons";
 import SalonDetails from "../pages/public/SalonDetails";
 import QueueTracker from "../pages/public/QueueTracker";
 import Terms from "../pages/public/Terms";
+import VerifyInvoice from "../pages/public/VerifyInvoice";
+
 
 // Customer Pages
 import Booking from "../pages/public/Booking";
@@ -31,6 +34,12 @@ import OwnerServices from "../pages/owner/Services";
 import OwnerQueue from "../pages/owner/Queue";
 import OwnerPayments from "../pages/owner/Payments";
 import OwnerSalonProfile from "../pages/owner/SalonProfile";
+import InvoiceGenerate from "../pages/owner/InvoiceGenerate";
+import InvoicePreview from "../pages/owner/InvoicePreview";
+import InvoiceHistory from "../pages/owner/InvoiceHistory";
+import InvoiceDetails from "../pages/shared/InvoiceDetails";
+import SalonWallet from "../pages/owner/SalonWallet";
+
 
 // Admin Pages
 import AdminDashboard from "../pages/admin/Dashboard";
@@ -40,6 +49,10 @@ import AdminPayments from "../pages/admin/Payments";
 import AdminAnalytics from "../pages/admin/Analytics";
 import AdminKYC from "../pages/admin/KYC";
 import AdminRefundRequests from "../pages/admin/RefundRequests";
+import RevenueDashboard from "../pages/admin/RevenueDashboard";
+import InvoiceRegister from "../pages/admin/InvoiceRegister";
+import FinanceSettings from "../pages/admin/FinanceSettings";
+import PnLReport from "../pages/admin/PnLReport";
 
 // Layouts & Guards
 import ProtectedRoute from "../components/common/ProtectedRoute";
@@ -50,13 +63,11 @@ import AboutUs from "../pages/public/AboutUs";
 import PartnerWithUs from "../pages/public/PartnerWithUs";
 import PolicyPages from "../pages/public/PolicyPages";
 import Sitemap from "../pages/public/Sitemap";
-import GoogleAnalytics from "../components/common/GoogleAnalytics";
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-      {/* GA4 page-view tracker — fires on every React Router navigation */}
-      <GoogleAnalytics />
+    <SocketProvider>
       <Routes>
         {/* Public Routes with CustomerLayout (Navbar & Footer) */}
         <Route element={<CustomerLayout />}>
@@ -70,6 +81,7 @@ const AppRoutes = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/policy" element={<PolicyPages />} />
           <Route path="/sitemap" element={<Sitemap />}/>
+           <Route path="/verify-invoice/:invoiceNumber" element={<VerifyInvoice />} />
         </Route>
 
         {/* Auth routes (no Navbar/Footer layout) */}
@@ -86,6 +98,7 @@ const AppRoutes = () => {
             <Route path="/my-reviews" element={<MyReviews />} />
             <Route path="/my-queue" element={<MyQueue />} />
               <Route path="/ai-mentor" element={<AiMentor />} />
+              <Route path="/invoices/:invoiceId" element={<InvoiceDetails />} />
           </Route>
         </Route>
 
@@ -107,6 +120,11 @@ const AppRoutes = () => {
             <Route path="/owner/payments" element={<OwnerPayments />} />
             <Route path="/owner/salon" element={<OwnerSalonProfile />} />
             <Route path="/owner/profile" element={<Profile />} />
+            <Route path="/owner/bookings/:bookingId/invoice" element={<InvoiceGenerate />} />
+            <Route path="/owner/invoices/:invoiceId/preview" element={<InvoicePreview />} />
+            <Route path="/owner/invoices" element={<InvoiceHistory />} />
+            <Route path="/owner/invoices/:invoiceId/details" element={<InvoiceDetails />} />
+            <Route path="/owner/wallet" element={<SalonWallet />} />
           </Route>
         </Route>
 
@@ -120,9 +138,14 @@ const AppRoutes = () => {
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/kyc" element={<AdminKYC />} />
             <Route path="/admin/refund-requests" element={<AdminRefundRequests />} />
+            <Route path="/admin/revenue" element={<RevenueDashboard />} />
+            <Route path="/admin/invoices" element={<InvoiceRegister />} />
+            <Route path="/admin/finance-settings" element={<FinanceSettings />} />
+            <Route path="/admin/pnl" element={<PnLReport />} />
           </Route>
         </Route>
       </Routes>
+      </SocketProvider>
     </BrowserRouter>
   );
 };

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import SEO from "../../components/common/SEO";
 import {
   ArrowRight,
   Scissors,
@@ -89,11 +88,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] overflow-x-hidden pb-10">
-      <SEO
-        title="Smart Salon Booking & Queue Management"
-        description="Book salon appointments online, skip the queue, and get AI-powered grooming recommendations. Find top salons near you — EzyCut, India's smartest salon platform."
-        canonical="https://www.ezycut.co.in/"
-      />
       {/* ============ HERO VIDEO SLIDESHOW ============ */}
 <section className="relative w-full h-[100svh] min-h-[560px] max-h-[900px] overflow-hidden bg-[#09090b]">
   {/* Background video slides */}
@@ -116,7 +110,7 @@ const Home = () => {
     </div>
   ))}
 
-  <div className="absolute -bottom-[150px] -left-[150px] w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] rounded-full bg-[radial-gradient(circle,rgba(111,148,131,0.18)_0%,transparent_70%)] pointer-events-none z-[2]" />
+  <div className="absolute -bottom-[150px] -left-[150px] w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] rounded-full bg-[radial-gradient(circle,rgba(0,96,90,0.18)_0%,transparent_70%)] pointer-events-none z-[2]" />
 
   {/* Text content overlay — sits ON TOP of the video, never pushes section height */}
   <div className="absolute inset-0 z-[3] flex flex-col justify-center pointer-events-none">
@@ -129,13 +123,13 @@ const Home = () => {
               index === activeSlide ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
             }`}
           >
-            <div className="inline-flex items-center gap-2 bg-[rgba(111,148,131,0.12)] border border-[rgba(111,148,131,0.35)] rounded-full px-3 py-1.5 text-[0.625rem] sm:text-[0.6875rem] font-semibold text-[#a3c4b3] uppercase tracking-[0.08em] backdrop-blur-[8px] animate-[ezcFadeUp_0.8s_ease_both]">
+            <div className="inline-flex items-center gap-2 bg-[rgba(0,96,90,0.12)] border border-[rgba(0,96,90,0.35)] rounded-full px-3 py-1.5 text-[0.625rem] sm:text-[0.6875rem] font-semibold text-[#7fd4cb] uppercase tracking-[0.08em] backdrop-blur-[8px] animate-[ezcFadeUp_0.8s_ease_both]">
               <Scissors size={12} />
               {slide.badge}
             </div>
             <h1 className="text-[clamp(1.5rem,6vw,3.25rem)] font-extrabold text-white tracking-[-0.02em] leading-[1.2] m-0 [text-shadow:0_6px_24px_rgba(0,0,0,0.55),0_2px_8px_rgba(0,0,0,0.4)] animate-[ezcFadeUp_0.9s_ease_0.1s_both]">
               {slide.title} <br />
-              <span className="bg-gradient-to-r from-[#6f9483] to-[#a3c4b3] bg-clip-text text-transparent [text-shadow:none]">
+              <span className="bg-gradient-to-r from-[#00605a] to-[#66b3ab] bg-clip-text text-transparent [text-shadow:none]">
                 {slide.highlight}
               </span>
             </h1>
@@ -150,14 +144,14 @@ const Home = () => {
         {token ? (
           <Link
             to="/salons"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#4d6c5c] to-[#6f9483] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(77,108,92,0.35)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(77,108,92,0.45)]"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.35)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.45)]"
           >
             Explore Salons <ArrowRight size={18} />
           </Link>
         ) : (
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#4d6c5c] to-[#6f9483] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(77,108,92,0.35)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(77,108,92,0.45)]"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.35)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.45)]"
           >
             Join EzyCut <ArrowRight size={18} />
           </Link>
@@ -172,7 +166,7 @@ const Home = () => {
       <button
         key={index}
         className={`rounded-full border-none cursor-pointer transition-all duration-300 p-0 ${
-          index === activeSlide ? "w-6 sm:w-7 h-[0.3rem] bg-[#6f9483]" : "w-[0.3rem] h-[0.3rem] bg-[rgba(255,255,255,0.3)]"
+          index === activeSlide ? "w-6 sm:w-7 h-[0.3rem] bg-[#00605a]" : "w-[0.3rem] h-[0.3rem] bg-[rgba(255,255,255,0.3)]"
         }`}
         onClick={() => goToSlide(index)}
         aria-label={`Go to slide ${index + 1}`}
@@ -184,7 +178,7 @@ const Home = () => {
   <div className="hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-[4] flex-col items-center gap-2 text-[rgba(244,244,245,0.6)]">
     <span className="text-[0.6875rem] font-semibold tracking-[0.1em] uppercase">Scroll</span>
     <div className="w-5 h-8 border-[1.5px] border-[rgba(244,244,245,0.35)] rounded-full flex justify-center pt-1.5">
-      <span className="w-[3px] h-[6px] bg-[#6f9483] rounded-full animate-[ezcScrollDot_1.8s_ease-in-out_infinite]" />
+      <span className="w-[3px] h-[6px] bg-[#00605a] rounded-full animate-[ezcScrollDot_1.8s_ease-in-out_infinite]" />
     </div>
   </div>
 </section>
@@ -197,18 +191,18 @@ const Home = () => {
         <div className="page-container grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: description card */}
           <div
-            className={`rounded-[28px] p-[2px] bg-gradient-to-br from-[#6f9483] via-[#a3c4b3] to-[#4d6c5c] transition-all duration-700 ${
+            className={`rounded-[28px] p-[2px] bg-gradient-to-br from-[#00605a] via-[#66b3ab] to-[#00605a] transition-all duration-700 ${
               featuresVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
             }`}
           >
             <div className="bg-white rounded-[26px] p-7 md:p-11">
-              <div className="inline-flex items-center gap-2 bg-[rgba(111,148,131,0.1)] border border-[rgba(111,148,131,0.3)] rounded-full px-3.5 py-1.5 text-[0.6875rem] font-bold text-[#4d6c5c] uppercase tracking-[0.08em] mb-5">
+              <div className="inline-flex items-center gap-2 bg-[rgba(0,96,90,0.1)] border border-[rgba(0,96,90,0.3)] rounded-full px-3.5 py-1.5 text-[0.6875rem] font-bold text-[#00605a] uppercase tracking-[0.08em] mb-5">
                 <Sparkles size={12} />
                 Why EzyCut
               </div>
               <h2 className="text-[clamp(1.5rem,3vw,2.25rem)] font-extrabold text-[#1a1a1a] tracking-[-0.02em] leading-[1.3] mb-4">
                 India's AI-Powered Platform for
-                <span className="bg-gradient-to-r from-[#4d6c5c] to-[#6f9483] bg-clip-text text-transparent"> Salons &amp; Grooming</span>
+                <span className="bg-gradient-to-r from-[#00605a] to-[#1a8a82] bg-clip-text text-transparent"> Salons &amp; Grooming</span>
               </h2>
               <p className="text-[#52525b] text-[0.9375rem] leading-relaxed mb-8">
                 EzyCut simplifies business operations, enhances customer
@@ -233,7 +227,7 @@ const Home = () => {
                     }`}
                     style={{ transitionDelay: `${i * 90}ms` }}
                   >
-                    <div className="flex-shrink-0 w-9 h-9 rounded-[10px] bg-[rgba(111,148,131,0.12)] border border-[rgba(111,148,131,0.3)] text-[#4d6c5c] flex items-center justify-center">
+                    <div className="flex-shrink-0 w-9 h-9 rounded-[10px] bg-[rgba(0,96,90,0.12)] border border-[rgba(0,96,90,0.3)] text-[#00605a] flex items-center justify-center">
                       <Icon size={16} />
                     </div>
                     <div>
@@ -249,8 +243,8 @@ const Home = () => {
           {/* Right: image showcase */}
          {/* Right: image showcase */}
           <div className="relative min-h-[420px] md:min-h-[500px] lg:min-h-[580px] mb-8 lg:mb-0">
-            <div className="absolute w-[280px] h-[280px] rounded-full blur-[50px] pointer-events-none z-0 bg-[rgba(111,148,131,0.25)] -top-10 -right-5" />
-            <div className="absolute w-[220px] h-[220px] rounded-full blur-[50px] pointer-events-none z-0 bg-[rgba(163,196,179,0.3)] -bottom-8 -left-8" />
+            <div className="absolute w-[280px] h-[280px] rounded-full blur-[50px] pointer-events-none z-0 bg-[rgba(0,96,90,0.25)] -top-10 -right-5" />
+            <div className="absolute w-[220px] h-[220px] rounded-full blur-[50px] pointer-events-none z-0 bg-[rgba(102,179,171,0.3)] -bottom-8 -left-8" />
 
             <div
               className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[68%] h-[260px] md:h-[300px] lg:h-[380px] top-10 left-0 group ${
@@ -302,13 +296,13 @@ const Home = () => {
               stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <div className="inline-flex items-center gap-2 bg-[rgba(111,148,131,0.1)] border border-[rgba(111,148,131,0.3)] rounded-full px-3.5 py-1.5 text-[0.6875rem] font-bold text-[#4d6c5c] uppercase tracking-[0.08em] mb-4">
+            <div className="inline-flex items-center gap-2 bg-[rgba(0,96,90,0.1)] border border-[rgba(0,96,90,0.3)] rounded-full px-3.5 py-1.5 text-[0.6875rem] font-bold text-[#00605a] uppercase tracking-[0.08em] mb-4">
               <ListChecks size={12} />
               How It Works
             </div>
             <h2 className="text-[clamp(1.5rem,3vw,2.25rem)] font-extrabold text-[#1a1a1a] tracking-[-0.02em] mb-3">
               5 Simple Steps to
-              <span className="bg-gradient-to-r from-[#4d6c5c] to-[#6f9483] bg-clip-text text-transparent"> Waitless Styling</span>
+              <span className="bg-gradient-to-r from-[#00605a] to-[#1a8a82] bg-clip-text text-transparent"> Waitless Styling</span>
             </h2>
             <p className="text-[#71717a] text-[0.9375rem] max-w-xl mx-auto">
               From signup to your appointment — EzyCut makes every step effortless.
@@ -316,7 +310,7 @@ const Home = () => {
           </div>
 
           <div className="relative">
-            <div className="hidden lg:block absolute top-[38px] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-[#a3c4b3] to-transparent" />
+            <div className="hidden lg:block absolute top-[38px] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-[#66b3ab] to-transparent" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-6 relative z-10">
               {[
@@ -334,10 +328,10 @@ const Home = () => {
                   style={{ transitionDelay: `${i * 130}ms` }}
                 >
                   <div className="relative mb-5">
-                    <div className="w-[76px] h-[76px] rounded-full bg-white border-2 border-[rgba(111,148,131,0.3)] shadow-[0_8px_24px_rgba(23,24,26,0.08)] flex items-center justify-center text-[#4d6c5c] transition-all duration-300 hover:border-[#6f9483] hover:shadow-[0_12px_32px_rgba(111,148,131,0.25)] hover:-translate-y-1">
+                    <div className="w-[76px] h-[76px] rounded-full bg-white border-2 border-[rgba(0,96,90,0.3)] shadow-[0_8px_24px_rgba(23,24,26,0.08)] flex items-center justify-center text-[#00605a] transition-all duration-300 hover:border-[#00605a] hover:shadow-[0_12px_32px_rgba(0,96,90,0.25)] hover:-translate-y-1">
                       <Icon size={26} />
                     </div>
-                    <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-br from-[#4d6c5c] to-[#6f9483] text-white text-[0.6875rem] font-extrabold flex items-center justify-center shadow-[0_2px_8px_rgba(77,108,92,0.4)]">
+                    <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-br from-[#00605a] to-[#1a8a82] text-white text-[0.6875rem] font-extrabold flex items-center justify-center shadow-[0_2px_8px_rgba(0,96,90,0.4)]">
                       {i + 1}
                     </div>
                   </div>
@@ -354,7 +348,7 @@ const Home = () => {
               ctaVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="rounded-[28px] p-[2px] bg-gradient-to-r from-[#4d6c5c] via-[#6f9483] to-[#a3c4b3] max-w-3xl mx-auto">
+            <div className="rounded-[28px] p-[2px] bg-gradient-to-r from-[#00605a] via-[#1a8a82] to-[#66b3ab] max-w-3xl mx-auto">
               <div className="bg-white rounded-[26px] px-8 py-12 md:px-14 md:py-14 text-center flex flex-col items-center gap-5">
                 <h2 className="text-[clamp(1.375rem,3vw,2rem)] font-black text-[#1a1a1a] tracking-[-0.02em] m-0">
                   Ready to Book Your Next Stylist?
@@ -365,7 +359,7 @@ const Home = () => {
                 {!token && (
                   <Link
                     to="/register"
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#4d6c5c] to-[#6f9483] text-white font-bold text-base px-8 py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(77,108,92,0.3)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(77,108,92,0.4)]"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-base px-8 py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.3)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.4)]"
                   >
                     Join EzyCut <ArrowRight size={16} />
                   </Link>
@@ -382,8 +376,8 @@ const Home = () => {
   className="relative overflow-hidden py-14 md:py-20 bg-white border-t border-gray-100"
 >
   {/* subtle teal glows */}
-  <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.06)_0%,transparent_70%)] pointer-events-none" />
-  <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.06)_0%,transparent_70%)] pointer-events-none" />
+  <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(0,96,90,0.06)_0%,transparent_70%)] pointer-events-none" />
+  <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[radial-gradient(circle,rgba(0,96,90,0.06)_0%,transparent_70%)] pointer-events-none" />
 
   <div className="page-container relative">
 
@@ -396,16 +390,16 @@ const Home = () => {
       ].map(({ icon: Icon, value, label }, i) => (
         <div
           key={label}
-          className={`group flex items-center gap-3.5 bg-white border border-gray-200 rounded-2xl px-5 py-4 min-w-[220px] transition-all duration-500 hover:border-[#0d9488]/30 hover:shadow-[0_8px_24px_rgba(13,148,136,0.1)] hover:-translate-y-1 ${
+          className={`group flex items-center gap-3.5 bg-white border border-gray-200 rounded-2xl px-5 py-4 min-w-[220px] transition-all duration-500 hover:border-[#00605a]/30 hover:shadow-[0_8px_24px_rgba(0,96,90,0.1)] hover:-translate-y-1 ${
             trustVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
           style={{ transitionDelay: `${i * 100}ms` }}
         >
-          <div className="w-11 h-11 rounded-xl bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center shrink-0 transition-colors duration-300 group-hover:bg-[#0d9488] group-hover:border-[#0d9488]">
-            <Icon size={19} className="text-[#0d9488] transition-colors duration-300 group-hover:text-white" />
+          <div className="w-11 h-11 rounded-xl bg-[#e8f5f4] border border-[#bfe3e0] flex items-center justify-center shrink-0 transition-colors duration-300 group-hover:bg-[#00605a] group-hover:border-[#00605a]">
+            <Icon size={19} className="text-[#00605a] transition-colors duration-300 group-hover:text-white" />
           </div>
           <div>
-            <div className="text-lg font-extrabold text-[#022525] leading-none">{value}</div>
+            <div className="text-lg font-extrabold text-[#001f1d] leading-none">{value}</div>
             <div className="text-xs font-semibold text-[#5b6b68] mt-1">{label}</div>
           </div>
         </div>
@@ -415,8 +409,8 @@ const Home = () => {
 </section>
 
 {/* ============ ILLUSTRATION + MESSAGE STRIP ============ */}
-<section className="relative overflow-hidden bg-gradient-to-br from-[#f0fdfa] via-white to-[#f0fdfa] py-16 md:py-20 border-t border-gray-100">
-  <div className="absolute -top-24 right-0 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.08)_0%,transparent_70%)] pointer-events-none" />
+<section className="relative overflow-hidden bg-gradient-to-br from-[#e8f5f4] via-white to-[#e8f5f4] py-16 md:py-20 border-t border-gray-100">
+  <div className="absolute -top-24 right-0 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(0,96,90,0.08)_0%,transparent_70%)] pointer-events-none" />
 
   <div className="page-container relative grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
 {/* Barber photo illustration */}
@@ -438,12 +432,12 @@ const Home = () => {
 
   <div className="relative w-full max-w-[380px] aspect-square flex items-center justify-center isolate">
     {/* teal backdrop circles */}
-    <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.22)_0%,transparent_70%)]" />
+    <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(0,96,90,0.22)_0%,transparent_70%)]" />
 
     {/* isolated blend group — teal base + photo blended together, contained */}
     <div className="absolute inset-[8%] rounded-full overflow-hidden isolate">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0f766e] to-[#134e4a]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_30%,rgba(94,234,212,0.35)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#004a45] to-[#003d39]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_30%,rgba(77,191,181,0.35)_0%,transparent_60%)]" />
 
       {/* barber photo — floats gently, white bg blended into teal via multiply */}
       <div
@@ -459,24 +453,24 @@ const Home = () => {
       </div>
 
       {/* soft bottom fade so feet/edges blend into the teal circle */}
-      <div className="absolute inset-0 rounded-full shadow-[inset_0_-30px_50px_-10px_rgba(4,47,46,0.35)] pointer-events-none" />
+      <div className="absolute inset-0 rounded-full shadow-[inset_0_-30px_50px_-10px_rgba(0,31,29,0.35)] pointer-events-none" />
     </div>
 
     {/* floating sparkle dots — sit outside the blend group so they stay crisp */}
     <span
-      className="absolute top-[8%] left-[10%] w-3 h-3 rounded-full bg-[#5eead4] z-[2]"
+      className="absolute top-[8%] left-[10%] w-3 h-3 rounded-full bg-[#4dbfb5] z-[2]"
       style={{ animation: "ezcSparkle 2.4s ease-in-out infinite" }}
     />
     <span
-      className="absolute top-[18%] right-[6%] w-2.5 h-2.5 rounded-full bg-[#2dd4bf] z-[2]"
+      className="absolute top-[18%] right-[6%] w-2.5 h-2.5 rounded-full bg-[#33ada3] z-[2]"
       style={{ animation: "ezcSparkle 2s ease-in-out infinite 0.4s" }}
     />
     <span
-      className="absolute bottom-[10%] right-[10%] w-3 h-3 rounded-full bg-[#99f6e4] z-[2]"
+      className="absolute bottom-[10%] right-[10%] w-3 h-3 rounded-full bg-[#99d9d2] z-[2]"
       style={{ animation: "ezcSparkle 2.8s ease-in-out infinite 0.8s" }}
     />
     <span
-      className="absolute bottom-[16%] left-[6%] w-2 h-2 rounded-full bg-[#5eead4] z-[2]"
+      className="absolute bottom-[16%] left-[6%] w-2 h-2 rounded-full bg-[#4dbfb5] z-[2]"
       style={{ animation: "ezcSparkle 2.2s ease-in-out infinite 1.1s" }}
     />
 
@@ -491,12 +485,12 @@ const Home = () => {
       }`}
       style={{ transitionDelay: "150ms" }}
     >
-      <span className="inline-flex items-center gap-1.5 bg-white border border-[#ccfbf1] text-[#0f766e] text-[0.6875rem] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full mb-4 shadow-sm">
+      <span className="inline-flex items-center gap-1.5 bg-white border border-[#bfe3e0] text-[#004a45] text-[0.6875rem] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full mb-4 shadow-sm">
         <Scissors size={11} />
         Crafted For Grooming Lovers
       </span>
 
-      <h2 className="font-['Outfit'] text-[clamp(1.5rem,3vw,2.25rem)] font-extrabold text-[#022525] tracking-[-0.02em] mb-4 leading-tight">
+      <h2 className="font-['Outfit'] text-[clamp(1.5rem,3vw,2.25rem)] font-extrabold text-[#001f1d] tracking-[-0.02em] mb-4 leading-tight">
         Every seat, every stylist,
         <br className="hidden md:block" /> booked in seconds.
       </h2>
@@ -512,8 +506,8 @@ const Home = () => {
           "Live token tracking — know your wait time",
           "Secure, contactless checkout",
         ].map((point) => (
-          <div key={point} className="flex items-center gap-2.5 text-sm text-[#134e4a] font-medium">
-            <div className="w-5 h-5 rounded-full bg-[#0d9488] flex items-center justify-center shrink-0">
+          <div key={point} className="flex items-center gap-2.5 text-sm text-[#003d39] font-medium">
+            <div className="w-5 h-5 rounded-full bg-[#00605a] flex items-center justify-center shrink-0">
               <CheckCircle size={12} className="text-white" strokeWidth={3} />
             </div>
             {point}
@@ -524,7 +518,7 @@ const Home = () => {
       <button
         type="button"
         onClick={() => navigate("/salons")}
-        className="inline-flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white text-sm font-bold px-5 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-[0_8px_24px_rgba(13,148,136,0.25)]"
+        className="inline-flex items-center gap-2 bg-[#00605a] hover:bg-[#004a45] text-white text-sm font-bold px-5 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-[0_8px_24px_rgba(0,96,90,0.25)]"
       >
         Explore Salons Near You
         <ArrowRight size={15} />

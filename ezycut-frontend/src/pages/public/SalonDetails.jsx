@@ -12,7 +12,6 @@ import {
   BadgeCheck,
   Users,
 } from "lucide-react";
-import SEO from "../../components/common/SEO";
 import { getSalonById } from "../../api/salon.api";
 import { getServicesBySalon } from "../../api/service.api";
 import { getSalonReviews } from "../../api/review.api";
@@ -81,12 +80,6 @@ const SalonDetails = () => {
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-white pt-24 md:pt-28 pb-16">
-      <SEO
-        title={`${salon.name || "Salon Details"} in ${salon.city || "India"}`}
-        description={`Book appointments at ${salon.name} in ${salon.city}. Located at ${salon.address}. Check services, prices, and reviews on EzyCut.`}
-        canonical={`https://www.ezycut.co.in/salons/${id}`}
-        ogImage={salon.images?.[0] || undefined}
-      />
       <div className="page-container">
         {/* Back link */}
         <Link
@@ -104,24 +97,21 @@ const SalonDetails = () => {
         >
           <div className="w-full h-[320px] md:h-[420px] rounded-2xl overflow-hidden relative border border-gray-200 bg-[#f0fdfa] shadow-[0_12px_40px_rgba(13,148,136,0.12)]">
             {hasImages ? (
-              <>
-                {/* Blurred background fill — hides letterboxing */}
-                <img
-                  src={images[activeImage]}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
-                />
-                {/* Actual image — fully visible, no cropping */}
-                <img
-                  key={activeImage}
-                  src={images[activeImage]}
-                  alt={`${salon.name} photo ${activeImage + 1}`}
-                  className="relative w-full h-full object-contain"
-                  style={{ animation: "ezcKenBurns 8s ease-out forwards" }}
-                />
-                {/* Bottom gradient — always present for a premium, grounded feel */}
-                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
+  <>
+    {/* Blurred backdrop — sirf desktop pe use hota hai jab object-contain gaps chhodta hai */}
+    <div
+      key={`bg-${activeImage}`}
+      className="hidden md:block absolute inset-0 w-full h-full bg-center bg-cover scale-110 blur-xl opacity-60"
+      style={{ backgroundImage: `url(${images[activeImage]})` }}
+    />
+    <img
+      key={activeImage}
+      src={images[activeImage]}
+      alt={`${salon.name} photo ${activeImage + 1}`}
+      className="relative w-full h-full object-cover md:object-contain"
+    />
+    <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
+
 
                 {/* Salon name overlay on the hero itself */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
@@ -334,14 +324,14 @@ const SalonDetails = () => {
               <p className="text-[#5b6b68] text-sm mt-1">Check back soon — this salon is setting up its menu.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-7">
               {services.map((service, i) => (
                 <div
                   key={service._id}
                   className="animate-[ezcFadeUp_0.4s_ease_forwards] transition-transform duration-200 hover:-translate-y-1"
                   style={{ animationDelay: `${Math.min(i * 60, 300)}ms`, opacity: 0 }}
                 >
-                  <ServiceCard service={service} />
+                  <ServiceCard service={service} salon={salon}/>
                 </div>
               ))}
             </div>

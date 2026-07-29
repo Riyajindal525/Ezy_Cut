@@ -9,12 +9,11 @@ import {
   CalendarCheck,
   ShieldCheck,
 } from "lucide-react";
-import SEO from "../../components/common/SEO";
 import { loginUser } from "../../api/auth.api";
 import useAuthStore from "../../store/auth.store";
 import toast from "../../utils/toast";
 // import logo from "../../assets/ezycut-logo.png";
-import iconWatermark from "../../assets/ezycut-icon-watermark.png";
+import iconWatermark from "../../assets/ezycut-icon-watermarks.png";
 import "../../css/Login.css";
 
 const FEATURES = [
@@ -63,12 +62,6 @@ const Login = () => {
 
   return (
     <div className="ezyauth-login-page">
-      <SEO
-        title="Sign In — Access Your Account"
-        description="Sign in to your EzyCut account to book salon appointments and track your queue status."
-        canonical="https://www.ezycut.co.in/login"
-        noIndex={true}
-      />
       {/* Left Panel - Brand */}
       <div className="ezyauth-login-brand-panel">
         {/* Watermark */}

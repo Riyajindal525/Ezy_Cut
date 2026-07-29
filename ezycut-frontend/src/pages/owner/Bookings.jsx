@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { FileText } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
 import useSalonStore from "../../store/salon.store";
+import { getSalonInvoices } from "../../api/invoice.api";
 import {
   getSalonBookings,
   acceptBooking,
@@ -19,11 +22,13 @@ const SALON_EMPTY_IMG =
   "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=500&q=80";
 
 const OwnerBookings = () => {
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const { activeSalonId, salons } = useSalonStore();
   const [salon, setSalon] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [invoicedBookingIds, setInvoicedBookingIds] = useState(new Set());
 
   // Custom Confirmation Modal States
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -33,25 +38,34 @@ const OwnerBookings = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchSalonAndBookings = async () => {
-    if (!activeSalonId) {
-      setLoading(false);
-      return;
+  if (!activeSalonId) {
+    setLoading(false);
+    return;
+  }
+  setLoading(true);
+  try {
+    const activeSalon = salons.find((s) => s._id === activeSalonId);
+    if (activeSalon) {
+      setSalon(activeSalon);
+      const bookingsResponse = await getSalonBookings(activeSalonId);
+      setBookings(bookingsResponse.bookings || []);
+
+      // Fetch invoices to know which bookings already have one generated
+      const invoicesResponse = await getSalonInvoices(activeSalonId);
+      const idSet = new Set(
+        (invoicesResponse.invoices || []).map((inv) =>
+          typeof inv.booking === "object" ? inv.booking._id : inv.booking
+        )
+      );
+      setInvoicedBookingIds(idSet);
     }
-    setLoading(true);
-    try {
-      const activeSalon = salons.find((s) => s._id === activeSalonId);
-      if (activeSalon) {
-        setSalon(activeSalon);
-        const bookingsResponse = await getSalonBookings(activeSalonId);
-        setBookings(bookingsResponse.bookings || []);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load salon appointments ledger.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load salon appointments ledger.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchSalonAndBookings();
@@ -64,6 +78,15 @@ const OwnerBookings = () => {
     setModalMessage(warningText);
     setShowConfirmModal(true);
   };
+  const handleInvoiceClick = (bookingId) => {
+  if (invoicedBookingIds.has(bookingId)) {
+    toast.error("Invoice already generated for this booking.");
+    return;
+  }
+  navigate(`/owner/bookings/${bookingId}/invoice`, {
+    state: { booking: bookings.find((b) => b._id === bookingId) },
+  });
+};
 
   const handleConfirmAction = async () => {
     if (!selectedBookingId || !modalActionFn) return;
@@ -287,9 +310,21 @@ const OwnerBookings = () => {
                               <XCircle size={12} /> Cancel
                             </button>
                           </div>
-                        ) : (
-                          <span className="text-xs text-gray-400 italic">No actions</span>
-                        )}
+                        ) : b.status === "completed" ? (
+  <button
+    onClick={() => handleInvoiceClick(b._id)}
+    className={`inline-flex items-center gap-1 font-bold text-[0.6875rem] px-2.5 py-1.5 rounded-lg transition-colors ${
+      invoicedBookingIds.has(b._id)
+        ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed hover:bg-gray-100"
+        : "bg-[#0d9488] hover:bg-[#0f766e] text-white"
+    }`}
+  >
+    <FileText size={12} />
+    {invoicedBookingIds.has(b._id) ? "Invoice Generated" : "Generate Invoice"}
+  </button>
+) : (
+  <span className="text-xs text-gray-400 italic">No actions</span>
+)}
                       </td>
                     </tr>
                   ))}

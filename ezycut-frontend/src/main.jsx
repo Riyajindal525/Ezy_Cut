@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { HelmetProvider } from "react-helmet-async";
 
 import App from "./App";
 import "./index.css";
@@ -11,14 +10,12 @@ ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   <React.StrictMode>
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
+    <App />
   </React.StrictMode>
 );
 
 // ── Hide the initial splash loader once React has mounted ──
-const MIN_DISPLAY_TIME = 2500; // forced minimum visible time in ms — remove later if not needed
+const MIN_DISPLAY_TIME = 2800; // forced minimum visible time in ms — remove later if not needed
 const loadStart = window.__loaderStart || Date.now();
 
 const loader = document.getElementById("app-loader");

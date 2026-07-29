@@ -46,3 +46,21 @@ export const getNearbySalons = async (longitude, latitude, radius = 5000) => {
   );
   return response.data;
 };
+
+export const updateSalonCommission = async (salonId, customCommissionRate) => {
+  const response = await api.patch(
+    `/salons/${salonId}/commission`,
+    { customCommissionRate }
+  );
+  return response.data;
+};
+
+export const subscribeToOpenReminder = async (salonId) => {
+  const response = await api.post(`/salon-reminders/${salonId}/notify-me`);
+  return response.data;
+};
+
+export const getSalonStats = async () => {
+  const response = await api.get("/salons/stats");
+  return response.data;
+};

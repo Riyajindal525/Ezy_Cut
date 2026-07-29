@@ -14,7 +14,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import useAuthStore from "../../store/auth.store";
-import navbarIcon from "../../assets/ezycut-icon.png";
+import navbarIcon from "../../assets/ezycut-navbar-icon.png";
 import "./Navbar.css";
 
 const Navbar = () => {

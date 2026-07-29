@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import SEO from "../../components/common/SEO";
 
 /**
  * EzyCut — FAQ + Terms & Conditions
@@ -454,11 +453,6 @@ export default function PolicyPages() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <SEO
-        title={active === "faq" ? "Frequently Asked Questions (FAQ)" : "Platform Policies & Terms"}
-        description="Find answers to common questions about salon booking, queue management, refunds, and user terms on the EzyCut platform."
-        canonical="https://www.ezycut.co.in/policy"
-      />
       <Hero active={active} setActive={setActive} />
       <main className="bg-white">
         {active === "faq" ? <FaqPage /> : <TermsPage />}

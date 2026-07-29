@@ -16,6 +16,8 @@ const notificationRoutes = require("./routes/notification.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const paymentRoutes = require("./routes/payment.routes");
 const kycRoutes = require("./routes/kyc.routes");
+const invoiceRoutes = require("./routes/invoice.routes");
+const salonReminderRoutes = require("./routes/salonReminder.routes");
 
 
 const errorMiddleware = require("./middleware/error.middleware");
@@ -139,6 +141,8 @@ app.use(
 );
 app.use("/api/payments", paymentLimiter, paymentRoutes);
 app.use("/api/kyc", kycRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/salon-reminders", salonReminderRoutes);
 // ==============================
 // 404 ROUTE HANDLER
 // ==============================

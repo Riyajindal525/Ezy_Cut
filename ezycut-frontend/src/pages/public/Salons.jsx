@@ -3,10 +3,22 @@ import { Search, MapPin, Sparkles, X, SlidersHorizontal } from "lucide-react";
 import { getNearbySalons } from "../../api/salon.api";
 import useSalonStore from "../../store/salon.store";
 import SalonCard from "../../components/salon/SalonCard";
-import Loader from "../../components/common/Loader";
+import SalonCardSkeleton from "../../components/salon/SalonCardSkeleton";
 import EmptyState from "../../components/common/EmptyState";
 import toast from "../../utils/toast";
-import SEO from "../../components/common/SEO";
+import { getSalonStats } from "../../api/salon.api";
+const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
 
 const Salons = () => {
   const fetchSalonsFromStore = useSalonStore((state) => state.fetchSalons);
@@ -24,14 +36,20 @@ const Salons = () => {
   const fetchSalons = async (locationSearch = false, latitude = null, longitude = null, searchRadius = 5000) => {
     setLoading(true);
     try {
+      const statsData = await getSalonStats().catch(() => ({ stats: {} }));
+
       if (locationSearch && latitude && longitude) {
         const data = await getNearbySalons(longitude, latitude, searchRadius);
-        const approved = data.salons.filter((s) => s.isApproved);
+        const approved = data.salons
+          .filter((s) => s.isApproved)
+          .map((s) => ({ ...s, ...statsData.stats[s._id] }));
         setSalons(approved);
         setFiltered(approved);
       } else {
         const storeSalons = await fetchSalonsFromStore();
-        const approved = storeSalons.filter((s) => s.isApproved);
+        const approved = storeSalons
+          .filter((s) => s.isApproved)
+          .map((s) => ({ ...s, ...statsData.stats[s._id] }));
         setSalons(approved);
         setFiltered(approved);
       }
@@ -102,17 +120,10 @@ const Salons = () => {
     }
   }, [search, salons]);
 
-  if (loading) return <Loader message="Fetching salons..." />;
-
   const radiusLabel = { 1000: "1 km", 5000: "5 km", 10000: "10 km", 25000: "25 km" }[radius];
 
   return (
     <div className="min-h-[calc(100vh-68px)] bg-white pb-16">
-      <SEO
-        title="Find Salons Near You — Book Instantly"
-        description="Browse verified salons, barber shops, and beauty parlours near you. Check reviews, compare services, and book your appointment instantly on EzyCut."
-        canonical="https://www.ezycut.co.in/salons"
-      />
     {/* ===== Hero header ===== */}
 <div className="relative overflow-hidden bg-gradient-to-b from-[#f0fdfa] to-white border-b border-[#ccfbf1] pt-24 pb-10 md:pt-28 md:pb-12">
   <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(20,184,166,0.14)_0%,transparent_70%)] pointer-events-none" />
@@ -242,7 +253,13 @@ const Salons = () => {
         )}
 
         {/* ===== Salon grid ===== */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SalonCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="animate-[ezcFadeUp_0.4s_ease_forwards]" style={{ opacity: 0 }}>
             <EmptyState
               title="No salons found"
@@ -255,15 +272,27 @@ const Salons = () => {
           </div>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
-            {filtered.map((salon, i) => (
-              <div
-                key={salon._id}
-                className="animate-[ezcFadeUp_0.5s_ease_forwards] transition-transform duration-300 hover:-translate-y-1.5"
-                style={{ animationDelay: `${Math.min(i * 60, 480)}ms`, opacity: 0 }}
-              >
-                <SalonCard salon={salon} />
-              </div>
-            ))}
+            {filtered.map((salon, i) => {
+              const distance =
+                useNearby && coords && salon.location?.coordinates
+                  ? getDistanceKm(
+                      coords.latitude,
+                      coords.longitude,
+                      salon.location.coordinates[1],
+                      salon.location.coordinates[0]
+                    )
+                  : null;
+
+              return (
+                <div
+                  key={salon._id}
+                  className="animate-[ezcFadeUp_0.5s_ease_forwards] transition-transform duration-300 hover:-translate-y-1.5"
+                  style={{ animationDelay: `${Math.min(i * 60, 480)}ms`, opacity: 0 }}
+                >
+                  <SalonCard salon={salon} distance={distance} />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

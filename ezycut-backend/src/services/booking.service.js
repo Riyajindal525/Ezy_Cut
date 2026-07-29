@@ -78,7 +78,31 @@ const getAvailableSlotsService = async (salonId, serviceId, date) => {
   });
 
   const bookedSlots = bookings.map((b) => b.startTime);
-  return allSlots.filter((slot) => !bookedSlots.includes(slot));
+  let availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
+
+  // ── If the selected date is TODAY, hide past slots + give owner a buffer to accept ──
+  const now = new Date();
+  const selectedDate = new Date(date);
+  const isToday = selectedDate.toDateString() === now.toDateString();
+
+  console.log("DEBUG — now:", now.toString());
+  console.log("DEBUG — selectedDate:", selectedDate.toString());
+  console.log("DEBUG — isToday:", isToday);
+
+  if (isToday) {
+  const BUFFER_MINUTES = 30;
+  const IST_OFFSET_MINUTES = 5.5 * 60;
+  const nowUTCMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const nowISTMinutes = (nowUTCMinutes + IST_OFFSET_MINUTES) % (24 * 60);
+  const cutoffTotalMinutes = nowISTMinutes + BUFFER_MINUTES;
+
+  availableSlots = availableSlots.filter((slot) => {
+    const [slotH, slotM] = slot.split(":").map(Number);
+    return (slotH * 60 + slotM) >= cutoffTotalMinutes;
+  });
+}
+
+  return availableSlots;
 };
 
 /* ─── Internal create (used by payment service) ─────────────────── */
@@ -105,6 +129,9 @@ const createBookingInternal = async (data, customerId, session = null) => {
   start.setMinutes(start.getMinutes() + service.duration);
   const endTime = start.toTimeString().slice(0, 5);
 
+  // Use the actual amount paid (GST-inclusive) if provided; fallback to base price for direct bookings
+  const finalAmount = data.totalAmount !== undefined ? data.totalAmount : service.price;
+
   let booking;
 
   if (session) {
@@ -117,8 +144,8 @@ const createBookingInternal = async (data, customerId, session = null) => {
           bookingDate,
           startTime: data.startTime,
           endTime,
-          totalAmount: service.price,
-          status: "pending", // ← Starts as pending; owner must accept
+          totalAmount: finalAmount,
+          status: "pending",
           notes: data.notes || "",
         },
       ],
@@ -133,8 +160,8 @@ const createBookingInternal = async (data, customerId, session = null) => {
       bookingDate,
       startTime: data.startTime,
       endTime,
-      totalAmount: service.price,
-      status: "pending", // ← Starts as pending; owner must accept
+      totalAmount: finalAmount,
+      status: "pending",
       notes: data.notes || "",
     });
   }

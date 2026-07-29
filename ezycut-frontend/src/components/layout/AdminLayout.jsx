@@ -23,7 +23,7 @@ const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f7faf9]">
+    <div className="min-h-screen bg-gradient-to-b from-[#f7faf9] to-[#eef5f3]">
       <div className="md:flex min-h-screen">
         <Sidebar isMobileOpen={isSidebarOpen} onMobileClose={() => setIsSidebarOpen(false)} />
 
@@ -31,7 +31,7 @@ const AdminLayout = () => {
           <button
             type="button"
             aria-label="Close sidebar"
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] md:hidden"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] md:hidden transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
@@ -45,7 +45,7 @@ const AdminLayout = () => {
           <main className="flex-1 overflow-y-auto">
             <div
               key={location.pathname}
-              className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 opacity-0 animate-[ezcFadeUp_0.4s_ease_forwards]"
+              className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7 lg:py-9 opacity-0 animate-[ezcFadeUp_0.45s_ease_forwards]"
             >
               <Outlet />
             </div>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { MapPin, Mail, Phone, Globe, Sparkles } from "lucide-react";
-import ezycutIcon from "../../assets/ezycut-icon.png";
+import ezycutIcon from "../../assets/ezycut-navbar-icon.png";
 
 const socialLinks = [
   {
@@ -57,7 +57,7 @@ const Footer = () => {
               <img
                 src={ezycutIcon}
                 alt="EzyCut logo"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain drop-shadow-[0_0_10px_rgba(13,148,136,0.35)]"
+                className="w-8 h-8 sm:w-9 sm:h-9 object-contain"
               />
               <span className="text-base sm:text-lg font-extrabold text-white tracking-[-0.02em]">
                 EZY<span className="text-[#2dd4bf]">CUT</span>

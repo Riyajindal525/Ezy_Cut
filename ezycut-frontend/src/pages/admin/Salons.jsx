@@ -5,6 +5,7 @@ import {
   updateSalon,
   assignOwner,
   deleteSalon,
+  updateSalonCommission, 
 } from "../../api/salon.api";
 import {
   getSalonKyc,
@@ -22,6 +23,7 @@ import {
   Ban,
   Users,
   AlertCircle,
+  Pencil,
 } from "lucide-react";
 
 const AdminSalons = () => {
@@ -47,6 +49,11 @@ const AdminSalons = () => {
   const [salonToDelete, setSalonToDelete] = useState(null);
   const [confirmTypedText, setConfirmTypedText] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Commission editing state
+  const [editingCommissionId, setEditingCommissionId] = useState(null);
+  const [commissionInput, setCommissionInput] = useState("");
+  const [commissionSaving, setCommissionSaving] = useState(false);
 
   const fetchSalonsList = async () => {
     try {
@@ -175,6 +182,35 @@ const AdminSalons = () => {
     }
   };
 
+  const handleOpenCommissionEdit = (salon) => {
+    setEditingCommissionId(salon._id);
+    setCommissionInput(
+      salon.customCommissionRate === null || salon.customCommissionRate === undefined
+        ? ""
+        : String(salon.customCommissionRate)
+    );
+  };
+
+  const handleSaveCommission = async (salonId) => {
+    setCommissionSaving(true);
+    try {
+      const value = commissionInput.trim() === "" ? null : Number(commissionInput);
+      if (value !== null && (isNaN(value) || value < 0 || value > 100)) {
+        toast.error("Enter a valid rate between 0-100.");
+        return;
+      }
+      await updateSalonCommission(salonId, value);
+      toast.success("Commission rate updated.");
+      setEditingCommissionId(null);
+      fetchSalonsList();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update commission.");
+    } finally {
+      setCommissionSaving(false);
+    }
+  };
+
   const fadeUp = (delayMs) => ({
     className: "opacity-0 animate-[ezcFadeUp_0.6s_ease_forwards]",
     style: { animationDelay: `${delayMs}ms` },
@@ -270,6 +306,15 @@ const AdminSalons = () => {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
+                       <span
+                        className={`inline-flex items-center gap-1 text-[0.65rem] font-extrabold uppercase tracking-wide px-3 py-1.5 rounded-full whitespace-nowrap ${
+                          s.isOpen !== false
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                            : "bg-rose-50 text-rose-700 border border-rose-100"
+                        }`}
+                      >
+                        {s.isOpen !== false ? "Open" : "Closed"}
+                      </span>
                       <button
                         onClick={() => handleToggleApproval(s)}
                         className={`inline-flex items-center text-[0.65rem] font-extrabold uppercase tracking-wide px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
@@ -323,7 +368,56 @@ const AdminSalons = () => {
                         <span className="text-xs text-gray-400 font-medium">Not Submitted</span>
                       )}
                     </div>
+                     <div>
+                      <p className="text-[0.65rem] font-bold text-gray-400 uppercase tracking-wide mb-1">Commission Rate</p>
+                      {editingCommissionId === s._id ? (
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.5"
+                              autoFocus
+                              value={commissionInput}
+                              onChange={(e) => setCommissionInput(e.target.value)}
+                              placeholder="e.g. 10"
+                              className="w-20 bg-white border border-[#0d9488] rounded-lg pl-2 pr-5 py-1.5 text-sm font-bold text-black outline-none ring-2 ring-[#0d9488]/15"
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-semibold">%</span>
+                          </div>
+                          <button
+                            onClick={() => handleSaveCommission(s._id)}
+                            disabled={commissionSaving}
+                            className="text-[0.65rem] font-bold bg-[#0d9488] hover:bg-[#0f766e] text-white px-2.5 py-1.5 rounded-lg disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {commissionSaving ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={() => setEditingCommissionId(null)}
+                            className="text-gray-400 hover:bg-gray-100 p-1.5 rounded-lg"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleOpenCommissionEdit(s)}
+                          className={`group inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-colors ${
+                            s.customCommissionRate !== null && s.customCommissionRate !== undefined
+                              ? "bg-[#f0fdfa] border-[#99f6e4] text-[#0f766e] hover:bg-[#ccfbf1]"
+                              : "bg-gray-50 border-gray-200 text-gray-500 hover:border-[#0d9488] hover:text-[#0d9488] hover:bg-[#f0fdfa]"
+                          }`}
+                        >
+                          <Pencil size={11} className="opacity-60 group-hover:opacity-100" />
+                          {s.customCommissionRate !== null && s.customCommissionRate !== undefined
+                            ? `${s.customCommissionRate}% custom rate`
+                            : "Using platform default — click to set custom rate"}
+                        </button>
+                      )}
+                    </div>
                   </div>
+                  
 
                   <div className="flex flex-col-reverse gap-2 pt-3 border-t border-gray-50 sm:flex-row sm:justify-end">
                     <button

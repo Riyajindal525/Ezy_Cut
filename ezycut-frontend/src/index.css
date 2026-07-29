@@ -3751,3 +3751,9 @@ h6 {
   61% { transform: translateY(0); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

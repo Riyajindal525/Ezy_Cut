@@ -4,9 +4,11 @@ const Salon = require("../models/salon.model");
 const Service = require("../models/service.model");
 const Booking = require("../models/booking.model");
 const razorpay = require("../config/razorpay");
+const Invoice = require("../models/invoice.model");
 const crypto = require("crypto");
 const { createBookingInternal } = require("./booking.service");
 const { createNotificationService } = require("./notification.service");
+const PlatformSettings = require("../models/platformSettings.model");
 
 /* ─── Trigger thresholds ────────────────────────────────────────── */
 const PENDING_ACCEPTANCE_TIMEOUT_MINUTES = 30; // Auto-refund if owner doesn't accept within this time
@@ -24,7 +26,13 @@ const createOrderService = async (data, customerId) => {
   const service = await Service.findById(serviceId);
   if (!service) throw new Error("Service not found");
 
-  const amount = service.price * 100;
+  // Fetch live GST rate — booking price is now GST-inclusive
+  const settings = await PlatformSettings.getSettings();
+  const baseAmount = service.price;
+  const gstAmount = Math.round((baseAmount * settings.gstRate) / 100);
+  const totalAmount = baseAmount + gstAmount;
+
+  const amount = totalAmount * 100;
 
   const order = await razorpay.orders.create({
     amount,
@@ -36,7 +44,10 @@ const createOrderService = async (data, customerId) => {
     customer: customerId,
     salon: salonId,
     service: serviceId,
-    amount: service.price,
+    amount: totalAmount,
+    baseAmount,
+    gstRate: settings.gstRate,
+    gstAmount,
     razorpayOrderId: order.id,
     metadata: { bookingDate, startTime, notes },
   });
@@ -47,6 +58,9 @@ const createOrderService = async (data, customerId) => {
     amount,
     currency: order.currency,
     key: process.env.RAZORPAY_KEY_ID,
+    baseAmount,
+    gstAmount,
+    totalAmount,
   };
 };
 
@@ -99,13 +113,14 @@ const verifyPaymentService = async (data) => {
 
   // ── Try booking creation ──────────────────────────────────────
   try {
-    const { booking, service } = await createBookingInternal(
+   const { booking, service } = await createBookingInternal(
       {
         salonId: payment.salon,
         serviceId: payment.service,
         bookingDate: payment.metadata.bookingDate,
         startTime: payment.metadata.startTime,
         notes: payment.metadata.notes,
+        totalAmount: payment.amount, // GST-inclusive amount actually paid
       },
       payment.customer
     );
@@ -486,11 +501,30 @@ const checkPaymentTimeoutsService = async () => {
 /* ─── Revenue & Analytics ───────────────────────────────────────── */
 
 const getMyPaymentsService = async (customerId) => {
-  return await Payment.find({ customer: customerId })
+  const payments = await Payment.find({ customer: customerId })
     .populate("salon", "name city")
     .populate("service", "name price")
     .populate("booking", "bookingDate startTime status")
     .sort({ createdAt: -1 });
+
+  // Look up invoices for all bookings in one go, then attach to each payment
+  const bookingIds = payments.map((p) => p.booking?._id).filter(Boolean);
+  const invoices = await Invoice.find({ booking: { $in: bookingIds } }).select("booking status invoiceNumber");
+
+  const invoiceMap = {};
+  invoices.forEach((inv) => {
+    invoiceMap[inv.booking.toString()] = {
+      invoiceId: inv._id,
+      status: inv.status,
+      invoiceNumber: inv.invoiceNumber,
+    };
+  });
+
+  return payments.map((p) => {
+    const paymentObj = p.toObject();
+    paymentObj.invoice = p.booking ? invoiceMap[p.booking._id.toString()] || null : null;
+    return paymentObj;
+  });
 };
 
 /* ─── My Spend Trend (Customer) ─────────────────────────────────── */

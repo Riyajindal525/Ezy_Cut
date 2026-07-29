@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,  useRef  } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -16,6 +16,7 @@ import { createOrder, verifyPayment } from "../../api/payment.api";
 import useBookingStore from "../../store/booking.store";
 import Loader from "../../components/common/Loader";
 import toast from "../../utils/toast";
+import { getPlatformSettings } from "../../api/invoice.api";
 
 const Booking = () => {
   const { serviceId } = useParams();
@@ -30,7 +31,10 @@ const Booking = () => {
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+  const [gstRate, setGstRate] = useState(18);
 
+  const slotsRequestId = useRef(0);
+const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
   // Today's date for min input
   const today = new Date().toISOString().split("T")[0];
 
@@ -50,26 +54,46 @@ const Booking = () => {
     fetchService();
   }, [serviceId]);
 
+  useEffect(() => {
+  const fetchSettings = async () => {
+    try {
+      const data = await getPlatformSettings();
+      setGstRate(data.settings.gstRate);
+    } catch (err) {
+      console.error("Failed to fetch GST rate:", err);
+    }
+  };
+  fetchSettings();
+}, []);
+
   const handleDateChange = async (e) => {
     const selectedDate = e.target.value;
     setDate(selectedDate);
     setSelectedSlot("");
     setSlots([]);
 
-    if (!selectedDate) return;
+    // Ignore intermediate/incomplete values fired while user is still typing
+  if (!selectedDate || !isValidFullDate(selectedDate)) return;
+  const thisRequestId = ++slotsRequestId.current;
 
     setSlotsLoading(true);
     try {
       const fetchedSlots = await fetchSlotsFromStore(service.salon, service._id, selectedDate);
+          // If a newer request has started since this one fired, drop this stale result
+    if (thisRequestId !== slotsRequestId.current) return;
+
       setSlots(fetchedSlots);
       if (!fetchedSlots.length) {
         toast.info("No available slots for this date. Try another day.");
       }
     } catch (err) {
+      if (thisRequestId !== slotsRequestId.current) return;
       toast.error("Failed to fetch available slots.");
       console.error(err);
     } finally {
+       if (thisRequestId === slotsRequestId.current) {
       setSlotsLoading(false);
+    }
     }
   };
 
@@ -249,16 +273,31 @@ const Booking = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-6 p-5 bg-white">
-            <div className="flex items-center gap-2 font-bold text-[#022525]">
-              <IndianRupee size={16} className="text-[#0d9488]" />
-              <span className="text-xl">₹{service.price}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[#5b6b68] text-sm">
-              <Clock size={15} />
-              {service.duration} minutes
-            </div>
-          </div>
+        <div className="p-5 bg-white flex flex-col gap-3">
+  <div className="flex items-center gap-6">
+    <div className="flex items-center gap-2 text-[#5b6b68] text-sm">
+      <Clock size={15} />
+      {service.duration} minutes
+    </div>
+  </div>
+  <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-xl p-4 flex flex-col gap-1.5 text-sm">
+    <div className="flex justify-between text-[#5b6b68]">
+      <span>Service Price</span>
+      <span className="font-semibold text-[#022525]">₹{service.price}</span>
+    </div>
+    <div className="flex justify-between text-[#5b6b68]">
+      <span>GST ({gstRate}%)</span>
+      <span className="font-semibold text-[#022525]">₹{Math.round((service.price * gstRate) / 100)}</span>
+    </div>
+    <div className="h-px bg-[#ccfbf1] my-1" />
+    <div className="flex justify-between">
+      <span className="font-bold text-[#022525]">Total Payable</span>
+      <span className="font-extrabold text-[#0d9488] text-lg">
+        ₹{service.price + Math.round((service.price * gstRate) / 100)}
+      </span>
+    </div>
+  </div>
+</div>
         </div>
 
         {/* Date Picker */}
@@ -343,7 +382,7 @@ const Booking = () => {
               </div>
               <div className="flex gap-2">
                 <span className="text-[#5b6b68] min-w-[80px]">Amount</span>
-                <span className="font-bold text-[#022525]">₹{service.price}</span>
+                <span className="font-bold text-[#022525]"> ₹{service.price + Math.round((service.price * gstRate) / 100)}</span>
               </div>
             </div>
 
@@ -375,7 +414,7 @@ const Booking = () => {
               ) : (
                 <>
                   <IndianRupee size={16} />
-                  Pay ₹{service.price} & Confirm
+                  Pay ₹{service.price + Math.round((service.price * gstRate) / 100)} & Confirm
                 </>
               )}
             </button>

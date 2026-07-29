@@ -1,10 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap");
 
 .ezyauth-register-page {
-  --ezy-sage: #6f9483;
-  --ezy-sage-light: #a3c4b3;
-  --ezy-sage-pale: #eaf1ed;
-  --ezy-sage-dark: #4d6c5c;
+  --ezy-sage: #3d9990;
+  --ezy-sage-light: #8dc9c1;
+  --ezy-sage-pale: #e8f4f2;
+  --ezy-sage-dark: #0d7a6f;
   --ezy-ink: #17181a;
   --ezy-gray-600: #5a5f5c;
   --ezy-gray-300: #dfe4e1;
@@ -30,8 +30,8 @@
   justify-content: center;
   padding: 3.5rem 3rem;
   background:
-    radial-gradient(circle at 15% 15%, rgba(163, 196, 179, 0.35), transparent 55%),
-    radial-gradient(circle at 85% 85%, rgba(111, 148, 131, 0.18), transparent 50%),
+    radial-gradient(circle at 15% 15%, rgba(141, 201, 193, 0.35), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(61, 153, 144, 0.18), transparent 50%),
     linear-gradient(180deg, var(--ezy-sage-pale) 0%, var(--ezy-white) 100%);
   border-right: 1px solid var(--ezy-gray-300);
   color: var(--ezy-ink);
@@ -111,7 +111,7 @@
   border-radius: 9px;
   background: linear-gradient(135deg, var(--ezy-sage), var(--ezy-sage-dark));
   color: var(--ezy-white);
-  box-shadow: 0 3px 8px rgba(77, 108, 92, 0.28);
+  box-shadow: 0 3px 8px rgba(13, 122, 111, 0.28);
 }
 
 .ezyauth-register-brand-footer {
@@ -119,7 +119,7 @@
   z-index: 1;
   margin: 2.75rem 0 0;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(111, 148, 131, 0.25);
+  border-top: 1px solid rgba(61, 153, 144, 0.25);
   font-size: 0.76rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -229,14 +229,14 @@
 
 .ezyauth-register-role-btn:hover {
   border-color: var(--ezy-sage-light);
-  box-shadow: 0 6px 16px rgba(111, 148, 131, 0.14);
+  box-shadow: 0 6px 16px rgba(61, 153, 144, 0.14);
   transform: translateY(-2px);
 }
 
 .ezyauth-register-role-btn.active {
   border-color: var(--ezy-sage);
   background: var(--ezy-sage-pale);
-  box-shadow: 0 6px 16px rgba(111, 148, 131, 0.22);
+  box-shadow: 0 6px 16px rgba(61, 153, 144, 0.22);
 }
 
 .ezyauth-register-role-btn.active::after {
@@ -317,7 +317,7 @@
 .ezyauth-register-input:focus {
   border-color: var(--ezy-sage);
   background: var(--ezy-white);
-  box-shadow: 0 0 0 4px rgba(111, 148, 131, 0.16);
+  box-shadow: 0 0 0 4px rgba(61, 153, 144, 0.16);
 }
 
 .ezyauth-register-input-wrap {
@@ -364,7 +364,7 @@
   color: var(--ezy-white);
   background: linear-gradient(135deg, var(--ezy-sage-dark), var(--ezy-sage));
   cursor: pointer;
-  box-shadow: 0 5px 16px rgba(77, 108, 92, 0.28);
+  box-shadow: 0 5px 16px rgba(13, 122, 111, 0.28);
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   margin-top: 0.4rem;
   min-height: 46px; /* comfortable tap target on touch devices */
@@ -372,7 +372,7 @@
 
 .ezyauth-register-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(77, 108, 92, 0.34);
+  box-shadow: 0 12px 26px rgba(13, 122, 111, 0.34);
 }
 
 .ezyauth-register-submit-btn:active:not(:disabled) {

@@ -57,7 +57,7 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  gap: 0.625rem;
+  gap: 1.125rem;
   flex-shrink: 0;
   transition: opacity 0.2s ease;
 }
@@ -106,8 +106,8 @@
 }
 
 .ezc-navbar-toggle:hover {
-  border-color: #6f9483;
-  color: #4d6c5c;
+  border-color: #00605a;
+  color: #00605a;
 }
 
 @media (min-width: 768px) {
@@ -173,8 +173,8 @@
 }
 
 .ezc-nav-link:hover {
-  background: rgba(111, 148, 131, 0.1);
-  color: #4d6c5c;
+  background: rgba(0, 96, 90, 0.1);
+  color: #00605a;
 }
 
 
@@ -193,14 +193,14 @@
 }
 
 .ezc-nav-link-sm:hover {
-  background: rgba(111, 148, 131, 0.1);
-  color: #4d6c5c;
+  background: rgba(0, 96, 90, 0.1);
+  color: #00605a;
 }
 
 .ezc-nav-link.active,
 .ezc-nav-link-sm.active {
   font-weight: 700;
-  color: #134e4a !important;
+  color: #00605a !important;
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -215,9 +215,9 @@
   font-weight: 600;
   font-size: 0.875rem;
   color: #fff;
-  background: #4d6c5c;
+  background: #00605a;
   padding: 0.625rem 1.25rem;
-  box-shadow: 0 2px 8px rgba(77, 108, 92, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 96, 90, 0.25);
   text-decoration: none;
   margin-top: 0.5rem;
   width: 100%;
@@ -225,8 +225,8 @@
 }
 
 .ezc-get-started-btn:hover {
-  background: #3d5a4c;
-  box-shadow: 0 4px 12px rgba(77, 108, 92, 0.32);
+  background: #004a45;
+  box-shadow: 0 4px 12px rgba(0, 96, 90, 0.32);
   transform: translateY(-2px);
 }
 
@@ -265,9 +265,9 @@
   font-weight: 600;
   font-size: 0.8125rem;
   color: #fff;
-  background: #4d6c5c;
+  background: #00605a;
   padding: 0.5rem 0.875rem;
-  box-shadow: 0 2px 8px rgba(77, 108, 92, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 96, 90, 0.25);
   text-decoration: none;
   margin-top: 0.5rem;
   width: 100%;
@@ -275,7 +275,7 @@
 }
 
 .ezc-dash-btn:hover {
-  background: #3d5a4c;
+  background: #004a45;
   transform: translateY(-2px);
 }
 
@@ -315,14 +315,14 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6f9483, #4d6c5c);
+  background: linear-gradient(135deg, #00807a, #00605a);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.6875rem;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(77, 108, 92, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 96, 90, 0.25);
   flex-shrink: 0;
 }
 
@@ -345,9 +345,9 @@
 }
 
 .ezc-logout-btn:hover {
-  border-color: #6f9483;
-  background: rgba(111, 148, 131, 0.1);
-  color: #4d6c5c;
+  border-color: #00605a;
+  background: rgba(0, 96, 90, 0.1);
+  color: #00605a;
 }
 
 @media (min-width: 768px) {
@@ -364,15 +364,15 @@
 
 .ezc-navbar.scrolled .ezc-nav-link:hover,
 .ezc-navbar.scrolled .ezc-nav-link-sm:hover {
-  background: rgba(111, 148, 131, 0.1);
-  color: #4d6c5c;
+  background: rgba(0, 96, 90, 0.1);
+  color: #00605a;
 }
 
 /* Active link when scrolled — white pill instead of teal fill, so it reads
    clearly against the white/blurred navbar background */
 .ezc-navbar.scrolled .ezc-nav-link.active,
 .ezc-navbar.scrolled .ezc-nav-link-sm.active {
-  color: #0f766e !important;
+  color: #00605a !important;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 8px rgba(23, 24, 26, 0.08);
@@ -392,7 +392,7 @@
 }
 
 .ezc-brand-cut {
-  color: #6f9483; /* teal green — theme accent */
+  color: #00605a; /* logo ka exact teal green */
 }
 
 /* Scrolled (white bg) — ab EZY black ho sakta hai jaise tumne bola tha */
@@ -401,7 +401,7 @@
 }
 
 .ezc-navbar.scrolled .ezc-brand-cut {
-  color: #4d6c5c;
+  color: #00605a;
 }
 
 /* Desktop unscrolled navbar — transparent bg, so links need to be white */
@@ -423,9 +423,9 @@
   }
 
   .ezc-navbar:not(.scrolled) .ezc-logout-btn:hover {
-    border-color: #6f9483;
-    background: rgba(111, 148, 131, 0.1);
-    color: #4d6c5c;
+    border-color: #00605a;
+    background: rgba(0, 96, 90, 0.1);
+    color: #00605a;
   }
 }
 

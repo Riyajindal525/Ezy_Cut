@@ -88,9 +88,19 @@ const updateSalonService = async (
   salon,
   data
 ) => {
+  const wasOpen = salon.isOpen;
+
   Object.assign(salon, data);
 
   await salon.save();
+
+  // Fire reopen notifications only on a false → true transition
+  if (wasOpen === false && salon.isOpen === true) {
+    const { notifyPendingCustomersService } = require("./salonReminder.service");
+    notifyPendingCustomersService(salon).catch((err) =>
+      console.error("[REOPEN NOTIFY FAILED]:", err.message)
+    );
+  }
 
   return salon;
 };
@@ -127,6 +137,36 @@ const assignOwnerService = async (
   return salon;
 };
 
+const updateSalonCommissionService = async (
+  salonId,
+  customCommissionRate
+) => {
+  if (
+    customCommissionRate !== null &&
+    (customCommissionRate < 0 || customCommissionRate > 100)
+  ) {
+    const error = new Error(
+      "Commission rate must be between 0 and 100"
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const salon = await Salon.findByIdAndUpdate(
+    salonId,
+    { customCommissionRate },
+    { new: true }
+  );
+
+  if (!salon) {
+    const error = new Error("Salon not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return salon;
+};
+
 module.exports = {
   createSalonService,
   getAllSalonsService,
@@ -135,4 +175,5 @@ module.exports = {
   updateSalonService,
   deleteSalonService,
   assignOwnerService,
+  updateSalonCommissionService,
 };
