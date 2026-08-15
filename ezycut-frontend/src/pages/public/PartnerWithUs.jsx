@@ -275,7 +275,7 @@ const PartnerWithUs = () => {
                 key={persona.image}
                 className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(4,47,46,0.18)] border-4 border-white motion-safe:animate-[float-slow_6s_ease-in-out_infinite]"
               >
-                <img src={persona.image} alt={persona.title} className="w-full h-full object-cover" />
+                <img src={persona.image} alt={persona.title} className="w-full h-full object-contain" />
               </div>
               <div className="absolute -bottom-4 -right-4 w-16 h-16 rounded-2xl bg-white shadow-[0_8px_24px_rgba(4,47,46,0.15)] flex items-center justify-center motion-safe:animate-[pulse-ring_2.4s_ease-in-out_infinite]">
                 <persona.icon size={26} className="text-[#0d9488]" />
@@ -399,8 +399,8 @@ const PartnerWithUs = () => {
               empowerVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
             }`}
           >
-            <div className="absolute rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(4,47,46,0.15)] border-4 border-white w-full h-full">
-              <img src={beauticianTreatment} alt="Beautician giving a facial treatment" className="w-full h-full object-cover" />
+            <div className="absolute rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(4,47,46,0.15)] border-4 border-white w-full h-full bg-[#f0fdfa]">
+              <img src={beauticianTreatment} alt="Beautician giving a facial treatment" className="w-full h-full object-contain" />
             </div>
           </div>
 

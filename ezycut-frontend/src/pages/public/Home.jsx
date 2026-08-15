@@ -71,6 +71,7 @@ const Home = () => {
   const token = useAuthStore((state) => state.token);
   const [activeSlide, setActiveSlide] = useState(0);
   const navigate = useNavigate();
+  const videoRefs = useRef([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -78,6 +79,18 @@ const Home = () => {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  // Sirf active + next slide ka video play/preload ho, baaki pause + unload
+  useEffect(() => {
+    videoRefs.current.forEach((vid, i) => {
+      if (!vid) return;
+      if (i === activeSlide) {
+        vid.play().catch(() => {});
+      } else {
+        vid.pause();
+      }
+    });
+  }, [activeSlide]);
 
   const goToSlide = (index) => setActiveSlide(index);
 
@@ -99,12 +112,17 @@ const Home = () => {
       }`}
     >
       <video
+       ref={(el) => (videoRefs.current[index] = el)}
         className="w-full h-full object-cover absolute inset-0 animate-[ezcKenBurns_12s_ease-in-out_infinite_alternate]"
         src={slide.video}
-        autoPlay
         muted
         loop
         playsInline
+        preload={
+          index === activeSlide || index === (activeSlide + 1) % slides.length
+            ? "auto"
+            : "none"
+        }
       />
       <div className="absolute inset-0 bg-gradient-to-b from-[rgba(9,9,11,0.8)] via-[rgba(9,20,17,0.55)] to-[rgba(9,9,11,0.9)]" />
     </div>
@@ -144,14 +162,14 @@ const Home = () => {
         {token ? (
           <Link
             to="/salons"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.35)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.45)]"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.35)] transition-[opacity,transform] duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.45)]"
           >
             Explore Salons <ArrowRight size={18} />
           </Link>
         ) : (
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.35)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.45)]"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-sm sm:text-base px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.35)] transition-[opacity,transform] duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.45)]"
           >
             Join EzyCut <ArrowRight size={18} />
           </Link>
@@ -165,7 +183,7 @@ const Home = () => {
     {slides.map((_, index) => (
       <button
         key={index}
-        className={`rounded-full border-none cursor-pointer transition-all duration-300 p-0 ${
+        className={`rounded-full border-none cursor-pointer transition-[opacity,transform] duration-300 p-0 ${
           index === activeSlide ? "w-6 sm:w-7 h-[0.3rem] bg-[#00605a]" : "w-[0.3rem] h-[0.3rem] bg-[rgba(255,255,255,0.3)]"
         }`}
         onClick={() => goToSlide(index)}
@@ -191,7 +209,7 @@ const Home = () => {
         <div className="page-container grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: description card */}
           <div
-            className={`rounded-[28px] p-[2px] bg-gradient-to-br from-[#00605a] via-[#66b3ab] to-[#00605a] transition-all duration-700 ${
+            className={`rounded-[28px] p-[2px] bg-gradient-to-br from-[#00605a] via-[#66b3ab] to-[#00605a] transition-[opacity,transform] duration-700 ${
               featuresVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
             }`}
           >
@@ -222,7 +240,7 @@ const Home = () => {
                 ].map(({ icon: Icon, title, desc }, i) => (
                   <div
                     key={title}
-                    className={`flex items-start gap-3.5 transition-all duration-500 ${
+                    className={`flex items-start gap-3.5 transition-[opacity,transform] duration-500 ${
                       featuresVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
                     }`}
                     style={{ transitionDelay: `${i * 90}ms` }}
@@ -240,14 +258,13 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Right: image showcase */}
          {/* Right: image showcase */}
           <div className="relative min-h-[420px] md:min-h-[500px] lg:min-h-[580px] mb-8 lg:mb-0">
-            <div className="absolute w-[280px] h-[280px] rounded-full blur-[50px] pointer-events-none z-0 bg-[rgba(0,96,90,0.25)] -top-10 -right-5" />
-            <div className="absolute w-[220px] h-[220px] rounded-full blur-[50px] pointer-events-none z-0 bg-[rgba(102,179,171,0.3)] -bottom-8 -left-8" />
+            <div className="absolute w-[280px] h-[280px] rounded-full blur-[35px] pointer-events-none z-0 bg-[rgba(0,96,90,0.25)] -top-10 -right-5" />
+            <div className="absolute w-[220px] h-[220px] rounded-full blur-[35px] pointer-events-none z-0 bg-[rgba(102,179,171,0.3)] -bottom-8 -left-8" />
 
             <div
-              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[68%] h-[260px] md:h-[300px] lg:h-[380px] top-10 left-0 group ${
+              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[68%] h-[260px] md:h-[300px] lg:h-[380px] top-10 left-0 group ${
                 featuresVisible ? "opacity-100 translate-y-0 scale-100 rotate-0" : "opacity-0 translate-y-14 scale-90 -rotate-2"
               }`}
               style={{ transitionDelay: "100ms" }}
@@ -256,7 +273,7 @@ const Home = () => {
             </div>
 
             <div
-              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[42%] h-[150px] md:h-[170px] lg:h-[190px] -top-5 right-0 group ${
+              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[42%] h-[150px] md:h-[170px] lg:h-[190px] -top-5 right-0 group ${
                 featuresVisible ? "opacity-100 translate-y-0 translate-x-0 rotate-0" : "opacity-0 -translate-y-10 translate-x-8 rotate-3"
               }`}
               style={{ transitionDelay: "320ms" }}
@@ -265,7 +282,7 @@ const Home = () => {
             </div>
 
             <div
-              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[42%] h-[150px] md:h-[170px] lg:h-[190px] top-[260px] md:top-[300px] lg:top-[380px] right-5 group ${
+              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[1] transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[42%] h-[150px] md:h-[170px] lg:h-[190px] top-[260px] md:top-[300px] lg:top-[380px] right-5 group ${
                 featuresVisible ? "opacity-100 translate-y-0 translate-x-0 rotate-0" : "opacity-0 translate-y-10 translate-x-8 -rotate-3"
               }`}
               style={{ transitionDelay: "500ms" }}
@@ -274,7 +291,7 @@ const Home = () => {
             </div>
 
             <div
-              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[2] transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[38%] h-[110px] md:h-[130px] lg:h-[150px] top-[210px] md:top-[250px] lg:top-[320px] left-[6%] group ${
+              className={`absolute rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(23,24,26,0.18)] border-4 border-white z-[2] transition-[opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-[38%] h-[110px] md:h-[130px] lg:h-[150px] top-[210px] md:top-[250px] lg:top-[320px] left-[6%] group ${
                 featuresVisible ? "opacity-100 translate-y-0 scale-100 rotate-0" : "opacity-0 translate-y-10 scale-90 rotate-2"
               }`}
               style={{ transitionDelay: "680ms" }}
@@ -292,7 +309,7 @@ const Home = () => {
       >
         <div className="page-container">
           <div
-            className={`text-center mb-14 md:mb-20 transition-all duration-700 ${
+            className={`text-center mb-14 md:mb-20 transition-[opacity,transform] duration-700 ${
               stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -322,13 +339,13 @@ const Home = () => {
               ].map(({ icon: Icon, title, desc }, i) => (
                 <div
                   key={title}
-                  className={`flex flex-col items-center text-center transition-all duration-700 ${
+                  className={`flex flex-col items-center text-center transition-[opacity,transform] duration-700 ${
                     stepsVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"
                   }`}
                   style={{ transitionDelay: `${i * 130}ms` }}
                 >
                   <div className="relative mb-5">
-                    <div className="w-[76px] h-[76px] rounded-full bg-white border-2 border-[rgba(0,96,90,0.3)] shadow-[0_8px_24px_rgba(23,24,26,0.08)] flex items-center justify-center text-[#00605a] transition-all duration-300 hover:border-[#00605a] hover:shadow-[0_12px_32px_rgba(0,96,90,0.25)] hover:-translate-y-1">
+                    <div className="w-[76px] h-[76px] rounded-full bg-white border-2 border-[rgba(0,96,90,0.3)] shadow-[0_8px_24px_rgba(23,24,26,0.08)] flex items-center justify-center text-[#00605a] transition-[opacity,transform] duration-300 hover:border-[#00605a] hover:shadow-[0_12px_32px_rgba(0,96,90,0.25)] hover:-translate-y-1">
                       <Icon size={26} />
                     </div>
                     <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-br from-[#00605a] to-[#1a8a82] text-white text-[0.6875rem] font-extrabold flex items-center justify-center shadow-[0_2px_8px_rgba(0,96,90,0.4)]">
@@ -344,7 +361,7 @@ const Home = () => {
 
           <div
             ref={ctaRef}
-            className={`mt-20 md:mt-24 transition-all duration-[800ms] ${
+            className={`mt-20 md:mt-24 transition-[opacity,transform] duration-[800ms] ${
               ctaVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
@@ -359,7 +376,7 @@ const Home = () => {
                 {!token && (
                   <Link
                     to="/register"
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-base px-8 py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.3)] transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.4)]"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-[#00605a] to-[#1a8a82] text-white font-bold text-base px-8 py-3.5 rounded-xl no-underline shadow-[0_8px_24px_rgba(0,96,90,0.3)] transition-[opacity,transform] duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(0,96,90,0.4)]"
                   >
                     Join EzyCut <ArrowRight size={16} />
                   </Link>
@@ -390,7 +407,7 @@ const Home = () => {
       ].map(({ icon: Icon, value, label }, i) => (
         <div
           key={label}
-          className={`group flex items-center gap-3.5 bg-white border border-gray-200 rounded-2xl px-5 py-4 min-w-[220px] transition-all duration-500 hover:border-[#00605a]/30 hover:shadow-[0_8px_24px_rgba(0,96,90,0.1)] hover:-translate-y-1 ${
+          className={`group flex items-center gap-3.5 bg-white border border-gray-200 rounded-2xl px-5 py-4 min-w-[220px] transition-[opacity,transform] duration-500 hover:border-[#00605a]/30 hover:shadow-[0_8px_24px_rgba(0,96,90,0.1)] hover:-translate-y-1 ${
             trustVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
           style={{ transitionDelay: `${i * 100}ms` }}
@@ -415,7 +432,7 @@ const Home = () => {
   <div className="page-container relative grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
 {/* Barber photo illustration */}
 <div
-  className={`relative flex justify-center transition-all duration-700 ${
+  className={`relative flex justify-center transition-[opacity,transform] duration-700 ${
     trustVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
   }`}
 >
@@ -480,7 +497,7 @@ const Home = () => {
 </div>
     {/* Message box */}
     <div
-      className={`transition-all duration-700 ${
+      className={`transition-[opacity,transform] duration-700 ${
         trustVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
       }`}
       style={{ transitionDelay: "150ms" }}
@@ -518,7 +535,7 @@ const Home = () => {
       <button
         type="button"
         onClick={() => navigate("/salons")}
-        className="inline-flex items-center gap-2 bg-[#00605a] hover:bg-[#004a45] text-white text-sm font-bold px-5 py-3 rounded-xl transition-all duration-200 hover:-translate-y-0.5 shadow-[0_8px_24px_rgba(0,96,90,0.25)]"
+        className="inline-flex items-center gap-2 bg-[#00605a] hover:bg-[#004a45] text-white text-sm font-bold px-5 py-3 rounded-xl transition-[opacity,transform] duration-200 hover:-translate-y-0.5 shadow-[0_8px_24px_rgba(0,96,90,0.25)]"
       >
         Explore Salons Near You
         <ArrowRight size={15} />

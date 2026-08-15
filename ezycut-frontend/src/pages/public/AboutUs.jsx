@@ -97,21 +97,22 @@ function AnimatedCounter({ value }) {
 
 /* ---------- Signature wave divider ---------- */
 function WaveDivider({ flip = false, fromColor = "#f7f9f8", toColor = "#0c0c0e" }) {
+  const path = flip
+    ? "M0,65 C300,25 900,105 1200,55 L1200,120 L0,120 Z"
+    : "M0,0 L0,55 C300,95 900,15 1200,60 L1200,0 Z";
+
   return (
     <div
-      className={`relative h-16 md:h-24 overflow-hidden ${flip ? "rotate-180" : ""}`}
-      style={{ background: flip ? toColor : fromColor }}
+      className="relative h-14 md:h-20 overflow-hidden"
+      style={{ background: fromColor }}
       aria-hidden="true"
     >
       <svg
-        className="absolute bottom-0 left-0 w-[200%] h-full motion-safe:animate-[wave-drift_22s_linear_infinite] motion-reduce:animate-none"
-        viewBox="0 0 2400 120"
+        className="absolute inset-0 w-full h-full"
+        viewBox="0 0 1200 120"
         preserveAspectRatio="none"
       >
-        <path
-          d="M0,60 C200,120 400,0 600,60 C800,120 1000,0 1200,60 C1400,120 1600,0 1800,60 C2000,120 2200,0 2400,60 L2400,120 L0,120 Z"
-          fill={flip ? fromColor : toColor}
-        />
+        <path d={path} fill={toColor} />
       </svg>
     </div>
   );
@@ -130,10 +131,6 @@ const AboutUs = () => {
       {/* Distinctive display font, loaded once for this page */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
-        @keyframes wave-drift {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
         @keyframes float-slow {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(0.5deg); }
