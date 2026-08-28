@@ -18,6 +18,9 @@ const paymentRoutes = require("./routes/payment.routes");
 const kycRoutes = require("./routes/kyc.routes");
 const invoiceRoutes = require("./routes/invoice.routes");
 const salonReminderRoutes = require("./routes/salonReminder.routes");
+const walletRoutes = require("./routes/wallet.routes");
+const rewardsRoutes = require("./routes/rewards.routes");
+const adminWalletRoutes = require("./routes/adminWallet.routes");
 
 
 const errorMiddleware = require("./middleware/error.middleware");
@@ -143,6 +146,9 @@ app.use("/api/payments", paymentLimiter, paymentRoutes);
 app.use("/api/kyc", kycRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/salon-reminders", salonReminderRoutes);
+app.use("/api/wallet", walletRoutes);
+app.use("/api/rewards", rewardsRoutes);
+app.use("/api/admin/wallet", adminWalletRoutes);
 // ==============================
 // 404 ROUTE HANDLER
 // ==============================

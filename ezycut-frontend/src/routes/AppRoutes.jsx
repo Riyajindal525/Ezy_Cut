@@ -25,7 +25,8 @@ import Notifications from "../pages/customer/Notifications";
 import MyQueue from "../pages/customer/MyQueue";
 import Profile from "../pages/customer/Profile";
 import CustomerDashboard from "../pages/customer/Dashboard";
-import AiMentor from "../pages/AI-Mentor/AiMentor"
+import AiMentor from "../pages/AI-Mentor/AiMentor";
+import Wallet from "../pages/customer/Wallet";
 
 // Owner Pages
 import OwnerDashboard from "../pages/owner/Dashboard";
@@ -97,8 +98,9 @@ const AppRoutes = () => {
             <Route path="/payment-history" element={<PaymentHistory />} />
             <Route path="/my-reviews" element={<MyReviews />} />
             <Route path="/my-queue" element={<MyQueue />} />
-              <Route path="/ai-mentor" element={<AiMentor />} />
-              <Route path="/invoices/:invoiceId" element={<InvoiceDetails />} />
+            <Route path="/ai-mentor" element={<AiMentor />} />
+            <Route path="/wallet" element={<Wallet />} />
+            <Route path="/invoices/:invoiceId" element={<InvoiceDetails />} />
           </Route>
         </Route>
 

@@ -16,8 +16,10 @@ const PAYMENT_TIMEOUT_MINUTES = 10;             // Auto-refund paid-but-no-booki
 
 /* ─── Create Razorpay Order ─────────────────────────────────────── */
 
+const redemptionService = require("./redemption.service");
+
 const createOrderService = async (data, customerId) => {
-  const { salonId, serviceId, bookingDate, startTime, notes } = data;
+  const { salonId, serviceId, bookingDate, startTime, notes, rewardCode } = data;
 
   const salon = await Salon.findById(salonId);
   if (!salon) throw new Error("Salon not found");
@@ -26,28 +28,55 @@ const createOrderService = async (data, customerId) => {
   const service = await Service.findById(serviceId);
   if (!service) throw new Error("Service not found");
 
-  // Fetch live GST rate — booking price is now GST-inclusive
+  // Fetch live GST rate — booking price is GST-inclusive
   const settings = await PlatformSettings.getSettings();
   const baseAmount = service.price;
   const gstAmount = Math.round((baseAmount * settings.gstRate) / 100);
-  const totalAmount = baseAmount + gstAmount;
+  const originalAmount = baseAmount + gstAmount;
 
-  const amount = totalAmount * 100;
+  let redemption = null;
+  let discountAmount = 0;
+  let finalAmount = originalAmount;
 
-  const order = await razorpay.orders.create({
-    amount,
-    currency: "INR",
-    receipt: `receipt_${Date.now()}`,
-  });
+  // Validate & reserve reward code if provided
+  if (rewardCode && rewardCode.trim()) {
+    redemption = await redemptionService.reserveRewardCode({
+      customerId,
+      code: rewardCode.trim(),
+      bookingAmount: originalAmount,
+    });
+    discountAmount = Math.min(redemption.discountAmount, originalAmount);
+    finalAmount = Math.max(0, originalAmount - discountAmount);
+  }
+
+  // Razorpay order amount in paise (minimum 100 paise if finalAmount > 0)
+  const amountInPaise = finalAmount > 0 ? Math.max(100, finalAmount * 100) : 0;
+
+  let order;
+  if (amountInPaise > 0) {
+    order = await razorpay.orders.create({
+      amount: amountInPaise,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+    });
+  } else {
+    // Zero payable amount — fallback synthetic order ID
+    order = { id: `free_order_${Date.now()}`, currency: "INR" };
+  }
 
   const payment = await Payment.create({
     customer: customerId,
     salon: salonId,
     service: serviceId,
-    amount: totalAmount,
+    amount: finalAmount,
     baseAmount,
     gstRate: settings.gstRate,
     gstAmount,
+    originalAmount,
+    discountAmount,
+    finalAmount,
+    rewardRedemption: redemption ? redemption._id : null,
+    rewardCode: redemption ? redemption.referenceCode : null,
     razorpayOrderId: order.id,
     metadata: { bookingDate, startTime, notes },
   });
@@ -55,12 +84,15 @@ const createOrderService = async (data, customerId) => {
   return {
     paymentId: payment._id,
     orderId: order.id,
-    amount,
+    amount: amountInPaise,
     currency: order.currency,
     key: process.env.RAZORPAY_KEY_ID,
     baseAmount,
     gstAmount,
-    totalAmount,
+    originalAmount,
+    discountAmount,
+    finalAmount,
+    totalAmount: finalAmount,
   };
 };
 
@@ -78,55 +110,70 @@ const verifyPaymentService = async (data) => {
   if (!payment) throw new Error("Payment not found");
 
   // ── Duplicate payment guard ───────────────────────────────────
-  // If this order was already paid (e.g., double submission), auto-refund the new payment
   if (payment.status === "paid") {
     console.warn(`[DUPLICATE] Order ${razorpay_order_id} already paid. Triggering auto-refund.`);
     try {
-      await razorpay.payments.refund(razorpay_payment_id, {
-        amount: payment.amount * 100,
-        notes: { reason: "Duplicate payment detected" },
-      });
+      if (razorpay_payment_id) {
+        await razorpay.payments.refund(razorpay_payment_id, {
+          amount: payment.amount * 100,
+          notes: { reason: "Duplicate payment detected" },
+        });
+      }
     } catch (e) {
       console.error("Failed to refund duplicate payment:", e.message);
     }
     throw new Error("Duplicate payment detected. A refund has been automatically initiated.");
   }
 
-  // ── Signature verification ────────────────────────────────────
-  const body = razorpay_order_id + "|" + razorpay_payment_id;
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-    .update(body)
-    .digest("hex");
+  // ── Signature verification (only for non-zero paid orders) ─────
+  if (payment.finalAmount > 0 && razorpay_payment_id) {
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest("hex");
 
-  if (expectedSignature !== razorpay_signature) {
-    throw new Error("Invalid payment signature");
+    if (expectedSignature !== razorpay_signature) {
+      if (payment.rewardRedemption) {
+        await redemptionService.revertReservation(payment.rewardRedemption);
+      }
+      throw new Error("Invalid payment signature");
+    }
   }
 
-  // ── Save payment as PAID first (outside transaction) ─────────
-  // This ensures the paid record persists even if booking creation fails
+  // ── Save payment as PAID ─────────────────────────────────────
   payment.status = "paid";
-  payment.razorpayPaymentId = razorpay_payment_id;
-  payment.razorpaySignature = razorpay_signature;
+  payment.razorpayPaymentId = razorpay_payment_id || `free_pay_${Date.now()}`;
+  payment.razorpaySignature = razorpay_signature || `free_sig_${Date.now()}`;
   payment.paidAt = new Date();
   await payment.save();
 
   // ── Try booking creation ──────────────────────────────────────
   try {
-   const { booking, service } = await createBookingInternal(
+    const { booking, service } = await createBookingInternal(
       {
         salonId: payment.salon,
         serviceId: payment.service,
         bookingDate: payment.metadata.bookingDate,
         startTime: payment.metadata.startTime,
         notes: payment.metadata.notes,
-        totalAmount: payment.amount, // GST-inclusive amount actually paid
+        totalAmount: payment.amount,
+        rewardRedemption: payment.rewardRedemption,
+        rewardCode: payment.rewardCode,
+        originalAmount: payment.originalAmount,
+        discountAmount: payment.discountAmount,
+        finalAmount: payment.finalAmount,
       },
       payment.customer
     );
 
     payment.booking = booking._id;
     await payment.save();
+
+    // Mark reward as USED
+    if (payment.rewardRedemption) {
+      await redemptionService.markRewardUsed(payment.rewardRedemption, booking._id);
+    }
 
     await createNotificationService(
       payment.customer,
@@ -138,6 +185,9 @@ const verifyPaymentService = async (data) => {
     return { payment, booking };
   } catch (bookingError) {
     console.error("[AUTO-REFUND] Booking creation failed after payment:", bookingError.message);
+    if (payment.rewardRedemption) {
+      await redemptionService.revertReservation(payment.rewardRedemption);
+    }
 
     // ── Auto-refund: booking creation failure ─────────────────
     try {

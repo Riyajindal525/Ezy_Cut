@@ -145,6 +145,11 @@ const createBookingInternal = async (data, customerId, session = null) => {
           startTime: data.startTime,
           endTime,
           totalAmount: finalAmount,
+          rewardRedemption: data.rewardRedemption || null,
+          rewardCode: data.rewardCode || null,
+          originalAmount: data.originalAmount || 0,
+          discountAmount: data.discountAmount || 0,
+          finalAmount: data.finalAmount || finalAmount,
           status: "pending",
           notes: data.notes || "",
         },
@@ -161,6 +166,11 @@ const createBookingInternal = async (data, customerId, session = null) => {
       startTime: data.startTime,
       endTime,
       totalAmount: finalAmount,
+      rewardRedemption: data.rewardRedemption || null,
+      rewardCode: data.rewardCode || null,
+      originalAmount: data.originalAmount || 0,
+      discountAmount: data.discountAmount || 0,
+      finalAmount: data.finalAmount || finalAmount,
       status: "pending",
       notes: data.notes || "",
     });
@@ -290,6 +300,12 @@ const completeBookingService = async (booking) => {
 
   // ── Sync: Complete any associated in-service queue entry ──────
   await syncCompleteQueue(booking._id);
+
+  // ── Rewards Engine Hook: Idempotent Earn ──
+  const rewardsService = require("./rewards.service");
+  rewardsService.tryEarnPoints(booking).catch((err) => {
+    console.error("[REWARDS ERROR] Failed to trigger tryEarnPoints:", err.message);
+  });
 
   return booking;
 };

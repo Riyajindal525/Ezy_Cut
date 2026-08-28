@@ -16,6 +16,7 @@ import {
   Ticket,
   Wand2,
   ListChecks,
+  Gift,
 } from "lucide-react";
 import smilingWomen from "../../assets/smilingWomen.png"
 import useAuthStore from "../../store/auth.store";
@@ -25,6 +26,7 @@ import { getMyReviews } from "../../api/review.api";
 import { getNotifications } from "../../api/notification.api";
 import { getMyQueue } from "../../api/queue.api";
 import { getAllSalons, getNearbySalons } from "../../api/salon.api";
+import { getWalletBalance } from "../../api/wallet.api";
 import Loader from "../../components/common/Loader";
 import toast from "../../utils/toast";
 
@@ -43,20 +45,23 @@ const CustomerDashboard = () => {
   const [nearbySalons, setNearbySalons] = useState([]);
   const [allSalons, setAllSalons] = useState([]);
   const [coords, setCoords] = useState(null);
+  const [pointsBalance, setPointsBalance] = useState(0);
 
   const fetchDashboardData = async () => {
     try {
-      const [bookingsData, paymentsData, reviewsData, alertsData, queueData, salonsData] = await Promise.all([
+      const [bookingsData, paymentsData, reviewsData, alertsData, queueData, salonsData, walletData] = await Promise.all([
         getMyBookings(),
         getMyPayments(),
         getMyReviews(),
         getNotifications(),
         getMyQueue(),
         getAllSalons(),
+        getWalletBalance().catch(() => ({ balance: 0 })),
       ]);
 
       setBookings(bookingsData.bookings || []);
       setPayments(paymentsData.payments || []);
+      setPointsBalance(walletData.balance || 0);
       setReviews(reviewsData.reviews || []);
       setNotifications(alertsData.notifications || []);
       setQueueStatus(queueData.queues || []);
@@ -137,12 +142,13 @@ const CustomerDashboard = () => {
     { label: "Reviews", val: reviews.length, icon: Star, tint: "bg-amber-50 text-amber-700" },
     { label: "Alerts", val: notifications.length, icon: Bell, tint: "bg-sky-50 text-sky-700" },
     { label: "Queue Entry", val: queueStatus.length, icon: Ticket, tint: "bg-slate-100 text-slate-700" },
+    { label: "EzyCut Points", val: pointsBalance, icon: Gift, tint: "bg-[#f0fdfa] text-[#0d9488]", onClick: () => navigate("/wallet") },
   ];
 
   const quickActions = [
     { icon: Calendar, label: "Book Appointment", onClick: () => navigate("/salons") },
     { icon: Wand2, label: "AI Recommendations", onClick: () => navigate("/ai-mentor") },
-    { icon: Scissors, label: "Browse Salons", onClick: () => navigate("/salons") },
+    { icon: Gift, label: "Rewards Wallet", onClick: () => navigate("/wallet") },
     { icon: Clock, label: "Live Queue", onClick: () => navigate("/my-queue") },
     { icon: ListChecks, label: "My Bookings", onClick: () => navigate("/my-bookings") },
     { icon: CreditCard, label: "Payments", onClick: () => navigate("/payment-history") },
@@ -219,12 +225,13 @@ const CustomerDashboard = () => {
         {/* Stats strip */}
         <div
           {...fadeUp(60)}
-          className={`${fadeUp(60).className} grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4`}
+          className={`${fadeUp(60).className} grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4`}
         >
-          {statCards.map(({ label, val, icon: Icon, tint }) => (
+          {statCards.map(({ label, val, icon: Icon, tint, onClick }) => (
             <div
               key={label}
-              className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[#0d9488]/20 transition-all duration-200 p-5 flex flex-col gap-3"
+              onClick={onClick}
+              className={`bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[#0d9488]/20 transition-all duration-200 p-5 flex flex-col gap-3 ${onClick ? "cursor-pointer hover:bg-teal-50/10" : ""}`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-[#5b6b68]">{label}</span>

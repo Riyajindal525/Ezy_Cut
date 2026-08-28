@@ -47,6 +47,14 @@ const startServer = async () => {
 
     console.log("✅ MongoDB connection successful");
 
+    // ── Seed Reward Rules & Reward Tiers & Start Background Jobs ──
+    const rewardsService = require("./services/rewards.service");
+    const RewardTier = require("./models/rewardTier.model");
+    const { startWalletJobs } = require("./jobs/walletJobs");
+    await rewardsService.seedDefaultRewardRule();
+    await RewardTier.seedDefaultTiers();
+    startWalletJobs();
+
     // Start Server
     server.listen(PORT, () => {
       console.log("====================================");

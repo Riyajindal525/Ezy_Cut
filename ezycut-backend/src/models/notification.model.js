@@ -27,7 +27,8 @@ const notificationSchema =
           "queue",
           "review",
           "system",
-              "payment"
+          "payment",
+          "reward"
         ],
         default: "system",
       },

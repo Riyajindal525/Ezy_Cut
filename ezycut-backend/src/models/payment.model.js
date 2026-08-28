@@ -51,6 +51,32 @@ const paymentSchema =
         default: 0,
       },
 
+      rewardRedemption: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Redemption",
+        default: null,
+      },
+
+      rewardCode: {
+        type: String,
+        default: null,
+      },
+
+      originalAmount: {
+        type: Number,
+        default: 0,
+      },
+
+      discountAmount: {
+        type: Number,
+        default: 0,
+      },
+
+      finalAmount: {
+        type: Number,
+        default: 0,
+      },
+
       currency: {
         type: String,
         default: "INR",

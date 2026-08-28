@@ -1,4 +1,4 @@
-import { useEffect, useState,  useRef  } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -10,9 +10,12 @@ import {
   CheckCircle,
   ShieldCheck,
   Loader2,
+  Gift,
+  X,
 } from "lucide-react";
 import { getServiceById } from "../../api/service.api";
 import { createOrder, verifyPayment } from "../../api/payment.api";
+import { validateRewardCode } from "../../api/wallet.api";
 import useBookingStore from "../../store/booking.store";
 import Loader from "../../components/common/Loader";
 import toast from "../../utils/toast";
@@ -33,8 +36,13 @@ const Booking = () => {
   const [payLoading, setPayLoading] = useState(false);
   const [gstRate, setGstRate] = useState(18);
 
+  // Reward code states
+  const [rewardInput, setRewardInput] = useState("");
+  const [appliedReward, setAppliedReward] = useState(null);
+  const [validatingReward, setValidatingReward] = useState(false);
+
   const slotsRequestId = useRef(0);
-const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
   // Today's date for min input
   const today = new Date().toISOString().split("T")[0];
 
@@ -55,16 +63,16 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
   }, [serviceId]);
 
   useEffect(() => {
-  const fetchSettings = async () => {
-    try {
-      const data = await getPlatformSettings();
-      setGstRate(data.settings.gstRate);
-    } catch (err) {
-      console.error("Failed to fetch GST rate:", err);
-    }
-  };
-  fetchSettings();
-}, []);
+    const fetchSettings = async () => {
+      try {
+        const data = await getPlatformSettings();
+        setGstRate(data.settings.gstRate);
+      } catch (err) {
+        console.error("Failed to fetch GST rate:", err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleDateChange = async (e) => {
     const selectedDate = e.target.value;
@@ -73,14 +81,14 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
     setSlots([]);
 
     // Ignore intermediate/incomplete values fired while user is still typing
-  if (!selectedDate || !isValidFullDate(selectedDate)) return;
-  const thisRequestId = ++slotsRequestId.current;
+    if (!selectedDate || !isValidFullDate(selectedDate)) return;
+    const thisRequestId = ++slotsRequestId.current;
 
     setSlotsLoading(true);
     try {
       const fetchedSlots = await fetchSlotsFromStore(service.salon, service._id, selectedDate);
-          // If a newer request has started since this one fired, drop this stale result
-    if (thisRequestId !== slotsRequestId.current) return;
+      // If a newer request has started since this one fired, drop this stale result
+      if (thisRequestId !== slotsRequestId.current) return;
 
       setSlots(fetchedSlots);
       if (!fetchedSlots.length) {
@@ -91,10 +99,43 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
       toast.error("Failed to fetch available slots.");
       console.error(err);
     } finally {
-       if (thisRequestId === slotsRequestId.current) {
-      setSlotsLoading(false);
+      if (thisRequestId === slotsRequestId.current) {
+        setSlotsLoading(false);
+      }
     }
+  };
+
+  const handleApplyReward = async () => {
+    if (!rewardInput.trim()) return;
+    const subtotal = service.price + Math.round((service.price * gstRate) / 100);
+
+    setValidatingReward(true);
+    try {
+      const res = await validateRewardCode({
+        code: rewardInput.trim(),
+        bookingAmount: subtotal,
+      });
+
+      if (res.valid) {
+        setAppliedReward({
+          code: res.code,
+          discountAmount: res.discountAmount,
+          minimumBookingAmount: res.minimumBookingAmount,
+        });
+        toast.success(`Reward applied! ₹${res.discountAmount} OFF 🎉`);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Invalid or expired reward code.");
+      setAppliedReward(null);
+    } finally {
+      setValidatingReward(false);
     }
+  };
+
+  const handleRemoveReward = () => {
+    setAppliedReward(null);
+    setRewardInput("");
+    toast.info("Reward removed.");
   };
 
   const loadRazorpay = () => {
@@ -128,6 +169,7 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
         bookingDate: date,
         startTime: selectedSlot,
         notes,
+        rewardCode: appliedReward ? appliedReward.code : undefined,
       });
 
       const options = {
@@ -188,6 +230,11 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
       </div>
     );
   }
+
+  // Price calculations
+  const subtotal = service.price + Math.round((service.price * gstRate) / 100);
+  const discount = appliedReward ? Math.min(appliedReward.discountAmount, subtotal) : 0;
+  const finalTotal = Math.max(0, subtotal - discount);
 
   // step progress: 1 = date, 2 = slot, 3 = confirm
   const step = selectedSlot ? 3 : date ? 2 : 1;
@@ -254,50 +301,27 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
           ))}
         </div>
 
-        {/* Service Info Card */}
-        <div
-          className="rounded-2xl border border-gray-200 overflow-hidden mb-5 shadow-sm animate-[ezcFadeUp_0.4s_ease_forwards]"
-          style={{ animationDelay: "100ms", opacity: 0 }}
-        >
-          <div className="relative p-6 bg-gradient-to-br from-[#0f766e] to-[#042f2e] overflow-hidden">
-            <div className="absolute -right-14 -top-14 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.18)_0%,transparent_70%)] pointer-events-none" />
-            {service.category && (
-              <span className="relative inline-flex items-center gap-1 bg-white/10 border border-white/20 text-[#5eead4] text-[0.6875rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full mb-3">
-                <Tag size={10} />
-                {service.category}
+        {/* Service summary card */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-5 shadow-sm animate-[ezcFadeUp_0.4s_ease_forwards]" style={{ animationDelay: "100ms", opacity: 0 }}>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#0d9488] bg-[#f0fdfa] border border-[#ccfbf1] px-2.5 py-1 rounded-full">
+                Service Details
               </span>
-            )}
-            <h2 className="relative text-xl md:text-2xl font-extrabold text-white mb-1.5">{service.name}</h2>
-            {service.description && (
-              <p className="relative text-white/65 text-sm leading-relaxed">{service.description}</p>
-            )}
+              <h2 className="text-xl font-bold text-[#022525] mt-2">{service.name}</h2>
+              <p className="text-sm text-[#5b6b68] mt-1 line-clamp-2">{service.description}</p>
+            </div>
           </div>
-
-        <div className="p-5 bg-white flex flex-col gap-3">
-  <div className="flex items-center gap-6">
-    <div className="flex items-center gap-2 text-[#5b6b68] text-sm">
-      <Clock size={15} />
-      {service.duration} minutes
-    </div>
-  </div>
-  <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-xl p-4 flex flex-col gap-1.5 text-sm">
-    <div className="flex justify-between text-[#5b6b68]">
-      <span>Service Price</span>
-      <span className="font-semibold text-[#022525]">₹{service.price}</span>
-    </div>
-    <div className="flex justify-between text-[#5b6b68]">
-      <span>GST ({gstRate}%)</span>
-      <span className="font-semibold text-[#022525]">₹{Math.round((service.price * gstRate) / 100)}</span>
-    </div>
-    <div className="h-px bg-[#ccfbf1] my-1" />
-    <div className="flex justify-between">
-      <span className="font-bold text-[#022525]">Total Payable</span>
-      <span className="font-extrabold text-[#0d9488] text-lg">
-        ₹{service.price + Math.round((service.price * gstRate) / 100)}
-      </span>
-    </div>
-  </div>
-</div>
+          <div className="flex flex-wrap items-center gap-4 text-xs text-[#5b6b68] pt-3 border-t border-gray-100">
+            <span className="flex items-center gap-1 font-semibold">
+              <Clock size={14} className="text-[#0d9488]" />
+              {service.duration} mins
+            </span>
+            <span className="flex items-center gap-1 font-semibold">
+              <Tag size={14} className="text-[#0d9488]" />
+              ₹{service.price} + GST ({gstRate}%)
+            </span>
+          </div>
         </div>
 
         {/* Date Picker */}
@@ -352,7 +376,7 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
           </div>
         )}
 
-        {/* Confirmation & Notes */}
+        {/* Confirmation & Reward Code & Payment */}
         {selectedSlot && (
           <div
             className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm animate-[ezcFadeUp_0.35s_ease_forwards]"
@@ -363,30 +387,75 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
               Confirm Booking
             </h3>
 
-            {/* Summary */}
-            <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-xl p-4 mb-5 flex flex-col gap-2.5 text-sm">
-              <div className="flex gap-2">
-                <span className="text-[#5b6b68] min-w-[80px]">Date</span>
-                <span className="font-semibold text-[#022525]">
-                  {new Date(date).toLocaleDateString("en-IN", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
+            {/* Reward Code Section */}
+            <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-2xl p-5 mb-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Gift className="text-[#0d9488]" size={18} />
+                <h4 className="font-bold text-sm text-[#0f766e]">Have an EZYCUT Reward Code?</h4>
+              </div>
+              {!appliedReward ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. EZY-RDM-XXXXXX"
+                    value={rewardInput}
+                    onChange={(e) => setRewardInput(e.target.value.toUpperCase())}
+                    className="flex-1 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono focus:ring-2 focus:ring-[#0d9488] outline-none bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyReward}
+                    disabled={validatingReward || !rewardInput.trim()}
+                    className="bg-[#0d9488] text-white font-bold px-5 py-2 rounded-xl text-sm hover:bg-[#0f766e] transition-colors disabled:opacity-50"
+                  >
+                    {validatingReward ? "Validating..." : "Apply"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between bg-white border border-[#5eead4] rounded-xl p-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="text-[#0d9488]" size={18} />
+                    <div>
+                      <span className="font-mono font-bold text-sm text-[#0f766e]">{appliedReward.code}</span>
+                      <span className="text-xs text-[#0d9488] ml-2 font-semibold">₹{appliedReward.discountAmount} OFF Applied</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveReward}
+                    className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline"
+                  >
+                    Remove Reward
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Summary Price Breakdown */}
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-5 flex flex-col gap-2 text-sm">
+              <div className="flex justify-between items-center text-gray-600">
+                <span>Date & Time</span>
+                <span className="font-semibold text-gray-900">
+                  {new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} @ {selectedSlot}
                 </span>
               </div>
-              <div className="flex gap-2">
-                <span className="text-[#5b6b68] min-w-[80px]">Time</span>
-                <span className="font-semibold text-[#022525] font-mono">{selectedSlot}</span>
+              <div className="flex justify-between items-center text-gray-600">
+                <span>Subtotal (incl. GST)</span>
+                <span className="font-semibold text-gray-900">₹{subtotal}</span>
               </div>
-              <div className="flex gap-2">
-                <span className="text-[#5b6b68] min-w-[80px]">Amount</span>
-                <span className="font-bold text-[#022525]"> ₹{service.price + Math.round((service.price * gstRate) / 100)}</span>
+              {discount > 0 && (
+                <div className="flex justify-between items-center text-[#0d9488] font-bold">
+                  <span>Reward Discount</span>
+                  <span>-₹{discount}</span>
+                </div>
+              )}
+              <div className="border-t border-gray-200 pt-2 mt-1 flex justify-between items-center text-base font-extrabold text-gray-900">
+                <span>Total Payable</span>
+                <span className="text-[#0d9488]">₹{finalTotal}</span>
               </div>
             </div>
 
-            {/* Notes */}
+            {/* Special Notes */}
             <div className="flex flex-col gap-1.5 mb-5">
               <label className="flex items-center gap-1.5 text-xs font-bold text-[#5b6b68] uppercase tracking-wide">
                 <FileText size={13} />
@@ -414,7 +483,7 @@ const isValidFullDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
               ) : (
                 <>
                   <IndianRupee size={16} />
-                  Pay ₹{service.price + Math.round((service.price * gstRate) / 100)} & Confirm
+                  Pay ₹{finalTotal} & Confirm
                 </>
               )}
             </button>

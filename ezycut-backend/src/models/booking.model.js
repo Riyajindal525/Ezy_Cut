@@ -40,6 +40,32 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
 
+    rewardRedemption: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Redemption",
+      default: null,
+    },
+
+    rewardCode: {
+      type: String,
+      default: null,
+    },
+
+    originalAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    discountAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    finalAmount: {
+      type: Number,
+      default: 0,
+    },
+
     status: {
       type: String,
       enum: [
