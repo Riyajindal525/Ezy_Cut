@@ -1,0 +1,22 @@
+services:
+
+  backend:
+    build:
+      context: ./ezycut-backend
+    container_name: ezycut-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./ezycut-backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./ezycut-frontend
+    container_name: ezycut-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      
+    restart: unless-stopped
